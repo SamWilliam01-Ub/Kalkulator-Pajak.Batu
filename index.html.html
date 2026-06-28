@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kalkulator Pajak Daerah</title>
+<style>
+  :root{
+    --paper:#F5F1E6;
+    --ink:#1B2A35;
+    --navy:#0E2436;
+    --rust:#A8451F;
+    --line:#C9BFA8;
+    --ok:#2E5C3E;
+    --mono: 'Courier New', Consolas, monospace;
+    --serif: Georgia, 'Times New Roman', serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--navy);
+    font-family:var(--serif);
+    color:var(--ink);
+    min-height:100vh;
+    padding:32px 16px;
+  }
+  .wrap{
+    max-width:880px;
+    margin:0 auto;
+  }
+  .letterhead{
+    color:#EDE6D6;
+    text-align:center;
+    margin-bottom:24px;
+  }
+  .letterhead .eyebrow{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    opacity:.65;
+  }
+  .letterhead h1{
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:28px;
+    margin:6px 0 2px;
+  }
+  .letterhead .sub{
+    font-size:13px;
+    opacity:.7;
+    font-style:italic;
+  }
+  .panel{
+    background:var(--paper);
+    border:1px solid var(--line);
+    box-shadow:0 12px 30px rgba(0,0,0,.35);
+  }
+  .tabs{
+    display:flex;
+    border-bottom:2px solid var(--ink);
+  }
+  .tab{
+    flex:1;
+    text-align:center;
+    padding:16px 8px;
+    font-family:var(--mono);
+    font-size:13px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    cursor:pointer;
+    background:#E8E1D1;
+    border-right:1px solid var(--line);
+    user-select:none;
+  }
+  .tab:last-child{border-right:none;}
+  .tab.active{
+    background:var(--paper);
+    color:var(--rust);
+    font-weight:700;
+  }
+  .body{
+    padding:28px 32px 36px;
+  }
+  .section-label{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--rust);
+    border-bottom:1px solid var(--line);
+    padding-bottom:6px;
+    margin:28px 0 14px;
+  }
+  .section-label:first-child{margin-top:0;}
+  .field{
+    margin-bottom:16px;
+  }
+  label{
+    display:block;
+    font-size:13px;
+    font-weight:700;
+    margin-bottom:5px;
+  }
+  .hint{
+    font-size:11.5px;
+    color:#6b6253;
+    font-style:italic;
+    margin-top:3px;
+    display:block;
+  }
+  input[type=text], select{
+    width:100%;
+    padding:10px 12px;
+    border:1px solid var(--ink);
+    background:#fff;
+    font-family:var(--mono);
+    font-size:15px;
+    color:var(--ink);
+  }
+  input[type=text]:focus, select:focus{
+    outline:2px solid var(--rust);
+    outline-offset:1px;
+  }
+  .row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+  }
+  @media (max-width:560px){
+    .row{grid-template-columns:1fr;}
+    .body{padding:20px 16px 28px;}
+  }
+  .currency-wrap{
+    position:relative;
+  }
+  .currency-wrap .prefix{
+    position:absolute;
+    left:12px;
+    top:50%;
+    transform:translateY(-50%);
+    font-family:var(--mono);
+    color:#6b6253;
+  }
+  .currency-wrap input{
+    padding-left:34px;
+  }
+
+  /* Receipt */
+  .receipt{
+    margin-top:30px;
+    border:1px solid var(--ink);
+    background:#fff;
+    position:relative;
+  }
+  .receipt::before, .receipt::after{
+    content:"";
+    position:absolute;
+    left:0; right:0;
+    height:10px;
+    background:radial-gradient(circle, var(--paper) 4px, transparent 4.5px) repeat-x;
+    background-size:16px 10px;
+  }
+  .receipt::before{ top:-5px; }
+  .receipt::after{ bottom:-5px; }
+  .receipt-head{
+    padding:18px 24px 12px;
+    border-bottom:1px dashed var(--ink);
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+  }
+  .receipt-head .title{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+  }
+  .receipt-head .status{
+    font-family:var(--mono);
+    font-size:11px;
+    padding:3px 8px;
+    border:1px solid var(--ok);
+    color:var(--ok);
+  }
+  .receipt-body{
+    padding:18px 24px;
+    font-family:var(--mono);
+    font-size:14px;
+  }
+  .line{
+    display:flex;
+    justify-content:space-between;
+    padding:6px 0;
+    border-bottom:1px dotted var(--line);
+  }
+  .line.sub{
+    color:#6b6253;
+    font-size:13px;
+  }
+  .line .v{
+    font-weight:700;
+  }
+  .line.total{
+    border-top:2px solid var(--ink);
+    border-bottom:none;
+    margin-top:8px;
+    padding-top:12px;
+    font-size:18px;
+  }
+  .line.total .label{
+    font-weight:700;
+  }
+  .line.total .v{
+    color:var(--rust);
+  }
+  .receipt-foot{
+    padding:10px 24px 18px;
+    font-size:11px;
+    color:#6b6253;
+    font-style:italic;
+    border-top:1px dashed var(--ink);
+  }
+  .warn{
+    margin-top:16px;
+    padding:12px 16px;
+    background:#FBEFE6;
+    border-left:3px solid var(--rust);
+    font-size:13px;
+    line-height:1.5;
+  }
+  .warn b{color:var(--rust);}
+  .footer-note{
+    text-align:center;
+    color:#EDE6D6;
+    opacity:.55;
+    font-size:11px;
+    font-family:var(--mono);
+    margin-top:20px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="letterhead">
+    <div class="eyebrow">Sistem Bantu Hitung &mdash; Bukan Dokumen Resmi</div>
+    <h1>Kalkulator Pajak Daerah</h1>
+    <div class="sub">BPHTB &amp; PBB-P2 &mdash; engine kalkulasi terpisah dari tampilan</div>
+  </div>
+
+  <div class="panel">
+    <div class="tabs">
+      <div class="tab active" data-tab="bphtb">BPHTB</div>
+      <div class="tab" data-tab="pbb">PBB-P2</div>
+    </div>
+
+    <!-- BPHTB -->
+    <div class="body" id="panel-bphtb">
+      <div class="section-label">01 / Data Transaksi</div>
+
+      <div class="row">
+        <div class="field">
+          <label for="b_npop">Nilai Perolehan Objek Pajak (NPOP)</label>
+          <div class="currency-wrap"><span class="prefix">Rp</span>
+            <input type="text" id="b_npop" inputmode="numeric" placeholder="0">
+          </div>
+          <span class="hint">Harga transaksi (jual-beli) atau nilai pasar saat perolehan (hibah/waris).</span>
+        </div>
+        <div class="field">
+          <label for="b_njop">NJOP PBB Objek Bersangkutan</label>
+          <div class="currency-wrap"><span class="prefix">Rp</span>
+            <input type="text" id="b_njop" inputmode="numeric" placeholder="0">
+          </div>
+          <span class="hint">Dasar pembanding. Jika NJOP &gt; NPOP, dasar pengenaan pakai NJOP.</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="b_jenis">Jenis Perolehan</label>
+        <select id="b_jenis">
+          <option value="umum">Jual-beli / umum</option>
+          <option value="waris">Waris</option>
+          <option value="hibahwasiat">Hibah wasiat</option>
+        </select>
+        <span class="hint">Waris &amp; hibah wasiat lazim mendapat NPOPTKP lebih tinggi dan/atau pengurangan tarif efektif — cek Perda setempat, jangan asumsikan sama dengan jual-beli.</span>
+      </div>
+
+      <div class="section-label">02 / Parameter Perda (wajib diverifikasi)</div>
+
+      <div class="row">
+        <div class="field">
+          <label for="b_tkp">NPOPTKP</label>
+          <div class="currency-wrap"><span class="prefix">Rp</span>
+            <input type="text" id="b_tkp" inputmode="numeric" value="80.000.000">
+          </div>
+          <span class="hint">Placeholder. Angka ini BEDA per kabupaten/kota — cek Perda BPHTB daerah terkait. Untuk waris, biasanya lebih tinggi.</span>
+        </div>
+        <div class="field">
+          <label for="b_tarif">Tarif BPHTB (%)</label>
+          <input type="text" id="b_tarif" inputmode="decimal" value="5">
+          <span class="hint">Maksimal 5% (UU HKPD No. 1/2022). Tarif aktual ditetapkan Perda, bisa lebih rendah.</span>
+        </div>
+      </div>
+
+      <button id="b_calc" style="display:none"></button>
+    </div>
+
+    <!-- PBB-P2 -->
+    <div class="body" id="panel-pbb" style="display:none">
+      <div class="section-label">01 / Data Objek Pajak</div>
+
+      <div class="row">
+        <div class="field">
+          <label for="p_luas_tanah">Luas Tanah (m²)</label>
+          <input type="text" id="p_luas_tanah" inputmode="numeric" placeholder="0">
+        </div>
+        <div class="field">
+          <label for="p_njop_tanah">NJOP Tanah / m²</label>
+          <div class="currency-wrap"><span class="prefix">Rp</span>
+            <input type="text" id="p_njop_tanah" inputmode="numeric" placeholder="0">
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="p_luas_bgn">Luas Bangunan (m²)</label>
+          <input type="text" id="p_luas_bgn" inputmode="numeric" placeholder="0">
+          <span class="hint">Isi 0 jika tanah kosong / belum ada bangunan.</span>
+        </div>
+        <div class="field">
+          <label for="p_njop_bgn">NJOP Bangunan / m²</label>
+          <div class="currency-wrap"><span class="prefix">Rp</span>
+            <input type="text" id="p_njop_bgn" inputmode="numeric" placeholder="0">
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">02 / Parameter Perda (wajib diverifikasi)</div>
+
+      <div class="row">
+        <div class="field">
+          <label for="p_tkp">NJOPTKP</label>
+          <div class="currency-wrap"><span class="prefix">Rp</span>
+            <input type="text" id="p_tkp" inputmode="numeric" value="10.000.000">
+          </div>
+          <span class="hint">Placeholder per Perda PBB-P2 daerah. NJOPTKP diberikan satu kali per wajib pajak per tahun, bukan per objek.</span>
+        </div>
+        <div class="field">
+          <label for="p_tarif">Tarif PBB-P2 (%)</label>
+          <input type="text" id="p_tarif" inputmode="decimal" value="0,2">
+          <span class="hint">Maksimal 0,5% (UU HKPD No. 1/2022). Sejak UU ini, konsep NJKP 20%/40% sudah tidak berlaku — tarif langsung dikenakan ke NJOP setelah TKP.</span>
+        </div>
+      </div>
+
+      <button id="p_calc" style="display:none"></button>
+    </div>
+  </div>
+
+  <div id="result-slot"></div>
+
+  <div class="footer-note">Engine murni JS, tanpa dependency. Lihat kode &mdash; logika hitung di fungsi hitungBPHTB() / hitungPBBP2(), terpisah total dari DOM.</div>
+</div>
+
+<script>
+/* ============================================================
+   TAX ENGINE — pure functions, no DOM access, no side effects.
+   Input: angka murni. Output: object hasil. Bisa diuji terpisah.
+   ============================================================ */
+
+function hitungBPHTB({ npop, njopPbb, npoptkp, tarifPersen }) {
+  const dasarPengenaan = Math.max(npop, njopPbb || 0);
+  const npopkp = Math.max(dasarPengenaan - npoptkp, 0);
+  const pajak = npopkp * (tarifPersen / 100);
+  return {
+    dasarPengenaan,
+    npoptkp,
+    npopkp,
+    tarifPersen,
+    pajakTerutang: Math.round(pajak)
+  };
+}
+
+function hitungPBBP2({ luasTanah, njopTanahM2, luasBangunan, njopBangunanM2, njoptkp, tarifPersen }) {
+  const njopTanahTotal = luasTanah * njopTanahM2;
+  const njopBangunanTotal = luasBangunan * njopBangunanM2;
+  const njopTotal = njopTanahTotal + njopBangunanTotal;
+  const njopKenaPajak = Math.max(njopTotal - njoptkp, 0);
+  const pajak = njopKenaPajak * (tarifPersen / 100);
+  return {
+    njopTanahTotal,
+    njopBangunanTotal,
+    njopTotal,
+    njoptkp,
+    njopKenaPajak,
+    tarifPersen,
+    pajakTerutang: Math.round(pajak)
+  };
+}
+
+/* ============================================================
+   FORMATTERS — murni, tanpa DOM.
+   ============================================================ */
+
+function formatRupiah(angka) {
+  return 'Rp ' + Math.round(angka).toLocaleString('id-ID');
+}
+
+function parseRupiahInput(str) {
+  if (!str) return 0;
+  const cleaned = str.replace(/[^\d]/g, '');
+  return cleaned ? parseInt(cleaned, 10) : 0;
+}
+
+function parsePercentInput(str) {
+  if (!str) return 0;
+  const cleaned = str.replace(/[^\d,.-]/g, '').replace(',', '.');
+  return cleaned ? parseFloat(cleaned) : 0;
+}
+
+/* ============================================================
+   UI LAYER — auto-format input ribuan, baca DOM, render hasil.
+   ============================================================ */
+
+function attachThousandsFormatter(inputEl) {
+  inputEl.addEventListener('input', () => {
+    const raw = parseRupiahInput(inputEl.value);
+    inputEl.value = raw ? raw.toLocaleString('id-ID') : '';
+  });
+}
+
+['b_npop','b_njop','b_tkp','p_njop_tanah','p_njop_bgn','p_tkp','p_luas_tanah','p_luas_bgn']
+  .forEach(id => attachThousandsFormatter(document.getElementById(id)));
+
+const tabs = document.querySelectorAll('.tab');
+const panels = { bphtb: document.getElementById('panel-bphtb'), pbb: document.getElementById('panel-pbb') };
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    Object.keys(panels).forEach(k => panels[k].style.display = (k === tab.dataset.tab) ? 'block' : 'none');
+    render();
+  });
+});
+
+function renderBphtbReceipt(r, jenis) {
+  const jenisLabel = { umum: 'Jual-beli / umum', waris: 'Waris', hibahwasiat: 'Hibah wasiat' }[jenis];
+  document.getElementById('result-slot').innerHTML = `
+    <div class="receipt">
+      <div class="receipt-head">
+        <span class="title">Estimasi BPHTB &mdash; ${jenisLabel}</span>
+        <span class="status">draft</span>
+      </div>
+      <div class="receipt-body">
+        <div class="line sub"><span>Dasar pengenaan (max NPOP, NJOP)</span><span class="v">${formatRupiah(r.dasarPengenaan)}</span></div>
+        <div class="line sub"><span>NPOPTKP</span><span class="v">- ${formatRupiah(r.npoptkp)}</span></div>
+        <div class="line"><span>NPOPKP (dasar kena pajak)</span><span class="v">${formatRupiah(r.npopkp)}</span></div>
+        <div class="line sub"><span>Tarif</span><span class="v">${r.tarifPersen}%</span></div>
+        <div class="line total"><span class="label">BPHTB terutang</span><span class="v">${formatRupiah(r.pajakTerutang)}</span></div>
+      </div>
+      <div class="receipt-foot">Estimasi berbasis input manual. Bukan SSPD/NPWPD resmi. Verifikasi NPOPTKP dan tarif ke Perda BPHTB daerah sebelum dipakai untuk pelaporan.</div>
+    </div>
+  `;
+}
+
+function renderPbbReceipt(r) {
+  document.getElementById('result-slot').innerHTML = `
+    <div class="receipt">
+      <div class="receipt-head">
+        <span class="title">Estimasi PBB-P2</span>
+        <span class="status">draft</span>
+      </div>
+      <div class="receipt-body">
+        <div class="line sub"><span>NJOP Tanah</span><span class="v">${formatRupiah(r.njopTanahTotal)}</span></div>
+        <div class="line sub"><span>NJOP Bangunan</span><span class="v">${formatRupiah(r.njopBangunanTotal)}</span></div>
+        <div class="line"><span>NJOP Total</span><span class="v">${formatRupiah(r.njopTotal)}</span></div>
+        <div class="line sub"><span>NJOPTKP</span><span class="v">- ${formatRupiah(r.njoptkp)}</span></div>
+        <div class="line"><span>NJOP Kena Pajak</span><span class="v">${formatRupiah(r.njopKenaPajak)}</span></div>
+        <div class="line sub"><span>Tarif</span><span class="v">${r.tarifPersen}%</span></div>
+        <div class="line total"><span class="label">PBB-P2 terutang / tahun</span><span class="v">${formatRupiah(r.pajakTerutang)}</span></div>
+      </div>
+      <div class="receipt-foot">Tanpa NJKP — sesuai UU HKPD No. 1/2022, tarif langsung atas NJOP setelah TKP. Bukan SPPT resmi. Verifikasi NJOPTKP dan tarif ke Perda PBB-P2 daerah.</div>
+    </div>
+  `;
+}
+
+function render() {
+  const activeTab = document.querySelector('.tab.active').dataset.tab;
+
+  if (activeTab === 'bphtb') {
+    const npop = parseRupiahInput(document.getElementById('b_npop').value);
+    const njop = parseRupiahInput(document.getElementById('b_njop').value);
+    const tkp = parseRupiahInput(document.getElementById('b_tkp').value);
+    const tarif = parsePercentInput(document.getElementById('b_tarif').value);
+    const jenis = document.getElementById('b_jenis').value;
+    if (npop === 0 && njop === 0) { document.getElementById('result-slot').innerHTML = ''; return; }
+    const r = hitungBPHTB({ npop, njopPbb: njop, npoptkp: tkp, tarifPersen: tarif });
+    renderBphtbReceipt(r, jenis);
+  } else {
+    const luasTanah = parseRupiahInput(document.getElementById('p_luas_tanah').value);
+    const njopTanahM2 = parseRupiahInput(document.getElementById('p_njop_tanah').value);
+    const luasBgn = parseRupiahInput(document.getElementById('p_luas_bgn').value);
+    const njopBgnM2 = parseRupiahInput(document.getElementById('p_njop_bgn').value);
+    const tkp = parseRupiahInput(document.getElementById('p_tkp').value);
+    const tarif = parsePercentInput(document.getElementById('p_tarif').value);
+    if (luasTanah === 0 && njopTanahM2 === 0) { document.getElementById('result-slot').innerHTML = ''; return; }
+    const r = hitungPBBP2({ luasTanah, njopTanahM2, luasBangunan: luasBgn, njopBangunanM2: njopBgnM2, njoptkp: tkp, tarifPersen: tarif });
+    renderPbbReceipt(r);
+  }
+}
+
+document.querySelectorAll('#panel-bphtb input, #panel-bphtb select, #panel-pbb input').forEach(el => {
+  el.addEventListener('input', render);
+  el.addEventListener('change', render);
+});
+</script>
+</body>
+</html>
