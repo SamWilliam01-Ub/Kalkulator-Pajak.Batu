@@ -4,8 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kalkulator Pajak Daerah | Kota Batu</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
+  @media print {
+    body * { visibility: hidden; }
+    .summary-card, .summary-card * { visibility: visible; }
+    .summary-card { position: absolute; left: 0; top: 0; width: 100%; margin: 0; box-shadow: none; }
+    .pdf-btn { display: none !important; }
+  }
   :root {
     --bg-color: #F8FAFC;
     --card-bg: #FFFFFF;
@@ -314,19 +319,15 @@ function hitungPAT({ nilaiPerolehan }) {
 }
 
 /* =================================================================
-   FUNGSI CETAK DOKUMEN DIGITAL (PDF GENERATOR)
+   CETAK / SIMPAN SEBAGAI PDF — pakai print dialog native browser.
+   Diganti dari html2pdf.js (screenshot-based) karena rapuh: gagal
+   kalau jalan di iframe sandbox (canvas tainted), gagal kalau font
+   belum termuat saat screenshot diambil. window.print() pakai
+   rendering asli browser, tidak ada proses screenshot, sehingga
+   tidak ada kelas bug "PDF kosong" untuk gagal.
    ================================================================= */
-function downloadPDF(filename) {
-  const element = document.querySelector('.summary-card');
-  if (!element) return;
-  const opt = {
-    margin: 0.5,
-    filename: filename || 'Estimasi_Pajak_Batu.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-  };
-  html2pdf().set(opt).from(element).save();
+function downloadPDF() {
+  window.print();
 }
 
 /* ============================================================
@@ -389,7 +390,7 @@ function renderPbb(r, klasifikasi) {
         <div class="summary-total"><span class="label">PBB-P2 terutang / tahun</span><span class="value">${formatRupiah(r.pajakTerutang)}</span></div>
       </div>
       <div class="disclaimer">Estimasi berbasis input manual, bukan SPPT resmi. Dasar Pengenaan memakai asumsi sampai Perwali turunan Pasal 8 ayat (3) terbit.</div>
-      <button class="pdf-btn" onclick="downloadPDF('Estimasi_PBBP2_Batu.pdf')">Unduh Hasil (PDF)</button>
+      <button class="pdf-btn" onclick="downloadPDF()">Cetak / Simpan sebagai PDF</button>
     </div>`;
 }
 
@@ -406,7 +407,7 @@ function renderBphtb(r, jenis) {
         <div class="summary-total"><span class="label">Total Terutang</span><span class="value">${formatRupiah(r.pajakTerutang)}</span></div>
       </div>
       <div class="disclaimer">Estimasi berbasis input manual, bukan SSPD resmi.</div>
-      <button class="pdf-btn" onclick="downloadPDF('Estimasi_BPHTB_Batu.pdf')">Unduh Hasil (PDF)</button>
+      <button class="pdf-btn" onclick="downloadPDF()">Cetak / Simpan sebagai PDF</button>
     </div>`;
 }
 
@@ -429,7 +430,7 @@ function renderPbjt(r, kategoriLabel) {
         <div class="summary-total"><span class="label">PBJT terutang</span><span class="value">${formatRupiah(r.pajakTerutang)}</span></div>
       </div>
       <div class="disclaimer">Estimasi berbasis input manual, bukan SKPD/SPTPD resmi.</div>
-      <button class="pdf-btn" onclick="downloadPDF('Estimasi_PBJT_Batu.pdf')">Unduh Hasil (PDF)</button>
+      <button class="pdf-btn" onclick="downloadPDF()">Cetak / Simpan sebagai PDF</button>
     </div>`;
 }
 
@@ -443,7 +444,7 @@ function renderFlat(title, r, footnote) {
         <div class="summary-total"><span class="label">${title} terutang</span><span class="value">${formatRupiah(r.pajakTerutang)}</span></div>
       </div>
       <div class="disclaimer">${footnote}</div>
-      <button class="pdf-btn" onclick="downloadPDF('Estimasi_${title.replace(/\s+/g,'_')}_Batu.pdf')">Unduh Hasil (PDF)</button>
+      <button class="pdf-btn" onclick="downloadPDF()">Cetak / Simpan sebagai PDF</button>
     </div>`;
 }
 
