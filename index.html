@@ -4,13 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kalkulator Pajak Daerah | Kota Batu</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 <style>
-  @media print {
-    body * { visibility: hidden; }
-    .summary-card, .summary-card * { visibility: visible; }
-    .summary-card { position: absolute; left: 0; top: 0; width: 100%; margin: 0; box-shadow: none; }
-    .pdf-btn { display: none !important; }
-  }
   :root {
     --bg-color: #F8FAFC;
     --card-bg: #FFFFFF;
@@ -319,15 +315,48 @@ function hitungPAT({ nilaiPerolehan }) {
 }
 
 /* =================================================================
-   CETAK / SIMPAN SEBAGAI PDF — pakai print dialog native browser.
-   Diganti dari html2pdf.js (screenshot-based) karena rapuh: gagal
-   kalau jalan di iframe sandbox (canvas tainted), gagal kalau font
-   belum termuat saat screenshot diambil. window.print() pakai
-   rendering asli browser, tidak ada proses screenshot, sehingga
-   tidak ada kelas bug "PDF kosong" untuk gagal.
+   CETAK NATIVE PDF (pdfmake) — Data-to-PDF, bukan Screen-to-PDF.
+   currentPrintPayload diisi ulang oleh setiap render*() sebelum
+   tombol dirender, sehingga tombol cukup panggil downloadPDFNative()
+   TANPA argumen. Ini menghindari menyuntik JSON.stringify() ke
+   dalam atribut onclick (rapuh kalau ada teks bertanda kutip).
    ================================================================= */
-function downloadPDF() {
-  window.print();
+let currentPrintPayload = null;
+
+function downloadPDFNative() {
+  if (!currentPrintPayload) return;
+  const { jenisPajak, dataCetak } = currentPrintPayload;
+  const docDefinition = {
+    pageSize: 'A5',
+    pageMargins: [40, 40, 40, 40],
+    content: [
+      { text: 'PAJAKKU MUDAH — KOTA BATU', style: 'header' },
+      { text: 'Draf Simulasi Perhitungan Pajak Daerah', style: 'subheader' },
+      { canvas: [{ type: 'line', x1: 0, y1: 5, x2: 340, y2: 5, lineWidth: 1 }] },
+      { text: '\nJenis Pajak: ' + jenisPajak, style: 'taxType' },
+      {
+        margin: [0, 15, 0, 15],
+        table: { widths: ['*', 'auto'], body: dataCetak },
+        layout: 'lightHorizontalLines'
+      },
+      { canvas: [{ type: 'line', x1: 0, y1: 5, x2: 340, y2: 5, lineWidth: 2 }] },
+      { text: '\nDokumen ini adalah hasil simulasi algoritma sistem dan bukan merupakan dokumen ketetapan resmi dari Bapenda Kota Batu.', style: 'disclaimer' }
+    ],
+    styles: {
+      header: { fontSize: 16, bold: true, alignment: 'center', color: '#1E3A8A' },
+      subheader: { fontSize: 10, alignment: 'center', color: '#64748B', margin: [0, 2, 0, 10] },
+      taxType: { fontSize: 12, bold: true },
+      disclaimer: { fontSize: 8, italics: true, alignment: 'justify', color: '#94A3B8' }
+    }
+  };
+  pdfMake.createPdf(docDefinition).download('Draf_' + jenisPajak.replace(/\s+/g, '_') + '.pdf');
+}
+
+function baris(label, value, kuat) {
+  return [
+    { text: label, border: [false, false, false, true], bold: !!kuat },
+    { text: value, border: [false, false, false, true], alignment: 'right', bold: !!kuat }
+  ];
 }
 
 /* ============================================================
@@ -379,6 +408,16 @@ document.querySelectorAll('input[name="pbb_jenis"]').forEach(r => r.addEventList
 
 function renderPbb(r, klasifikasi) {
   const label = { none: 'Umum', pangan: 'Lahan produksi pangan', ternak: 'Lahan produksi ternak' }[klasifikasi];
+  currentPrintPayload = {
+    jenisPajak: 'PBB-P2 - ' + label,
+    dataCetak: [
+      baris('NJOP Total', formatRupiah(r.Ntotal)),
+      baris('NJOPTKP', '- ' + formatRupiah(r.NJOPTKP)),
+      baris('Dasar Pengenaan (' + r.alphaPersen + '% x sisa)', formatRupiah(r.dpp)),
+      baris('Tarif', r.tarifPersen + '%'),
+      baris('PBB-P2 TERUTANG / TAHUN', formatRupiah(r.pajakTerutang), true)
+    ]
+  };
   document.getElementById('result-slot').innerHTML = `
     <div class="summary-card">
       <div class="summary-header"><span>Estimasi PBB-P2 &mdash; ${label}</span><span class="tag">draft</span></div>
@@ -390,12 +429,22 @@ function renderPbb(r, klasifikasi) {
         <div class="summary-total"><span class="label">PBB-P2 terutang / tahun</span><span class="value">${formatRupiah(r.pajakTerutang)}</span></div>
       </div>
       <div class="disclaimer">Estimasi berbasis input manual, bukan SPPT resmi. Dasar Pengenaan memakai asumsi sampai Perwali turunan Pasal 8 ayat (3) terbit.</div>
-      <button class="pdf-btn" onclick="downloadPDF()">Cetak / Simpan sebagai PDF</button>
+      <button class="pdf-btn" onclick="downloadPDFNative()">Unduh Draf PDF</button>
     </div>`;
 }
 
 function renderBphtb(r, jenis) {
   const label = { umum: 'Jual beli / umum', warisSedarah: 'Waris/hibah wasiat sedarah', warisTertentu: 'Waris/hibah wasiat tertentu' }[jenis];
+  currentPrintPayload = {
+    jenisPajak: 'BPHTB - ' + label,
+    dataCetak: [
+      baris('Dasar Pengenaan (max NPOP, NJOP)', formatRupiah(r.dpp)),
+      baris('NPOPTKP', '- ' + formatRupiah(r.npoptkp)),
+      baris('Dasar Kena Pajak', formatRupiah(r.npopkp)),
+      baris('Tarif', r.tarifPersen + '%'),
+      baris('TOTAL TERUTANG', formatRupiah(r.pajakTerutang), true)
+    ]
+  };
   document.getElementById('result-slot').innerHTML = `
     <div class="summary-card">
       <div class="summary-header"><span>Estimasi BPHTB &mdash; ${label}</span><span class="tag">draft</span></div>
@@ -407,12 +456,13 @@ function renderBphtb(r, jenis) {
         <div class="summary-total"><span class="label">Total Terutang</span><span class="value">${formatRupiah(r.pajakTerutang)}</span></div>
       </div>
       <div class="disclaimer">Estimasi berbasis input manual, bukan SSPD resmi.</div>
-      <button class="pdf-btn" onclick="downloadPDF()">Cetak / Simpan sebagai PDF</button>
+      <button class="pdf-btn" onclick="downloadPDFNative()">Unduh Draf PDF</button>
     </div>`;
 }
 
 function renderPbjt(r, kategoriLabel) {
   if (r.bukanObjek) {
+    currentPrintPayload = null;
     document.getElementById('result-slot').innerHTML = `
       <div class="summary-card">
         <div class="summary-header blocked"><span>PBJT &mdash; ${kategoriLabel}</span><span class="tag">bukan objek</span></div>
@@ -421,6 +471,14 @@ function renderPbjt(r, kategoriLabel) {
       </div>`;
     return;
   }
+  currentPrintPayload = {
+    jenisPajak: 'PBJT - ' + kategoriLabel,
+    dataCetak: [
+      baris('Dasar Pengenaan', formatRupiah(r.dpp)),
+      baris('Tarif', r.tarifPersen + '%'),
+      baris('PBJT TERUTANG', formatRupiah(r.pajakTerutang), true)
+    ]
+  };
   document.getElementById('result-slot').innerHTML = `
     <div class="summary-card">
       <div class="summary-header"><span>Estimasi PBJT &mdash; ${kategoriLabel}</span><span class="tag">draft</span></div>
@@ -430,11 +488,19 @@ function renderPbjt(r, kategoriLabel) {
         <div class="summary-total"><span class="label">PBJT terutang</span><span class="value">${formatRupiah(r.pajakTerutang)}</span></div>
       </div>
       <div class="disclaimer">Estimasi berbasis input manual, bukan SKPD/SPTPD resmi.</div>
-      <button class="pdf-btn" onclick="downloadPDF()">Cetak / Simpan sebagai PDF</button>
+      <button class="pdf-btn" onclick="downloadPDFNative()">Unduh Draf PDF</button>
     </div>`;
 }
 
 function renderFlat(title, r, footnote) {
+  currentPrintPayload = {
+    jenisPajak: title,
+    dataCetak: [
+      baris('Dasar Pengenaan', formatRupiah(r.dpp)),
+      baris('Tarif', r.tarifPersen + '%'),
+      baris((title + ' TERUTANG').toUpperCase(), formatRupiah(r.pajakTerutang), true)
+    ]
+  };
   document.getElementById('result-slot').innerHTML = `
     <div class="summary-card">
       <div class="summary-header"><span>Estimasi ${title}</span><span class="tag">draft</span></div>
@@ -444,7 +510,7 @@ function renderFlat(title, r, footnote) {
         <div class="summary-total"><span class="label">${title} terutang</span><span class="value">${formatRupiah(r.pajakTerutang)}</span></div>
       </div>
       <div class="disclaimer">${footnote}</div>
-      <button class="pdf-btn" onclick="downloadPDF()">Cetak / Simpan sebagai PDF</button>
+      <button class="pdf-btn" onclick="downloadPDFNative()">Unduh Draf PDF</button>
     </div>`;
 }
 
