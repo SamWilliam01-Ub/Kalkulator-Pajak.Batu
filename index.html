@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kalkulator Pajak Daerah | Kota Batu</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
   :root {
     --bg-color: #F8FAFC;
@@ -87,6 +88,11 @@
   .summary-total .label { font-size: 16px; font-weight: 700; }
   .summary-total .value { font-family: var(--font-mono); font-size: 22px; font-weight: 700; color: var(--primary); }
   .disclaimer { font-size: 11px; color: var(--text-muted); padding: 12px 24px; background: #F1F5F9; border-top: 1px solid var(--border); text-align: center; }
+  .pdf-btn {
+    display: block; width: 100%; padding: 12px; margin: 0; border: none; cursor: pointer;
+    background: var(--primary); color: #fff; font-family: var(--font-sans); font-size: 14px; font-weight: 600;
+  }
+  .pdf-btn:hover { background: var(--primary-hover); }
   .hidden { display: none; }
 </style>
 </head>
@@ -218,54 +224,109 @@
    (terverifikasi dari salinan resmi bapenda.batukota.go.id)
    ================================================================= */
 
+/* =================================================================
+   SIMULASI DATABASE REGULASI (API MOCK) — Perda Kota Batu No. 4/2023
+   Seluruh angka diverifikasi dari salinan resmi bapenda.batukota.go.id.
+   Mesin di bawah HANYA membaca objek ini — tidak ada angka mati lagi
+   di dalam fungsi kalkulasi. Kalau Perda direvisi, cukup ubah di sini.
+   ================================================================= */
+const PERDA_BATU_RULES = {
+  pbb: {
+    pasal: 'Pasal 7–9',
+    njoptkp: 100_000_000,
+    tarifPanganTernak: 0.015,
+    tarifProgresif: [
+      { max: 500_000_000, rate: 0.02 },
+      { max: 1_000_000_000, rate: 0.03 },
+      { max: 4_000_000_000, rate: 0.04 },
+      { max: 25_000_000_000, rate: 0.05 },
+      { max: 50_000_000_000, rate: 0.06 },
+      { max: Infinity, rate: 0.08 }
+    ],
+    alphaRange: { min: 20, max: 100 }
+  },
+  bphtb: {
+    pasal: 'Pasal 14–16',
+    tarif: 5,
+    npoptkp: { umum: 90_000_000, warisSedarah: 600_000_000, warisTertentu: 1_000_000_000 }
+  },
+  pbjt: {
+    pasal: 'Pasal 21–30',
+    ambangBebasOmzetBulanan: 10_000_000,
+    tarif: {
+      makanmin: 10, hotel: 10, parkir: 10, hiburanUmum: 10,
+      hiburanKhusus: 40, listrikSumberLain: 10, listrikIndustri: 3, listrikSendiri: 1.5
+    }
+  },
+  reklame: { pasal: 'Pasal 34–35', tarif: 25 },
+  pat: { pasal: 'Pasal 40–41', tarif: 5 }
+};
+
+/* =================================================================
+   TAX ENGINE — pure functions. Hanya membaca PERDA_BATU_RULES,
+   tidak menyimpan angka regulasi sendiri.
+   ================================================================= */
+
+function tentukanTarifProgresif(Ntotal, klasifikasi) {
+  const rules = PERDA_BATU_RULES.pbb;
+  if (klasifikasi === 'pangan' || klasifikasi === 'ternak') return rules.tarifPanganTernak;
+  const bracket = rules.tarifProgresif.find(b => Ntotal <= b.max);
+  return bracket.rate;
+}
+
 function hitungPBBP2Batu({ njopTanah, njopBangunan, alphaPersen, klasifikasi }) {
-  const NJOPTKP = 100_000_000;
+  const rules = PERDA_BATU_RULES.pbb;
   const Ntotal = njopTanah + njopBangunan;
-  const dasarSetelahTkp = Math.max(0, Ntotal - NJOPTKP);
+  const dasarSetelahTkp = Math.max(0, Ntotal - rules.njoptkp);
   const dpp = (alphaPersen / 100) * dasarSetelahTkp;
-
-  let tarifPersen;
-  if (klasifikasi === 'pangan' || klasifikasi === 'ternak') {
-    tarifPersen = 0.015;
-  } else if (Ntotal <= 500_000_000) tarifPersen = 0.02;
-  else if (Ntotal <= 1_000_000_000) tarifPersen = 0.03;
-  else if (Ntotal <= 4_000_000_000) tarifPersen = 0.04;
-  else if (Ntotal <= 25_000_000_000) tarifPersen = 0.05;
-  else if (Ntotal <= 50_000_000_000) tarifPersen = 0.06;
-  else tarifPersen = 0.08;
-
+  const tarifPersen = tentukanTarifProgresif(Ntotal, klasifikasi);
   const pajak = dpp * (tarifPersen / 100);
-  return { Ntotal, NJOPTKP, alphaPersen, dasarSetelahTkp, dpp, tarifPersen, pajakTerutang: Math.round(pajak) };
+  return { Ntotal, NJOPTKP: rules.njoptkp, alphaPersen, dasarSetelahTkp, dpp, tarifPersen, pajakTerutang: Math.round(pajak) };
 }
 
 function hitungBPHTBBatu({ npop, njopPbb, jenis }) {
-  const NPOPTKP_MAP = { umum: 90_000_000, warisSedarah: 600_000_000, warisTertentu: 1_000_000_000 };
+  const rules = PERDA_BATU_RULES.bphtb;
   const dpp = Math.max(npop, njopPbb);
-  const npoptkp = NPOPTKP_MAP[jenis];
+  const npoptkp = rules.npoptkp[jenis];
   const npopkp = Math.max(0, dpp - npoptkp);
-  const pajak = npopkp * 0.05;
-  return { dpp, npoptkp, npopkp, tarifPersen: 5, pajakTerutang: Math.round(pajak) };
+  const pajak = npopkp * (rules.tarif / 100);
+  return { dpp, npoptkp, npopkp, tarifPersen: rules.tarif, pajakTerutang: Math.round(pajak) };
 }
 
 function hitungPBJTBatu({ kategori, omzetBulanan, dpp }) {
-  if (kategori === 'makanmin' && omzetBulanan > 0 && omzetBulanan <= 10_000_000) {
+  const rules = PERDA_BATU_RULES.pbjt;
+  if (kategori === 'makanmin' && omzetBulanan > 0 && omzetBulanan <= rules.ambangBebasOmzetBulanan) {
     return { bukanObjek: true, pajakTerutang: 0 };
   }
-  const TARIF_MAP = {
-    makanmin: 10, hotel: 10, parkir: 10, hiburanUmum: 10,
-    hiburanKhusus: 40, listrikSumberLain: 10, listrikIndustri: 3, listrikSendiri: 1.5
-  };
-  const tarifPersen = TARIF_MAP[kategori];
+  const tarifPersen = rules.tarif[kategori];
   const pajak = dpp * (tarifPersen / 100);
   return { bukanObjek: false, tarifPersen, dpp, pajakTerutang: Math.round(pajak) };
 }
 
 function hitungReklame({ nilaiSewa }) {
-  return { tarifPersen: 25, dpp: nilaiSewa, pajakTerutang: Math.round(nilaiSewa * 0.25) };
+  const tarifPersen = PERDA_BATU_RULES.reklame.tarif;
+  return { tarifPersen, dpp: nilaiSewa, pajakTerutang: Math.round(nilaiSewa * (tarifPersen / 100)) };
 }
 
 function hitungPAT({ nilaiPerolehan }) {
-  return { tarifPersen: 5, dpp: nilaiPerolehan, pajakTerutang: Math.round(nilaiPerolehan * 0.05) };
+  const tarifPersen = PERDA_BATU_RULES.pat.tarif;
+  return { tarifPersen, dpp: nilaiPerolehan, pajakTerutang: Math.round(nilaiPerolehan * (tarifPersen / 100)) };
+}
+
+/* =================================================================
+   FUNGSI CETAK DOKUMEN DIGITAL (PDF GENERATOR)
+   ================================================================= */
+function downloadPDF(filename) {
+  const element = document.querySelector('.summary-card');
+  if (!element) return;
+  const opt = {
+    margin: 0.5,
+    filename: filename || 'Estimasi_Pajak_Batu.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+  };
+  html2pdf().set(opt).from(element).save();
 }
 
 /* ============================================================
@@ -328,6 +389,7 @@ function renderPbb(r, klasifikasi) {
         <div class="summary-total"><span class="label">PBB-P2 terutang / tahun</span><span class="value">${formatRupiah(r.pajakTerutang)}</span></div>
       </div>
       <div class="disclaimer">Estimasi berbasis input manual, bukan SPPT resmi. Dasar Pengenaan memakai asumsi sampai Perwali turunan Pasal 8 ayat (3) terbit.</div>
+      <button class="pdf-btn" onclick="downloadPDF('Estimasi_PBBP2_Batu.pdf')">Unduh Hasil (PDF)</button>
     </div>`;
 }
 
@@ -344,6 +406,7 @@ function renderBphtb(r, jenis) {
         <div class="summary-total"><span class="label">Total Terutang</span><span class="value">${formatRupiah(r.pajakTerutang)}</span></div>
       </div>
       <div class="disclaimer">Estimasi berbasis input manual, bukan SSPD resmi.</div>
+      <button class="pdf-btn" onclick="downloadPDF('Estimasi_BPHTB_Batu.pdf')">Unduh Hasil (PDF)</button>
     </div>`;
 }
 
@@ -366,6 +429,7 @@ function renderPbjt(r, kategoriLabel) {
         <div class="summary-total"><span class="label">PBJT terutang</span><span class="value">${formatRupiah(r.pajakTerutang)}</span></div>
       </div>
       <div class="disclaimer">Estimasi berbasis input manual, bukan SKPD/SPTPD resmi.</div>
+      <button class="pdf-btn" onclick="downloadPDF('Estimasi_PBJT_Batu.pdf')">Unduh Hasil (PDF)</button>
     </div>`;
 }
 
@@ -379,10 +443,12 @@ function renderFlat(title, r, footnote) {
         <div class="summary-total"><span class="label">${title} terutang</span><span class="value">${formatRupiah(r.pajakTerutang)}</span></div>
       </div>
       <div class="disclaimer">${footnote}</div>
+      <button class="pdf-btn" onclick="downloadPDF('Estimasi_${title.replace(/\s+/g,'_')}_Batu.pdf')">Unduh Hasil (PDF)</button>
     </div>`;
 }
 
 function render() {
+  simpanState();
   const activeTab = document.querySelector('.tab.active').dataset.tab;
   const resultSlot = document.getElementById('result-slot');
 
@@ -428,6 +494,47 @@ document.getElementById('pj_omzet').addEventListener('input', render);
 document.getElementById('pj_dpp').addEventListener('input', render);
 document.getElementById('rk_nilai').addEventListener('input', render);
 document.getElementById('pat_nilai').addEventListener('input', render);
+
+/* =================================================================
+   PENYIMPANAN LOKAL (localStorage) — hanya jalan kalau file ini
+   di-deploy di luar Claude.ai (origin asli, bukan iframe sandbox).
+   simpanState() DIPANGGIL DARI render() agar setiap perubahan
+   input langsung tersimpan — tanpa ini, muatState() selalu kosong.
+   ================================================================= */
+const FORM_IDS = ['pbb_njop_tanah','pbb_njop_bgn','pbb_alpha','b_npop','b_njop','b_jenis',
+  'pj_kategori','pj_omzet','pj_dpp','rk_nilai','pat_nilai'];
+
+function simpanState() {
+  try {
+    const state = {};
+    FORM_IDS.forEach(id => { const el = document.getElementById(id); if (el) state[id] = el.value; });
+    const checkedRadio = document.querySelector('input[name="pbb_jenis"]:checked');
+    if (checkedRadio) state.pbb_jenis = checkedRadio.value;
+    state.activeTab = document.querySelector('.tab.active').dataset.tab;
+    localStorage.setItem('pajakBatuDraft', JSON.stringify(state));
+  } catch (e) { /* localStorage tidak tersedia (mis. iframe sandbox), abaikan */ }
+}
+
+function muatState() {
+  try {
+    const raw = localStorage.getItem('pajakBatuDraft');
+    if (!raw) return;
+    const state = JSON.parse(raw);
+    FORM_IDS.forEach(id => { const el = document.getElementById(id); if (el && state[id] !== undefined) el.value = state[id]; });
+    if (state.pbb_jenis) {
+      const r = document.querySelector(`input[name="pbb_jenis"][value="${state.pbb_jenis}"]`);
+      if (r) r.checked = true;
+    }
+    syncPjOmzetVisibility();
+    if (state.activeTab && panels[state.activeTab]) {
+      tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === state.activeTab));
+      Object.values(panels).forEach(p => p.classList.add('hidden'));
+      panels[state.activeTab].classList.remove('hidden');
+    }
+  } catch (e) { /* abaikan */ }
+}
+
+window.addEventListener('load', () => { muatState(); render(); });
 </script>
 </body>
 </html>
