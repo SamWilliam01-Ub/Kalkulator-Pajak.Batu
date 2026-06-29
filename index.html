@@ -326,36 +326,72 @@ let currentPrintPayload = null;
 function downloadPDFNative() {
   if (!currentPrintPayload) return;
   const { jenisPajak, dataCetak } = currentPrintPayload;
+
+  const sekarang = new Date();
+  const tanggalCetak = sekarang.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+    + ', ' + sekarang.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
+
   const docDefinition = {
     pageSize: 'A5',
-    pageMargins: [40, 40, 40, 40],
+    pageMargins: [0, 0, 0, 0],
     content: [
-      { text: 'PAJAKKU MUDAH — KOTA BATU', style: 'header' },
-      { text: 'Draf Simulasi Perhitungan Pajak Daerah', style: 'subheader' },
-      { canvas: [{ type: 'line', x1: 0, y1: 5, x2: 340, y2: 5, lineWidth: 1 }] },
-      { text: '\nJenis Pajak: ' + jenisPajak, style: 'taxType' },
+      // Header band biru solid, full-bleed
       {
-        margin: [0, 15, 0, 15],
-        table: { widths: ['*', 'auto'], body: dataCetak },
-        layout: 'lightHorizontalLines'
+        table: { widths: ['*'], body: [[ { text: 'PAJAKKU MUDAH', style: 'brand', fillColor: '#0F172A' } ]] },
+        layout: { paddingTop: () => 16, paddingBottom: () => 4, hLineWidth: () => 0, vLineWidth: () => 0 }
       },
-      { canvas: [{ type: 'line', x1: 0, y1: 5, x2: 340, y2: 5, lineWidth: 2 }] },
-      { text: '\nDokumen ini adalah hasil simulasi algoritma sistem dan bukan merupakan dokumen ketetapan resmi dari Bapenda Kota Batu.', style: 'disclaimer' }
+      {
+        table: { widths: ['*'], body: [[ { text: 'Estimasi Pajak Daerah Kota Batu', style: 'subBrand', fillColor: '#0F172A' } ]] },
+        layout: { paddingTop: () => 0, paddingBottom: () => 16, hLineWidth: () => 0, vLineWidth: () => 0 }
+      },
+
+      // Badan dokumen, dengan margin
+      {
+        margin: [32, 24, 32, 32],
+        stack: [
+          {
+            columns: [
+              { text: jenisPajak, style: 'taxType' },
+              { text: 'DRAF', style: 'badge', alignment: 'right' }
+            ]
+          },
+          { text: 'Berdasarkan Perda Kota Batu Nomor 4 Tahun 2023', style: 'legalRef', margin: [0, 2, 0, 18] },
+
+          { table: { widths: ['*', 'auto'], body: dataCetak }, layout: 'noBorders' },
+
+          { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 326, y2: 0, lineWidth: 1, lineColor: '#E2E8F0' }], margin: [0, 18, 0, 18] },
+
+          {
+            columns: [
+              { text: 'Dicetak ' + tanggalCetak, style: 'meta' },
+              { text: 'Kalkulator Pajak Daerah Kota Batu', style: 'meta', alignment: 'right' }
+            ]
+          },
+          { text: '\nDokumen ini adalah hasil simulasi algoritma sistem dan bukan merupakan dokumen ketetapan resmi dari Bapenda Kota Batu. Verifikasi ke kantor Bapenda sebelum digunakan untuk keperluan administratif.', style: 'disclaimer' }
+        ]
+      }
     ],
     styles: {
-      header: { fontSize: 16, bold: true, alignment: 'center', color: '#1E3A8A' },
-      subheader: { fontSize: 10, alignment: 'center', color: '#64748B', margin: [0, 2, 0, 10] },
-      taxType: { fontSize: 12, bold: true },
-      disclaimer: { fontSize: 8, italics: true, alignment: 'justify', color: '#94A3B8' }
+      brand: { fontSize: 18, bold: true, color: '#FFFFFF', alignment: 'center', characterSpacing: 1 },
+      subBrand: { fontSize: 10, color: '#94A3B8', alignment: 'center' },
+      taxType: { fontSize: 14, bold: true, color: '#0F172A' },
+      badge: { fontSize: 9, bold: true, color: '#2563EB' },
+      legalRef: { fontSize: 8.5, color: '#94A3B8' },
+      meta: { fontSize: 8, color: '#94A3B8' },
+      disclaimer: { fontSize: 7.5, italics: true, alignment: 'justify', color: '#94A3B8' }
     }
   };
-  pdfMake.createPdf(docDefinition).download('Draf_' + jenisPajak.replace(/\s+/g, '_') + '.pdf');
+  pdfMake.createPdf(docDefinition).download('Draf_' + jenisPajak.replace(/[\s/]+/g, '_') + '.pdf');
 }
 
 function baris(label, value, kuat) {
+  const isTotal = !!kuat;
+  const garis = { border: [false, false, false, true], borderColor: ['#fff', '#fff', '#fff', '#E2E8F0'], margin: [0, 6, 0, 6] };
   return [
-    { text: label, border: [false, false, false, true], bold: !!kuat },
-    { text: value, border: [false, false, false, true], alignment: 'right', bold: !!kuat }
+    Object.assign({ text: label, bold: isTotal, fillColor: isTotal ? '#EFF6FF' : null,
+      color: isTotal ? '#1E3A8A' : '#475569' }, garis),
+    Object.assign({ text: value, bold: isTotal, fillColor: isTotal ? '#EFF6FF' : null,
+      color: isTotal ? '#2563EB' : '#0F172A', alignment: 'right' }, garis)
   ];
 }
 
