@@ -3,13 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  title>Kalkulator Pajak Daerah | Kota Batu</title>
-  
-<script>
-  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-</script>
-<script defer src="/_vercel/insights/script.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<title>Kalkulator Pajak Daerah | Kota Batu</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 <style>
@@ -101,6 +95,9 @@
   }
   .pdf-btn:hover { background: var(--primary-hover); }
   .hidden { display: none; }
+  .card-header-desc { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px dashed var(--border); }
+  .card-header-desc h2 { font-size: 18px; font-weight: 700; color: var(--text-main); }
+  .card-header-desc .hint { margin-top: 4px; font-size: 13px; }
 </style>
 </head>
 <body>
@@ -122,6 +119,10 @@
 
   <!-- PBB-P2 -->
   <div class="card" id="panel-pbb">
+    <div class="card-header-desc">
+      <h2>Pajak Bumi dan Bangunan Perdesaan dan Perkotaan (PBB-P2)</h2>
+      <span class="hint">Pajak atas bumi dan/atau bangunan yang dimiliki, dikuasai, dan/atau dimanfaatkan.</span>
+    </div>
     <div class="section-title">Data NJOP <span class="legal-ref">Pasal 7&ndash;9</span></div>
     <div class="row">
       <div class="form-group">
@@ -151,6 +152,10 @@
 
   <!-- BPHTB -->
   <div class="card hidden" id="panel-bphtb">
+    <div class="card-header-desc">
+      <h2>Bea Perolehan Hak atas Tanah dan Bangunan (BPHTB)</h2>
+      <span class="hint">Pajak atas perolehan hak atas tanah dan/atau bangunan (jual beli, waris, hibah, dll).</span>
+    </div>
     <div class="section-title">Nilai Transaksi Objek Pajak <span class="legal-ref">Pasal 14&ndash;16</span></div>
     <div class="row">
       <div class="form-group">
@@ -177,6 +182,10 @@
 
   <!-- PBJT -->
   <div class="card hidden" id="panel-pbjt">
+    <div class="card-header-desc">
+      <h2>Pajak Barang dan Jasa Tertentu (PBJT)</h2>
+      <span class="hint">Pajak yang dibayarkan konsumen akhir atas konsumsi makanan/minuman, tenaga listrik, perhotelan, parkir, dan hiburan.</span>
+    </div>
     <div class="section-title">Kategori Objek <span class="legal-ref">Pasal 21&ndash;30</span></div>
     <div class="form-group">
       <label>Jenis PBJT</label>
@@ -204,6 +213,10 @@
 
   <!-- Reklame -->
   <div class="card hidden" id="panel-reklame">
+    <div class="card-header-desc">
+      <h2>Pajak Reklame</h2>
+      <span class="hint">Pajak atas penyelenggaraan reklame komersial (billboard, videotron, kain, melekat/stiker).</span>
+    </div>
     <div class="section-title">Nilai Sewa Reklame <span class="legal-ref">Pasal 34&ndash;35</span></div>
     <div class="form-group">
       <label>Nilai Sewa Reklame</label>
@@ -214,6 +227,10 @@
 
   <!-- PAT -->
   <div class="card hidden" id="panel-pat">
+    <div class="card-header-desc">
+      <h2>Pajak Air Tanah (PAT)</h2>
+      <span class="hint">Pajak atas pengambilan dan/atau pemanfaatan air tanah.</span>
+    </div>
     <div class="section-title">Nilai Perolehan Air Tanah <span class="legal-ref">Pasal 40&ndash;41</span></div>
     <div class="form-group">
       <label>Nilai Perolehan Air Tanah</label>
