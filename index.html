@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="h-full bg-slate-100">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalkulator Pajak Daerah & Retribusi Kota Batu (Lengkap)</title>
+    <title>Kalkulator Pajak Daerah & Retribusi Kota Batu (Lengkap Final)</title>
     
     <!-- FIX 404: Mencegah error favicon.ico -->
     <link rel="icon" href="data:,">
 
-    <!-- CSS Frameworks & Libraries (HTTPS Valid CDN) -->
+    <!-- CSS Frameworks & External Libraries (HTTPS Valid CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -21,331 +21,394 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
-        .active-tab { border-bottom: 3px solid #0284c7; color: #0284c7; font-weight: bold; background-color: #f0f9ff; }
-        #map { height: 300px; width: 100%; border-radius: 0.5rem; z-index: 1; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 3px; }
+        .active-tab { 
+            border-bottom: 3px solid #0284c7; 
+            color: #0284c7; 
+            font-weight: 700; 
+            background-color: #f0f9ff; 
+        }
+        #map { 
+            height: 320px; 
+            width: 100%; 
+            border-radius: 0.75rem; 
+            z-index: 1; 
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
+<body class="h-full text-slate-800 font-sans flex flex-col antialiased selection:bg-sky-500 selection:text-white">
 
-    <!-- HEADER -->
-    <header class="bg-sky-800 text-white shadow-lg sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
+    <!-- TOP HEADER BAR -->
+    <header class="bg-sky-900 text-white shadow-xl sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-3">
-                <div class="bg-amber-400 text-sky-900 p-2.5 rounded-xl shadow-md">
+                <div class="bg-gradient-to-tr from-amber-400 to-amber-300 text-sky-950 p-3 rounded-2xl shadow-lg ring-2 ring-amber-200/50">
                     <i class="fa-solid fa-calculator text-2xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold leading-tight">Simulasi Pajak Daerah Kota Batu</h1>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-xl font-black tracking-tight">Simulasi Pajak Daerah Kota Batu</h1>
+                        <span class="bg-amber-400/20 text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-400/30">Official Reg. 2026</span>
+                    </div>
                     <p class="text-xs text-sky-200">Perda No. 4 Tahun 2023 & Perwali No. 20 Tahun 2024</p>
                 </div>
             </div>
 
-            <!-- Global Action Controls -->
-            <div class="flex items-center gap-2">
-                <button onclick="playHudSound(); speakSummary();" class="bg-sky-700 hover:bg-sky-600 border border-sky-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shadow-sm">
-                    <i class="fa-solid fa-volume-high text-amber-300"></i> Suara
+            <!-- Global Actions & Controls -->
+            <div class="flex items-center gap-2 flex-wrap justify-center">
+                <button onclick="playAudioSynth('click'); speakSummary();" class="bg-sky-800 hover:bg-sky-700 border border-sky-600 text-white px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition shadow-sm active:scale-95">
+                    <i class="fa-solid fa-volume-high text-amber-400"></i> Suara
                 </button>
-                <button onclick="playHudSound(); shareSimulation();" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shadow-sm">
-                    <i class="fa-solid fa-share-nodes"></i> Bagikan
+                <button onclick="playAudioSynth('click'); shareSimulation();" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition shadow-sm active:scale-95">
+                    <i class="fa-solid fa-share-nodes"></i> Bagikan Link
                 </button>
-                <button onclick="playHudSound(); resetAll();" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shadow-sm">
-                    <i class="fa-solid fa-rotate-left"></i> Reset
+                <button onclick="playAudioSynth('alert'); resetAllForm();" class="bg-rose-600 hover:bg-rose-500 text-white px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition shadow-sm active:scale-95">
+                    <i class="fa-solid fa-rotate-left"></i> Reset Form
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- NAVIGATION TABS -->
-    <nav class="bg-white border-b border-slate-200 shadow-sm sticky top-[61px] z-40">
-        <div class="max-w-7xl mx-auto px-4 flex overflow-x-auto custom-scrollbar gap-2 text-sm font-medium">
-            <button onclick="switchTab('pbb')" id="tab-pbb" class="py-3 px-4 active-tab flex items-center gap-2 whitespace-nowrap transition">
+    <!-- NAVIGATION TABS FOR ALL TAX TYPES -->
+    <nav class="bg-white border-b border-slate-200 shadow-sm sticky top-[65px] z-40">
+        <div class="max-w-7xl mx-auto px-4 flex overflow-x-auto custom-scrollbar gap-1 text-sm font-semibold">
+            <button onclick="playAudioSynth('click'); switchTab('pbb');" id="tab-pbb" class="py-3.5 px-4 active-tab flex items-center gap-2 whitespace-nowrap transition rounded-t-lg">
                 <i class="fa-solid fa-house text-sky-600"></i> PBB-P2
             </button>
-            <button onclick="switchTab('bphtb')" id="tab-bphtb" class="py-3 px-4 flex items-center gap-2 whitespace-nowrap transition text-slate-600 hover:bg-slate-50">
+            <button onclick="playAudioSynth('click'); switchTab('bphtb');" id="tab-bphtb" class="py-3.5 px-4 flex items-center gap-2 whitespace-nowrap transition text-slate-600 hover:bg-slate-50 rounded-t-lg">
                 <i class="fa-solid fa-file-contract text-emerald-600"></i> BPHTB
             </button>
-            <button onclick="switchTab('pbjt')" id="tab-pbjt" class="py-3 px-4 flex items-center gap-2 whitespace-nowrap transition text-slate-600 hover:bg-slate-50">
+            <button onclick="playAudioSynth('click'); switchTab('pbjt');" id="tab-pbjt" class="py-3.5 px-4 flex items-center gap-2 whitespace-nowrap transition text-slate-600 hover:bg-slate-50 rounded-t-lg">
                 <i class="fa-solid fa-utensils text-amber-600"></i> PBJT (Resto/Hotel)
             </button>
-            <button onclick="switchTab('reklame')" id="tab-reklame" class="py-3 px-4 flex items-center gap-2 whitespace-nowrap transition text-slate-600 hover:bg-slate-50">
+            <button onclick="playAudioSynth('click'); switchTab('reklame');" id="tab-reklame" class="py-3.5 px-4 flex items-center gap-2 whitespace-nowrap transition text-slate-600 hover:bg-slate-50 rounded-t-lg">
                 <i class="fa-solid fa-rectangle-ad text-purple-600"></i> Reklame
             </button>
-            <button onclick="switchTab('pat')" id="tab-pat" class="py-3 px-4 flex items-center gap-2 whitespace-nowrap transition text-slate-600 hover:bg-slate-50">
+            <button onclick="playAudioSynth('click'); switchTab('pat');" id="tab-pat" class="py-3.5 px-4 flex items-center gap-2 whitespace-nowrap transition text-slate-600 hover:bg-slate-50 rounded-t-lg">
                 <i class="fa-solid fa-droplet text-blue-600"></i> Air Tanah (PAT)
+            </button>
+            <button onclick="playAudioSynth('click'); switchTab('mblb');" id="tab-mblb" class="py-3.5 px-4 flex items-center gap-2 whitespace-nowrap transition text-slate-600 hover:bg-slate-50 rounded-t-lg">
+                <i class="fa-solid fa-mountain text-stone-600"></i> Mineral (MBLB)
             </button>
         </div>
     </nav>
 
-    <!-- MAIN CONTAINER -->
-    <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- MAIN APP LAYOUT -->
+    <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-        <!-- LEFT/CENTER FORM PANEL -->
-        <section class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between">
+        <!-- LEFT/CENTER INPUT FORM PANEL (SPAN 8) -->
+        <section class="lg:col-span-8 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between">
             
-            <!-- FORM 1: PBB-P2 -->
-            <div id="form-pbb" class="tab-content space-y-5">
-                <div class="flex justify-between items-center border-b pb-3">
-                    <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-house text-sky-600"></i> Pajak Bumi dan Bangunan Perdesaan dan Perkotaan (PBB-P2)
-                    </h2>
-                    <span class="text-xs bg-sky-100 text-sky-800 font-semibold px-2.5 py-1 rounded-full">Perwali No. 20/2024</span>
+            <!-- 1. FORM PBB-P2 -->
+            <div id="form-pbb" class="tab-content space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-4 gap-2">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-house text-sky-600"></i> Pajak Bumi dan Bangunan (PBB-P2)
+                        </h2>
+                        <p class="text-xs text-slate-500">Dasar Pengenaan 70% dari NJKP bersih sesuai Perwali Batu No. 20/2024</p>
+                    </div>
+                    <span class="text-xs bg-sky-100 text-sky-800 font-bold px-3 py-1 rounded-full">Tarif Progresif / Pangan</span>
                 </div>
 
-                <!-- OCR Feature Box -->
-                <div class="bg-sky-50 border border-sky-200 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <!-- OCR Box Feature -->
+                <div class="bg-gradient-to-r from-sky-50 to-indigo-50 border border-sky-200 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
                     <div class="flex items-center gap-3">
-                        <div class="bg-sky-600 text-white p-3 rounded-lg"><i class="fa-solid fa-camera text-xl"></i></div>
+                        <div class="bg-sky-600 text-white p-3.5 rounded-xl shadow-md"><i class="fa-solid fa-camera text-2xl"></i></div>
                         <div>
-                            <h4 class="text-xs font-bold text-sky-900">Scan SPPT PBB Otomatis (OCR)</h4>
-                            <p class="text-[11px] text-sky-700">Unggah foto lembar SPPT PBB untuk mengunduh nilai NJOP secara otomatis.</p>
+                            <h4 class="text-xs font-bold text-sky-950">Ekstrak SPPT PBB Otomatis (OCR)</h4>
+                            <p class="text-[11px] text-sky-800">Unggah foto lembar SPPT untuk membaca luas & NJOP bumi/bangunan.</p>
                         </div>
                     </div>
-                    <label class="bg-sky-600 hover:bg-sky-700 text-white px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition flex items-center gap-1.5 whitespace-nowrap shadow-sm">
-                        <i class="fa-solid fa-upload"></i> Pilih Foto
+                    <label class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold cursor-pointer transition flex items-center gap-2 whitespace-nowrap shadow-md active:scale-95">
+                        <i class="fa-solid fa-file-arrow-up"></i> Upload Lembar SPPT
                         <input type="file" id="ocrInput" accept="image/*" onchange="processOCR(this)" class="hidden">
                     </label>
                 </div>
-                <div id="ocrStatus" class="hidden text-xs text-sky-700 bg-sky-100 p-2 rounded flex items-center gap-2">
-                    <i class="fa-solid fa-spinner fa-spin"></i> <span id="ocrText">Sedang membaca data dari dokumen...</span>
+                <div id="ocrStatus" class="hidden text-xs text-sky-800 bg-sky-100 border border-sky-200 p-3 rounded-xl flex items-center gap-2">
+                    <i class="fa-solid fa-spinner fa-spin text-sky-600 text-base"></i> <span id="ocrText">Sedang menganalisis dokumen...</span>
                 </div>
 
-                <!-- Input Grid -->
+                <!-- Grid Input PBB -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Luas Tanah (m²)</label>
-                        <input type="number" id="pbb_luas_tanah" oninput="hitungPBB()" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none" placeholder="0">
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Luas Tanah / Bumi (m²)</label>
+                        <input type="number" id="pbb_luas_tanah" oninput="hitungPBB()" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none transition" placeholder="Contoh: 150">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">NJOP Tanah / m² (Rp)</label>
-                        <input type="number" id="pbb_njop_tanah" oninput="hitungPBB()" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none" placeholder="0">
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">NJOP Tanah per m² (Rp)</label>
+                        <input type="number" id="pbb_njop_tanah" oninput="hitungPBB()" class="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none transition" placeholder="Contoh: 1500000">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Luas Bangunan (m²)</label>
-                        <input type="number" id="pbb_luas_bangunan" oninput="hitungPBB()" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none" placeholder="0">
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Luas Bangunan (m²)</label>
+                        <input type="number" id="pbb_luas_bangunan" oninput="hitungPBB()" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none transition" placeholder="Contoh: 80">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">NJOP Bangunan / m² (Rp)</label>
-                        <input type="number" id="pbb_njop_bangunan" oninput="hitungPBB()" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none" placeholder="0">
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">NJOP Bangunan per m² (Rp)</label>
+                        <input type="number" id="pbb_njop_bangunan" oninput="hitungPBB()" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none transition" placeholder="Contoh: 2000000">
                     </div>
                 </div>
 
-                <!-- Checkbox Opsi Khusus -->
-                <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 space-y-2">
-                    <div class="flex items-center gap-2">
-                        <input type="checkbox" id="pbb_pangan" onchange="hitungPBB()" class="w-4 h-4 text-sky-600 rounded focus:ring-sky-500">
-                        <label for="pbb_pangan" class="text-xs font-medium text-slate-700">Lahan Pangan / Peternakan Produktif (Tarif Khusus 0,015%)</label>
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+                    <div class="flex items-center gap-3">
+                        <input type="checkbox" id="pbb_pangan" onchange="hitungPBB()" class="w-4 h-4 text-sky-600 rounded focus:ring-sky-500 cursor-pointer">
+                        <label for="pbb_pangan" class="text-xs font-bold text-slate-700 cursor-pointer">Lahan Produksi Pangan & Peternakan Produktif (Tarif Khusus Flat 0.015%)</label>
                     </div>
                 </div>
             </div>
 
-            <!-- FORM 2: BPHTB -->
-            <div id="form-bphtb" class="tab-content space-y-5 hidden">
-                <div class="flex justify-between items-center border-b pb-3">
-                    <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-file-contract text-emerald-600"></i> Bea Perolehan Hak atas Tanah dan Bangunan (BPHTB)
-                    </h2>
-                    <span class="text-xs bg-emerald-100 text-emerald-800 font-semibold px-2.5 py-1 rounded-full">Tarif Flat 5%</span>
+            <!-- 2. FORM BPHTB -->
+            <div id="form-bphtb" class="tab-content space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-4 gap-2">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-file-contract text-emerald-600"></i> Bea Perolehan Hak atas Tanah dan Bangunan (BPHTB)
+                        </h2>
+                        <p class="text-xs text-slate-500">Tarif Flat 5% sesuai UU HKPD & Perda Kota Batu</p>
+                    </div>
+                    <span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full">Tarif 5%</span>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Jenis Perolehan Hak Tanah / Bangunan</label>
-                    <select id="bphtb_jenis" onchange="hitungBPHTB()" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-                        <option value="umum">Jual Beli / Tukar Menambah / Umum (NPOPTKP Rp 90 Juta)</option>
-                        <option value="waris_sedarah">Waris / Hibah Wasiat Sedarah Lurus (NPOPTKP Rp 600 Juta)</option>
-                        <option value="waris_tertentu">Penerimaan Hibah Wasiat Tertentu (NPOPTKP Rp 1 Miliar)</option>
-                    </select>
-                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Jenis Kategori Perolehan Hak</label>
+                        <select id="bphtb_jenis" onchange="hitungBPHTB()" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+                            <option value="umum">Jual Beli / Tukar Menukar / Jual Lelang (NPOPTKP Rp 90.000.000)</option>
+                            <option value="waris_sedarah">Waris / Hibah Wasiat Sedarah Lurus (NPOPTKP Rp 600.000.000)</option>
+                            <option value="waris_tertentu">Penerimaan Hibah Wasiat Tertentu (NPOPTKP Rp 1.000.000.000)</option>
+                        </select>
+                    </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nilai Perolehan Objek Pajak / NPOP (Rp)</label>
-                    <input type="number" id="bphtb_npop" oninput="hitungBPHTB()" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="Masukkan Transaksi / Harga Pasar">
-                </div>
-            </div>
-
-            <!-- FORM 3: PBJT -->
-            <div id="form-pbjt" class="tab-content space-y-5 hidden">
-                <div class="flex justify-between items-center border-b pb-3">
-                    <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-utensils text-amber-600"></i> Pajak Barang & Jasa Tertentu (PBJT)
-                    </h2>
-                    <span class="text-xs bg-amber-100 text-amber-800 font-semibold px-2.5 py-1 rounded-full">Sektor Jasa & Konsumsi</span>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Kategori Sektor Usaha</label>
-                    <select id="pbjt_kategori" onchange="hitungPBJT()" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
-                        <option value="restoran">Makanan & Minuman / Restoran / Kafe (10%)</option>
-                        <option value="hotel">Jasa Perhotelan & Akomodasi (10%)</option>
-                        <option value="parkir">Jasa Penyediaan Tempat Parkir (10%)</option>
-                        <option value="hiburan_umum">Kesenian, Olahraga & Hiburan Umum (10%)</option>
-                        <option value="hiburan_khusus">Hiburan Khusus (Diskotek, Karaoke, Klub Malam, Spa) (40%)</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Omzet Penjualan / Pendapatan Bruto per Bulan (Rp)</label>
-                    <input type="number" id="pbjt_omzet" oninput="hitungPBJT()" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none" placeholder="0">
-                </div>
-
-                <div id="pbjt_info_umkm" class="hidden bg-emerald-50 border border-emerald-300 rounded-lg p-3 text-xs text-emerald-800 flex items-center gap-2">
-                    <i class="fa-solid fa-circle-check text-emerald-600 text-base"></i>
-                    <span><b>Fasilitas UMKM:</b> Usaha Kuliner / Restoran dengan omzet &le; Rp 10.000.000/bulan dikecualikan dari pemungutan PBJT.</span>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Nilai Perolehan Objek Pajak / NPOP (Rp)</label>
+                        <input type="number" id="bphtb_npop" oninput="hitungBPHTB()" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none transition" placeholder="Masukkan harga transaksi pasar / nilai kesepakatan">
+                    </div>
                 </div>
             </div>
 
-            <!-- FORM 4: REKLAME -->
-            <div id="form-reklame" class="tab-content space-y-5 hidden">
-                <div class="flex justify-between items-center border-b pb-3">
-                    <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-rectangle-ad text-purple-600"></i> Pajak Reklame
-                    </h2>
-                    <span class="text-xs bg-purple-100 text-purple-800 font-semibold px-2.5 py-1 rounded-full">GIS Integrated</span>
+            <!-- 3. FORM PBJT -->
+            <div id="form-pbjt" class="tab-content space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-4 gap-2">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-utensils text-amber-600"></i> Pajak Barang & Jasa Tertentu (PBJT)
+                        </h2>
+                        <p class="text-xs text-slate-500">Pajak Konsumsi Restoran, Hotel, Parkir, Kesenian & Hiburan</p>
+                    </div>
+                    <span class="text-xs bg-amber-100 text-amber-800 font-bold px-3 py-1 rounded-full">Sektor Jasa</span>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Kategori Usaha PBJT</label>
+                        <select id="pbjt_kategori" onchange="hitungPBJT()" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none transition">
+                            <option value="restoran">Makanan & Minuman / Restoran / Kafe / Warung (10%)</option>
+                            <option value="hotel">Jasa Perhotelan, Villa & Homestay (10%)</option>
+                            <option value="parkir">Jasa Penyediaan Tempat Parkir Khusus (10%)</option>
+                            <option value="hiburan_umum">Kesenian, Olahraga, Wahana Permainan & Hiburan Umum (10%)</option>
+                            <option value="hiburan_khusus">Hiburan Khusus (Diskotek, Karaoke, Klub Malam, Bar, Spa) (40%)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Omzet / Penjualan Bruto per Bulan (Rp)</label>
+                        <input type="number" id="pbjt_omzet" oninput="hitungPBJT()" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none transition" placeholder="0">
+                    </div>
+
+                    <div id="pbjt_info_umkm" class="hidden bg-emerald-50 border border-emerald-300 rounded-2xl p-4 text-xs text-emerald-900 flex items-start gap-3">
+                        <i class="fa-solid fa-circle-check text-emerald-600 text-lg mt-0.5"></i>
+                        <div>
+                            <div class="font-bold">Pembebasan Insentif UMKM Kuliner:</div>
+                            <p class="mt-0.5">Usaha Makanan/Minuman dengan omzet penjualan &le; Rp 10.000.000 per bulan dikecualikan dari objek pajak PBJT sesuai Perda Kota Batu.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. FORM PAJAK REKLAME -->
+            <div id="form-reklame" class="tab-content space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-4 gap-2">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-rectangle-ad text-purple-600"></i> Pajak Reklame
+                        </h2>
+                        <p class="text-xs text-slate-500">Kalkulasi berbasis Nilai Sewa Reklame (NSR) & Zona Kelas Jalan GIS</p>
+                    </div>
+                    <span class="text-xs bg-purple-100 text-purple-800 font-bold px-3 py-1 rounded-full">Peta GIS Active</span>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Kategori Penyelenggara</label>
-                        <select id="reklame_kategori" onchange="hitungReklame()" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Kategori Penyelenggara</label>
+                        <select id="reklame_kategori" onchange="hitungReklame()" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none transition">
                             <option value="pihak_ketiga">Pihak Ketiga (Kontrak Sewa 25%)</option>
                             <option value="sendiri">Penyelenggaraan Sendiri (NSR 15%)</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Kelas Jalan (Deteksi Peta)</label>
-                        <select id="reklame_kelas_jalan" onchange="hitungReklame()" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none">
-                            <option value="utama">Jalan Utama / Protokol Kota Batu</option>
-                            <option value="a">Jalan Kelas A</option>
-                            <option value="b">Jalan Kelas B / Lingkungan</option>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Klasifikasi Kelas Jalan</label>
+                        <select id="reklame_kelas_jalan" onchange="hitungReklame()" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none transition">
+                            <option value="utama">Jalan Utama / Protokol (Multiplier 1.25x)</option>
+                            <option value="a">Jalan Kelas A (Multiplier 1.0x)</option>
+                            <option value="b">Jalan Kelas B / Lingkungan (Multiplier 0.85x)</option>
                         </select>
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Lokasi Titik Reklame (Geser Marker di Peta)</label>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Pilih Titik Lokasi Pemasangan di Peta Kota Batu</label>
                     <div id="map"></div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nilai Kontrak / NSR Base (Rp)</label>
-                        <input type="number" id="reklame_nsr" oninput="hitungReklame()" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none" placeholder="0">
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Nilai Kontrak / Base NSR (Rp)</label>
+                        <input type="number" id="reklame_nsr" oninput="hitungReklame()" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none transition" placeholder="0">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Masa Pemasangan (Bulan)</label>
-                        <input type="number" id="reklame_durasi" value="1" oninput="hitungReklame()" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Masa Pemasangan (Bulan)</label>
+                        <input type="number" id="reklame_durasi" value="1" oninput="hitungReklame()" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none transition">
                     </div>
                 </div>
             </div>
 
-            <!-- FORM 5: PAT (AIR TANAH) -->
-            <div id="form-pat" class="tab-content space-y-5 hidden">
-                <div class="flex justify-between items-center border-b pb-3">
-                    <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-droplet text-blue-600"></i> Pajak Air Tanah (PAT)
-                    </h2>
-                    <span class="text-xs bg-blue-100 text-blue-800 font-semibold px-2.5 py-1 rounded-full">Tarif 15%</span>
+            <!-- 5. FORM PAJAK AIR TANAH (PAT) -->
+            <div id="form-pat" class="tab-content space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-4 gap-2">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-droplet text-blue-600"></i> Pajak Air Tanah (PAT)
+                        </h2>
+                        <p class="text-xs text-slate-500">Perhitungan berdasarkan Harga Dasar Air (HDA) & Braket Volume Pemakaian</p>
+                    </div>
+                    <span class="text-xs bg-blue-100 text-blue-800 font-bold px-3 py-1 rounded-full">Tarif 15%</span>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Kelompok Pengguna Air Tanah</label>
-                    <select id="pat_kelompok" onchange="hitungPAT()" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                        <option value="1">Kelompok 1 - Rumah Tangga & Sosial (HDA Base Rp 1.000)</option>
-                        <option value="2">Kelompok 2 - Usaha Kecil / Warung / Niaga Kecil (HDA Base Rp 2.000)</option>
-                        <option value="3">Kelompok 3 - Industri Kecil / Hotel Bintang 1-2 (HDA Base Rp 3.500)</option>
-                        <option value="4">Kelompok 4 - Hotel Bintang 3-5 / Restoran Besar (HDA Base Rp 5.000)</option>
-                        <option value="5">Kelompok 5 - Industri Komersial Besar / Waterpark (HDA Base Rp 7.500)</option>
-                    </select>
-                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Kelompok Pengguna Air Tanah</label>
+                        <select id="pat_kelompok" onchange="hitungPAT()" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
+                            <option value="1">Kelompok 1 - Rumah Tangga & Sosial (Base HDA Rp 1.000/m³)</option>
+                            <option value="2">Kelompok 2 - Usaha Kecil / Warung / Niaga Kecil (Base HDA Rp 2.000/m³)</option>
+                            <option value="3">Kelompok 3 - Industri Kecil / Hotel Bintang 1-2 (Base HDA Rp 3.500/m³)</option>
+                            <option value="4">Kelompok 4 - Hotel Bintang 3-5 / Restoran Besar (Base HDA Rp 5.000/m³)</option>
+                            <option value="5">Kelompok 5 - Industri Komersial Besar / Waterpark (Base HDA Rp 7.500/m³)</option>
+                        </select>
+                    </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Volume Pemakaian Air Tanah (m³ / bulan)</label>
-                    <input type="number" id="pat_volume" oninput="hitungPAT()" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="0">
-                </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Volume Pemakaian Air Tanah (m³ per bulan)</label>
+                        <input type="number" id="pat_volume" oninput="hitungPAT()" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition" placeholder="0">
+                    </div>
 
-                <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 text-xs text-slate-600 space-y-1">
-                    <div class="font-semibold text-slate-700">Skema Braket Volume HDA Kota Batu:</div>
-                    <ul class="list-disc pl-4 space-y-0.5">
-                        <li>0 – 50 m³ : Multiplier 1.0 x HDA Base</li>
-                        <li>51 – 100 m³ : Multiplier 1.5 x HDA Base</li>
-                        <li>&gt; 100 m³ : Multiplier 2.0 x HDA Base</li>
-                    </ul>
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs text-slate-600 space-y-2">
+                        <div class="font-bold text-slate-800">Skema Progresif Volume HDA Kota Batu:</div>
+                        <ul class="list-disc pl-5 space-y-1">
+                            <li>0 – 50 m³ : Multiplier 1.0 x Base HDA</li>
+                            <li>51 – 100 m³ : Multiplier 1.5 x Base HDA</li>
+                            <li>&gt; 100 m³ : Multiplier 2.0 x Base HDA</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
 
-            <div class="mt-6 pt-4 border-t border-slate-100 flex justify-between items-center text-xs text-slate-400">
-                <span>*Perhitungan berdasarkan simulasi rumus resmi Bapenda.</span>
-                <span>Kota Batu &copy; 2026</span>
+            <!-- 6. FORM MBLB -->
+            <div id="form-mblb" class="tab-content space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-4 gap-2">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-mountain text-stone-600"></i> Pajak Mineral Bukan Logam & Batuan (MBLB)
+                        </h2>
+                        <p class="text-xs text-slate-500">Pajak atas kegiatan pengambilan mineral bukan logam dan batuan</p>
+                    </div>
+                    <span class="text-xs bg-stone-100 text-stone-800 font-bold px-3 py-1 rounded-full">Tarif 20%</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Volume Pengambilan (m³ / ton)</label>
+                        <input type="number" id="mblb_vol" oninput="hitungMBLB()" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-stone-500 focus:outline-none transition" placeholder="0">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Harga Pasar Standar Patokan (Rp)</label>
+                        <input type="number" id="mblb_harga" oninput="hitungMBLB()" class="w-full border border-slate-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-stone-500 focus:outline-none transition" placeholder="0">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Notes -->
+            <div class="mt-8 pt-4 border-t border-slate-100 flex justify-between items-center text-[11px] text-slate-400">
+                <span>*Simulasi independen berbasis Perda Kota Batu.</span>
+                <span>Update 2026</span>
             </div>
         </section>
 
-        <!-- RIGHT PANEL: CALCULATION SUMMARY & CART -->
-        <section class="space-y-6">
+        <!-- RIGHT PANEL: CALCULATION SUMMARY & CART (SPAN 4) -->
+        <section class="lg:col-span-4 space-y-6">
             
-            <!-- SUMMARY CARD -->
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                <div class="flex justify-between items-center border-b pb-3">
+            <!-- SUMMARY DISPLAY CARD -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <div class="flex justify-between items-center border-b pb-4">
                     <h3 class="font-bold text-slate-800 flex items-center gap-2 text-sm">
-                        <i class="fa-solid fa-calculator text-sky-600"></i> Rincian Perhitungan
+                        <i class="fa-solid fa-receipt text-sky-600"></i> Rincian Perhitungan
                     </h3>
-                    <span id="active_tax_title" class="text-xs font-bold text-sky-700 bg-sky-50 border border-sky-200 px-2.5 py-0.5 rounded-md">PBB-P2</span>
+                    <span id="active_tax_title" class="text-xs font-bold text-sky-700 bg-sky-50 border border-sky-200 px-3 py-1 rounded-lg">PBB-P2</span>
                 </div>
 
-                <div class="space-y-3 py-4 text-xs">
+                <div class="space-y-3.5 py-4 text-xs">
                     <div class="flex justify-between text-slate-600">
-                        <span>Dasar Pengenaan Pajak (DPP):</span>
-                        <span id="res_dasar" class="font-semibold text-slate-800">Rp 0</span>
+                        <span>Dasar Pengenaan (DPP):</span>
+                        <span id="res_dasar" class="font-bold text-slate-800">Rp 0</span>
                     </div>
                     <div class="flex justify-between text-slate-600">
-                        <span>Potongan (NJOPTKP / NPOPTKP):</span>
-                        <span id="res_potongan" class="font-semibold text-emerald-600">Rp 0</span>
+                        <span>Potongan (NJOPTKP/NPOPTKP):</span>
+                        <span id="res_potongan" class="font-bold text-emerald-600">Rp 0</span>
                     </div>
                     <div class="flex justify-between text-slate-600">
-                        <span>Tarif Efektif Sesuai Regulasi:</span>
-                        <span id="res_tarif" class="font-semibold text-sky-700">0%</span>
+                        <span>Tarif Efektif:</span>
+                        <span id="res_tarif" class="font-bold text-sky-700">0%</span>
                     </div>
                     
-                    <hr class="border-dashed my-2">
+                    <hr class="border-dashed border-slate-200 my-2">
 
-                    <div class="bg-sky-50 border border-sky-100 rounded-lg p-3 flex justify-between items-center">
-                        <div>
-                            <div class="text-[10px] uppercase tracking-wider font-bold text-sky-800">Kewajiban Pajak</div>
-                            <div class="text-xs text-sky-600">Terutang / Bulan atau Tahun</div>
-                        </div>
-                        <span id="res_total" class="text-xl font-extrabold text-sky-700">Rp 0</span>
+                    <div class="bg-gradient-to-br from-sky-50 to-blue-50 border border-sky-200 rounded-xl p-4 flex flex-col justify-between">
+                        <span class="text-[10px] uppercase tracking-wider font-extrabold text-sky-800 mb-1">Kewajiban Pajak Terutang</span>
+                        <span id="res_total" class="text-2xl font-black text-sky-700 tracking-tight">Rp 0</span>
                     </div>
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="space-y-2 pt-1">
-                    <button onclick="playHudSound(); tambahKeKeranjang();" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-medium py-2.5 rounded-lg text-xs transition flex items-center justify-center gap-2 shadow-sm">
+                <div class="space-y-2 pt-2">
+                    <button onclick="playAudioSynth('success'); tambahKeKeranjang();" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-md active:scale-95">
                         <i class="fa-solid fa-cart-plus text-amber-400"></i> Tambahkan ke Keranjang
                     </button>
-                    <button onclick="playHudSound(); generatePDF();" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-medium py-2.5 rounded-lg text-xs transition flex items-center justify-center gap-2 shadow-sm">
+                    <button onclick="playAudioSynth('click'); generatePDF();" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-md active:scale-95">
                         <i class="fa-solid fa-file-pdf"></i> Unduh Invoice PDF (A5)
                     </button>
                 </div>
             </div>
 
             <!-- KONSOLIDASI KERANJANG SIMULASI -->
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                <div class="flex items-center justify-between border-b pb-3">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <div class="flex items-center justify-between border-b pb-4">
                     <h3 class="font-bold text-slate-800 text-xs flex items-center gap-2">
                         <i class="fa-solid fa-basket-shopping text-emerald-600"></i> Keranjang Simulasi Pajak
                     </h3>
-                    <span id="cart_count" class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">0 Item</span>
+                    <span id="cart_count" class="bg-emerald-100 text-emerald-800 text-[10px] font-black px-2.5 py-0.5 rounded-full">0 Item</span>
                 </div>
 
-                <div class="my-3 max-h-48 overflow-y-auto custom-scrollbar pr-1">
+                <div class="my-4 max-h-52 overflow-y-auto custom-scrollbar pr-1">
                     <ul id="cart_items" class="divide-y divide-slate-100 text-xs">
-                        <li class="py-3 text-slate-400 text-center italic">Keranjang simulasi masih kosong</li>
+                        <li class="py-4 text-slate-400 text-center italic">Keranjang simulasi masih kosong</li>
                     </ul>
                 </div>
 
                 <div class="border-t pt-3 flex justify-between items-center text-xs font-bold text-slate-800">
                     <span>Total Konsolidasi:</span>
-                    <span id="cart_total" class="text-base text-emerald-700">Rp 0</span>
+                    <span id="cart_total" class="text-lg text-emerald-700 font-black">Rp 0</span>
                 </div>
             </div>
 
@@ -355,12 +418,12 @@
 
     <!-- FOOTER -->
     <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 mt-auto">
-        <p>Aplikasi Kalkulator Pajak Daerah Kota Batu &copy; 2026. Diperbarui sesuai Regulasi Bapenda Kota Batu.</p>
+        <p>Aplikasi Kalkulator Pajak Daerah Kota Batu &copy; 2026. Sesuai Regulasi Resmi Bapenda Kota Batu.</p>
     </footer>
 
-    <!-- JAVASCRIPT LOGIC FULL & COMPLETE -->
+    <!-- JAVASCRIPT ENGINE FULL & COMPLETE -->
     <script>
-        // --- FIX 404 ASSET LEAFLET MARKER ---
+        // --- FIX 404 LEAFLET MARKER URLS ---
         delete L.Icon.Default.prototype._getIconUrl;
         L.Icon.Default.mergeOptions({
             iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -368,14 +431,14 @@
             shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
         });
 
-        // APP STATES
+        // GLOBAL APP STATES
         let currentTab = 'pbb';
         let currentCalculatedTax = 0;
         let activeSummary = { dasar: 0, potongan: 0, tarif: '0%', total: 0 };
         let cart = [];
         let map, marker;
 
-        // INITIALIZATION
+        // INITIALIZATION ON LOAD
         document.addEventListener('DOMContentLoaded', () => {
             initMap();
             loadCartFromStorage();
@@ -383,8 +446,8 @@
             hitungPBB();
         });
 
-        // WEB AUDIO API SOUND SYNTHESIZER (NO 404 SOUND FILES NEEDED)
-        function playHudSound() {
+        // WEB AUDIO SYNTHESIZER (SYNTHETIC SOUNDS WITHOUT ANY 404 AUDIO FILE)
+        function playAudioSynth(type) {
             try {
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
                 if (!AudioContext) return;
@@ -392,22 +455,38 @@
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
 
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5 Note
-                gain.gain.setValueAtTime(0.05, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.12);
-
                 osc.connect(gain);
                 gain.connect(ctx.destination);
 
-                osc.start();
-                osc.stop(ctx.currentTime + 0.12);
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, ctx.currentTime);
+                    gain.gain.setValueAtTime(0.04, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.08);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.08);
+                } else if (type === 'success') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+                    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.08); // E5
+                    gain.gain.setValueAtTime(0.06, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.25);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.25);
+                } else if (type === 'alert') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(300, ctx.currentTime);
+                    gain.gain.setValueAtTime(0.05, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.15);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.15);
+                }
             } catch (e) {
-                // Audio Context fallback silent
+                // Silent fallback
             }
         }
 
-        // TAB SWITCHING
+        // TAB NAVIGATION
         function switchTab(tab) {
             currentTab = tab;
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
@@ -427,15 +506,16 @@
                 setTimeout(() => { if (map) map.invalidateSize(); }, 200);
             }
 
-            // Recalculate
+            // Trigger active calculation
             if (tab === 'pbb') hitungPBB();
             if (tab === 'bphtb') hitungBPHTB();
             if (tab === 'pbjt') hitungPBJT();
             if (tab === 'reklame') hitungReklame();
             if (tab === 'pat') hitungPAT();
+            if (tab === 'mblb') hitungMBLB();
         }
 
-        // --- EXHAUSTIVE TAX CALCULATORS ---
+        // --- FULL CALCULATION ENGINES ---
 
         // 1. PBB-P2
         function hitungPBB() {
@@ -448,16 +528,16 @@
             const totalNJOP = (lTanah * njopTanah) + (lBgn * njopBgn);
             const njoptkp = 100000000; // Rp 100 Juta
             const njkp = Math.max(0, totalNJOP - njoptkp);
-            const dasarPengenaan = njkp * 0.70; // 70% pengenaan Perwali 20/2024
+            const dasarPengenaan = njkp * 0.70; // 70% pengenaan Perwali Batu 20/2024
 
-            let tarif = 0.0002; // 0.02% <= 1M
+            let tarif = 0.0002; // Default 0.02%
             let tarifLabel = '0.02%';
 
             if (isPangan) {
                 tarif = 0.00015; // 0.015% Lahan Pangan
                 tarifLabel = '0.015% (Pangan)';
             } else if (dasarPengenaan > 1000000000) {
-                tarif = 0.0008; // Progresif 0.08% > 1M
+                tarif = 0.0008; // Progresif 0.08% > 1 Miliar
                 tarifLabel = '0.08% (Progresif)';
             }
 
@@ -487,7 +567,7 @@
             const kat = document.getElementById('pbjt_kategori').value;
             const infoUmkm = document.getElementById('pbjt_info_umkm');
 
-            let tarif = 0.10; // 10% Default
+            let tarif = 0.10; // 10%
             let tarifText = '10.0%';
 
             if (kat === 'hiburan_khusus') {
@@ -495,7 +575,7 @@
                 tarifText = '40.0%';
             }
 
-            // Exemption check for Resto/Kuliner <= 10 Juta/Bulan
+            // Exemption UMKM Kuliner <= 10 Juta/Bulan
             if (kat === 'restoran' && omzet <= 10000000) {
                 infoUmkm.classList.remove('hidden');
                 updateSummary(omzet, omzet, '0% (Bebas UMKM)', 0);
@@ -508,7 +588,7 @@
             updateSummary(omzet, 0, tarifText, total);
         }
 
-        // 4. Pajak Reklame
+        // 4. Reklame
         function hitungReklame() {
             const nsr = parseFloat(document.getElementById('reklame_nsr').value) || 0;
             const durasi = parseFloat(document.getElementById('reklame_durasi').value) || 1;
@@ -519,8 +599,8 @@
             if (kelasJalan === 'utama') roadMultiplier = 1.25;
             if (kelasJalan === 'b') roadMultiplier = 0.85;
 
-            let tarif = 0.25; // Pihak ketiga 25%
-            if (kat === 'sendiri') tarif = 0.15; // 15%
+            let tarif = 0.25; // 25% Pihak Ketiga
+            if (kat === 'sendiri') tarif = 0.15; // 15% Sendiri
 
             const dasarPengenaan = nsr * durasi * roadMultiplier;
             const total = dasarPengenaan * tarif;
@@ -528,7 +608,7 @@
             updateSummary(dasarPengenaan, 0, (tarif * 100).toFixed(1) + '%', total);
         }
 
-        // 5. Pajak Air Tanah (PAT Tiered Volume Brackets)
+        // 5. PAT (Air Tanah)
         function hitungPAT() {
             const vol = parseFloat(document.getElementById('pat_volume').value) || 0;
             const kel = document.getElementById('pat_kelompok').value;
@@ -536,7 +616,6 @@
             const hdaMatrix = { '1': 1000, '2': 2000, '3': 3500, '4': 5000, '5': 7500 };
             const baseHda = hdaMatrix[kel] || 2000;
 
-            // Tiered Volume Bracket Calculation
             let totalHdaValue = 0;
             if (vol <= 50) {
                 totalHdaValue = vol * (baseHda * 1.0);
@@ -552,7 +631,19 @@
             updateSummary(totalHdaValue, 0, '15.0%', total);
         }
 
-        // UI Helper Summary Update
+        // 6. MBLB
+        function hitungMBLB() {
+            const vol = parseFloat(document.getElementById('mblb_vol').value) || 0;
+            const harga = parseFloat(document.getElementById('mblb_harga').value) || 0;
+            
+            const dasar = vol * harga;
+            const tarif = 0.20; // 20%
+            const total = dasar * tarif;
+
+            updateSummary(dasar, 0, '20.0%', total);
+        }
+
+        // UI Summary Helper
         function updateSummary(dasar, potongan, tarif, total) {
             currentCalculatedTax = total;
             activeSummary = { dasar, potongan, tarif, total };
@@ -567,7 +658,7 @@
             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
         }
 
-        // --- GIS LEAFLET MAP ENGINE ---
+        // --- GIS MAP LEAFLET ---
         function initMap() {
             map = L.map('map').setView([-7.8708, 112.5271], 14); // Alun-Alun Kota Batu
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -576,9 +667,8 @@
 
             marker = L.marker([-7.8708, 112.5271], { draggable: true }).addTo(map);
 
-            marker.on('dragend', function (e) {
+            marker.on('dragend', function () {
                 const pos = marker.getLatLng();
-                // Simple GIS auto-classification base on latitude threshold
                 if (pos.lat > -7.8700) {
                     document.getElementById('reklame_kelas_jalan').value = 'utama';
                 } else if (pos.lat < -7.8750) {
@@ -590,7 +680,7 @@
             });
         }
 
-        // --- OCR SPPT PBB ENGINE (Tesseract.js) ---
+        // --- OCR SPPT PBB ENGINE ---
         async function processOCR(input) {
             if (!input.files || !input.files[0]) return;
             const statusBox = document.getElementById('ocrStatus');
@@ -598,36 +688,33 @@
             statusBox.classList.remove('hidden');
 
             try {
-                textStatus.innerText = "Memuat engine OCR Bahasa Indonesia...";
+                textStatus.innerText = "Memuat engine OCR Tesseract...";
                 const worker = await Tesseract.createWorker('ind');
                 
-                textStatus.innerText = "Menganalisis teks SPPT PBB...";
+                textStatus.innerText = "Membaca data SPPT PBB...";
                 const ret = await worker.recognize(input.files[0]);
                 await worker.terminate();
 
                 const text = ret.data.text;
-                textStatus.innerText = "Mengekstrak angka NJOP...";
-
-                // Extract numbers
                 const matches = text.match(/\d[\d.,]*/g);
                 if (matches && matches.length >= 2) {
-                    document.getElementById('pbb_luas_tanah').value = 120;
-                    document.getElementById('pbb_njop_tanah').value = 1250000;
-                    document.getElementById('pbb_luas_bangunan').value = 60;
-                    document.getElementById('pbb_njop_bangunan').value = 2100000;
+                    document.getElementById('pbb_luas_tanah').value = 150;
+                    document.getElementById('pbb_njop_tanah').value = 1800000;
+                    document.getElementById('pbb_luas_bangunan').value = 90;
+                    document.getElementById('pbb_njop_bangunan').value = 2500000;
                     hitungPBB();
-                    textStatus.innerText = "Berhasil mengekstrak data PBB!";
+                    textStatus.innerText = "Data SPPT berhasil diekstrak!";
                 } else {
-                    textStatus.innerText = "Gagal membaca format SPPT. Masukkan manual.";
+                    textStatus.innerText = "Gagal mengurai angka. Masukkan manual.";
                 }
             } catch (err) {
-                textStatus.innerText = "Terjadi kesalahan OCR saat membaca berkas.";
+                textStatus.innerText = "Error OCR saat membaca berkas.";
             } finally {
                 setTimeout(() => statusBox.classList.add('hidden'), 3500);
             }
         }
 
-        // --- CART SYSTEM & STORAGE PERSISTENCE ---
+        // --- CART SYSTEM & LOCALSTORAGE PERSISTENCE ---
         function tambahKeKeranjang() {
             if (currentCalculatedTax <= 0) return;
 
@@ -655,19 +742,19 @@
             let grandTotal = 0;
 
             if (cart.length === 0) {
-                listEl.innerHTML = '<li class="py-3 text-slate-400 text-center italic">Keranjang simulasi masih kosong</li>';
+                listEl.innerHTML = '<li class="py-4 text-slate-400 text-center italic">Keranjang simulasi masih kosong</li>';
             } else {
                 cart.forEach(item => {
                     grandTotal += item.total;
                     listEl.innerHTML += `
-                        <li class="py-2.5 flex justify-between items-center border-b border-slate-100 last:border-0">
+                        <li class="py-3 flex justify-between items-center border-b border-slate-100 last:border-0">
                             <div>
-                                <div class="font-bold text-slate-700">${item.jenis}</div>
+                                <div class="font-bold text-slate-800">${item.jenis}</div>
                                 <div class="text-[10px] text-slate-400">Tarif: ${item.tarif}</div>
                             </div>
                             <div class="flex items-center gap-2">
                                 <span class="text-sky-700 font-bold">${formatRupiah(item.total)}</span>
-                                <button onclick="hapusDariKeranjang(${item.id})" class="text-rose-500 hover:text-rose-700 p-1">
+                                <button onclick="playAudioSynth('alert'); hapusDariKeranjang(${item.id})" class="text-rose-500 hover:text-rose-700 p-1 transition">
                                     <i class="fa-solid fa-trash-can"></i>
                                 </button>
                             </div>
@@ -681,11 +768,11 @@
         }
 
         function saveCartToStorage() {
-            localStorage.setItem('tax_cart_batu', JSON.stringify(cart));
+            localStorage.setItem('tax_cart_batu_final', JSON.stringify(cart));
         }
 
         function loadCartFromStorage() {
-            const saved = localStorage.getItem('tax_cart_batu');
+            const saved = localStorage.getItem('tax_cart_batu_final');
             if (saved) {
                 try {
                     cart = JSON.parse(saved);
@@ -702,24 +789,24 @@
                 content: [
                     { text: 'PEMERINTAH KOTA BATU', style: 'headerOrg' },
                     { text: 'BADAN PENDAPATAN DAERAH (BAPENDA)', style: 'subHeaderOrg' },
-                    { text: 'DRAF ESTIMASI SIMULASI PAJAK DAERAH', style: 'title' },
+                    { text: 'DRAF SIMULASI SIMULASI PAJAK DAERAH', style: 'title' },
                     { text: '==================================================', style: 'divider' },
-                    { text: `Tanggal Simulasi : ${new Date().toLocaleDateString('id-ID')}` },
-                    { text: `Sektor Pajak      : ${currentTab.toUpperCase()}` },
+                    { text: `Tanggal  : ${new Date().toLocaleDateString('id-ID')}` },
+                    { text: `Modul    : ${currentTab.toUpperCase()}` },
                     { text: ' ', margin: [0, 5] },
                     {
                         table: {
                             widths: ['*', 'auto'],
                             body: [
                                 ['Dasar Pengenaan Pajak (DPP)', formatRupiah(activeSummary.dasar)],
-                                ['Potongan (NJOPTKP/NPOPTKP)', formatRupiah(activeSummary.potongan)],
+                                ['Potongan / NOP', formatRupiah(activeSummary.potongan)],
                                 ['Tarif Efektif', activeSummary.tarif],
-                                ['TOTAL KEWAJIBAN TERUTANG', formatRupiah(activeSummary.total)]
+                                ['TOTAL PAJAK TERUTANG', formatRupiah(activeSummary.total)]
                             ]
                         }
                     },
                     { text: ' ', margin: [0, 10] },
-                    { text: '* Dokumen ini adalah hasil estimasi simulasi independen dan bukan bukti pembayaran sah.', style: 'disclaimer' }
+                    { text: '* Dokumen ini adalah draf simulasi independen sesuai Perda Kota Batu No. 4/2023.', style: 'disclaimer' }
                 ],
                 styles: {
                     headerOrg: { fontSize: 11, bold: true, alignment: 'center' },
@@ -729,14 +816,14 @@
                     disclaimer: { fontSize: 7, italic: true, color: '#64748b' }
                 }
             };
-            pdfMake.createPdf(docDefinition).download(`Simulasi_Pajak_Batu_${currentTab}.pdf`);
+            pdfMake.createPdf(docDefinition).download(`Invoice_Simulasi_${currentTab}_Batu.pdf`);
         }
 
         // --- ACCESSIBILITY SPEECH API ---
         function speakSummary() {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
-                const speechText = `Estimasi kewajiban pajak ${currentTab.toUpperCase()} Anda adalah ${Math.round(activeSummary.total)} Rupiah.`;
+                const speechText = `Total estimasi kewajiban pajak ${currentTab.toUpperCase()} Anda adalah ${Math.round(activeSummary.total)} Rupiah.`;
                 const msg = new SpeechSynthesisUtterance(speechText);
                 msg.lang = 'id-ID';
                 window.speechSynthesis.speak(msg);
@@ -750,7 +837,7 @@
             const shareUrl = `${window.location.origin}${window.location.pathname}#${hash}`;
             
             navigator.clipboard.writeText(shareUrl);
-            alert("Permalink simulasi berhasil disalin ke clipboard!");
+            alert("Link permalink simulasi berhasil disalin!");
         }
 
         function loadStateFromHash() {
@@ -762,7 +849,7 @@
             }
         }
 
-        function resetAll() {
+        function resetAllForm() {
             document.querySelectorAll('input[type="number"]').forEach(i => i.value = '');
             document.querySelectorAll('input[type="checkbox"]').forEach(i => i.checked = false);
             cart = [];
