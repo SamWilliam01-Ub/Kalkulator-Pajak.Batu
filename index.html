@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SIPAD HUD v3.0 | Kalkulator Pajak Daerah Kota Batu</title>
+<title>SIPAD HUD v3.0 | Ultra Smooth & Complete Cart Edition</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
 <script>
   window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
@@ -16,18 +16,15 @@
 <style>
   :root {
     --bg-main: #050811;
-    --bg-mesh: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.2) 0%, rgba(5, 8, 17, 0) 70%),
-               radial-gradient(circle at 80% 20%, rgba(56, 189, 248, 0.15) 0%, rgba(5, 8, 17, 0) 50%);
-    --card-bg: rgba(13, 19, 36, 0.85);
-    --card-border: rgba(56, 189, 248, 0.35);
+    --card-bg: rgba(13, 19, 36, 0.88);
+    --card-border: rgba(56, 189, 248, 0.3);
     --primary: #6366F1;
     --primary-hover: #4F46E5;
-    --primary-glow: rgba(99, 102, 241, 0.45);
     --accent: #38BDF8;
     --text-main: #F8FAFC;
     --text-muted: #94A3B8;
     --text-dim: #64748B;
-    --input-bg: rgba(10, 15, 30, 0.9);
+    --input-bg: rgba(10, 15, 30, 0.95);
     --input-border: rgba(255, 255, 255, 0.12);
     --input-focus: #38BDF8;
     --success: #10B981;
@@ -43,7 +40,7 @@
 
   body {
     background-color: var(--bg-main);
-    background-image: var(--bg-mesh);
+    background-image: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.15) 0%, rgba(5, 8, 17, 0) 70%);
     background-attachment: fixed;
     font-family: var(--font-sans);
     color: var(--text-main);
@@ -56,15 +53,13 @@
 
   .container { max-width: 840px; margin: 0 auto; position: relative; }
 
-  /* HEADER HUD */
-  header { text-align: center; margin-bottom: 32px; position: relative; }
+  header { text-align: center; margin-bottom: 32px; }
   header .badge-container { display: flex; justify-content: center; margin-bottom: 12px; }
   header .badge {
     display: inline-flex; align-items: center; gap: 8px;
     background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.35);
     color: var(--accent); font-size: 11px; font-family: var(--font-mono); font-weight: 700; padding: 5px 14px;
-    border-radius: 30px; backdrop-filter: blur(8px); letter-spacing: 0.8px;
-    box-shadow: 0 0 20px rgba(56, 189, 248, 0.15);
+    border-radius: 30px; letter-spacing: 0.8px;
   }
   header .badge .pulse {
     width: 6px; height: 6px; background: var(--accent); border-radius: 50%;
@@ -75,68 +70,61 @@
     background: linear-gradient(135deg, #FFFFFF 30%, var(--text-muted) 100%);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   }
-  header p { font-size: 13px; color: var(--text-muted); font-family: var(--font-mono); margin-top: 4px; letter-spacing: 0.5px; }
+  header p { font-size: 13px; color: var(--text-muted); font-family: var(--font-mono); margin-top: 4px; }
 
-  /* TABS HUD NAV */
   .tabs-wrapper {
-    background: rgba(13, 19, 36, 0.8);
+    background: rgba(13, 19, 36, 0.9);
     padding: 6px; border-radius: 16px; border: 1px solid var(--card-border);
-    backdrop-filter: blur(16px); margin-bottom: 28px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    margin-bottom: 28px;
   }
   .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
   .tab {
     flex: 1; min-width: 90px; text-align: center; padding: 11px 8px; font-size: 12.5px; font-weight: 700;
-    font-family: var(--font-mono); letter-spacing: 0.5px;
-    color: var(--text-muted); border-radius: 10px; cursor: pointer; transition: all 0.25s ease;
-    border: 1px solid transparent; user-select: none;
+    font-family: var(--font-mono); color: var(--text-muted); border-radius: 10px; cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease; border: 1px solid transparent;
   }
   .tab:hover { color: var(--text-main); background: rgba(255, 255, 255, 0.05); }
   .tab.active {
     background: linear-gradient(135deg, rgba(99, 102, 241, 0.35), rgba(56, 189, 248, 0.2));
     color: #FFFFFF; border-color: rgba(56, 189, 248, 0.6);
-    box-shadow: 0 0 20px rgba(56, 189, 248, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   }
 
-  /* 3D SPATIAL DECK STACK CONTAINER */
+  /* OPTIMIZED 3D SPATIAL DECK */
   .panels-container {
     position: relative;
     width: 100%;
-    perspective: 1200px;
+    perspective: 1000px;
     transform-style: preserve-3d;
-    transition: height 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: height 0.3s ease-out;
   }
 
   .card {
     position: absolute; top: 0; left: 0; width: 100%;
     background: var(--card-bg); border: 1px solid var(--card-border);
-    border-radius: var(--radius-lg); padding: 32px; backdrop-filter: blur(20px);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+    border-radius: var(--radius-lg); padding: 32px;
     transform-origin: center bottom;
-    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
-                opacity 0.45s ease, filter 0.45s ease, box-shadow 0.45s ease;
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    contain: layout style paint;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
     opacity: 0; pointer-events: none; z-index: 1;
   }
 
-  /* 3D Stack States */
   .card.active {
     opacity: 1; pointer-events: auto; z-index: 10;
     transform: translate3d(0, 0, 0) scale(1) rotateX(0deg);
-    filter: blur(0px);
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.85), 0 0 40px rgba(56, 189, 248, 0.25);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
   }
   .card.stack-back-1 {
-    opacity: 0.4; z-index: 5;
-    transform: translate3d(0, -18px, -60px) scale(0.96) rotateX(6deg);
-    filter: blur(2px);
+    opacity: 0.35; z-index: 5;
+    transform: translate3d(0, -14px, -40px) scale(0.97) rotateX(4deg);
   }
   .card.stack-back-2 {
-    opacity: 0.15; z-index: 2;
-    transform: translate3d(0, -32px, -120px) scale(0.92) rotateX(10deg);
-    filter: blur(5px);
+    opacity: 0.12; z-index: 2;
+    transform: translate3d(0, -26px, -80px) scale(0.94) rotateX(7deg);
   }
 
-  /* HUD Brackets */
   .hud-bracket {
     position: absolute; width: 12px; height: 12px; pointer-events: none;
     border-color: var(--accent); border-style: solid; opacity: 0.85;
@@ -146,56 +134,45 @@
   .hud-bracket.bl { bottom: 0; left: 0; border-width: 0 0 2px 2px; border-bottom-left-radius: var(--radius-lg); }
   .hud-bracket.br { bottom: 0; right: 0; border-width: 0 2px 2px 0; border-bottom-right-radius: var(--radius-lg); }
 
-  .card-header-desc {
-    margin-bottom: 24px; padding-bottom: 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  }
-  .card-header-desc h2 { font-size: 19px; font-weight: 700; color: #FFF; letter-spacing: -0.3px; }
+  .card-header-desc { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+  .card-header-desc h2 { font-size: 19px; font-weight: 700; color: #FFF; }
   .card-header-desc .hint { margin-top: 4px; font-size: 12px; color: var(--text-muted); }
 
   .section-title {
     font-size: 12px; font-weight: 700; font-family: var(--font-mono); color: var(--accent); margin-bottom: 18px;
     display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 1px;
   }
-  .section-title::before {
-    content: ""; display: block; width: 4px; height: 14px;
-    background: var(--accent); border-radius: 4px; box-shadow: 0 0 10px var(--accent);
-  }
-  .legal-ref { font-size: 10.5px; font-weight: 500; color: var(--text-dim); text-transform: none; margin-left: auto; }
+  .section-title::before { content: ""; display: block; width: 4px; height: 14px; background: var(--accent); border-radius: 4px; }
+  .legal-ref { font-size: 10.5px; font-weight: 500; color: var(--text-dim); margin-left: auto; }
 
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 6px; }
   @media (max-width: 640px) { .row { grid-template-columns: 1fr; } body { padding: 20px 10px; } .card { padding: 22px 18px; } }
 
   .form-group { margin-bottom: 18px; position: relative; }
-  label { display: block; font-size: 11.5px; font-weight: 700; font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-main); margin-bottom: 6px; }
+  label { display: block; font-size: 11.5px; font-weight: 700; font-family: var(--font-mono); text-transform: uppercase; color: var(--text-main); margin-bottom: 6px; }
 
   .input-wrapper { position: relative; }
-  .input-wrapper .prefix {
-    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-    color: var(--accent); font-family: var(--font-mono); font-weight: 700; font-size: 13.5px; pointer-events: none;
-  }
+  .input-wrapper .prefix { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--accent); font-family: var(--font-mono); font-weight: 700; font-size: 13.5px; pointer-events: none; }
 
   input[type="text"], select {
     width: 100%; padding: 12px 14px; background: var(--input-bg);
     border: 1px solid var(--input-border); border-radius: var(--radius-md);
-    font-family: var(--font-sans); font-size: 13.5px; color: var(--text-main);
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); outline: none;
+    font-family: var(--font-sans); font-size: 13.5px; color: var(--text-main); outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
   .input-wrapper input { padding-left: 44px; font-family: var(--font-mono); font-weight: 600; color: var(--accent); }
 
   input[type="text"]:focus, select:focus {
-    border-color: var(--input-focus); background: rgba(10, 15, 30, 0.98);
-    box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
+    border-color: var(--input-focus);
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
   }
   select option { background: #050811; color: var(--text-main); }
   .hint { display: block; font-size: 11.5px; color: var(--text-muted); margin-top: 6px; line-height: 1.4; }
 
-  /* Autocomplete Dropdown */
   .autocomplete-results {
     position: absolute; top: 100%; left: 0; right: 0; z-index: 50;
     background: rgba(10, 15, 30, 0.98); border: 1px solid var(--accent);
     border-radius: var(--radius-md); margin-top: 4px; max-height: 160px; overflow-y: auto;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
   }
   .autocomplete-item {
     padding: 10px 14px; font-size: 12.5px; cursor: pointer; color: var(--text-main);
@@ -207,9 +184,8 @@
   .radio-option {
     display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px;
     background: rgba(15, 23, 42, 0.5); border: 1px solid var(--input-border);
-    border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s ease;
+    border-radius: var(--radius-md); cursor: pointer;
   }
-  .radio-option:hover { border-color: rgba(56, 189, 248, 0.4); background: rgba(56, 189, 248, 0.05); }
   .radio-option input { margin-top: 3px; accent-color: var(--accent); }
   .radio-option .opt-label { font-size: 12.5px; font-weight: 500; color: var(--text-main); }
 
@@ -220,26 +196,23 @@
   .alpha-card label { color: #FBBF24; }
   .alpha-card input { background: rgba(15, 23, 42, 0.85); border-color: rgba(245, 158, 11, 0.3); color: #FBBF24; }
 
-  /* OUTPUT & AGGREGATOR HUD */
   .summary-card {
     margin-top: 28px; background: rgba(10, 15, 30, 0.95);
-    border: 1px solid var(--accent); border-radius: var(--radius-lg);
-    overflow: hidden; box-shadow: 0 0 35px rgba(56, 189, 248, 0.2);
-    position: relative;
+    border: 1px solid var(--accent); border-radius: var(--radius-lg); overflow: hidden;
   }
   .summary-header {
     background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(56, 189, 248, 0.15));
     border-bottom: 1px solid rgba(56, 189, 248, 0.2);
     color: #FFF; padding: 16px 20px; font-weight: 700; font-size: 13.5px; font-family: var(--font-mono);
-    display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2;
+    display: flex; justify-content: space-between; align-items: center;
   }
   .summary-header.blocked { background: rgba(239, 68, 68, 0.15); border-bottom-color: rgba(239, 68, 68, 0.3); color: var(--danger); }
   .summary-header .tag {
     background: rgba(255, 255, 255, 0.1); padding: 3px 10px; border-radius: 12px;
-    font-size: 10px; font-family: var(--font-mono); letter-spacing: 0.8px; text-transform: uppercase;
+    font-size: 10px; font-family: var(--font-mono); text-transform: uppercase;
   }
   
-  .summary-body { padding: 20px; position: relative; z-index: 2; }
+  .summary-body { padding: 20px; }
   .summary-line { display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; color: var(--text-muted); }
   .summary-line .value { font-family: var(--font-mono); color: var(--text-main); font-weight: 500; }
   .summary-line.warn .value { color: #FBBF24; }
@@ -249,10 +222,9 @@
     display: flex; justify-content: space-between; align-items: center;
     margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, 0.15);
   }
-  .summary-total .label { font-size: 13.5px; font-weight: 700; font-family: var(--font-mono); color: #FFF; letter-spacing: 0.5px; }
+  .summary-total .label { font-size: 13.5px; font-weight: 700; font-family: var(--font-mono); color: #FFF; }
   .summary-total .value {
-    font-family: var(--font-mono); font-size: 24px; font-weight: 800;
-    color: var(--accent); text-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+    font-family: var(--font-mono); font-size: 24px; font-weight: 800; color: var(--accent);
   }
 
   .btn-group-hud { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px 20px; background: rgba(0,0,0,0.3); border-top: 1px solid rgba(255,255,255,0.08); }
@@ -260,28 +232,24 @@
     display: flex; align-items: center; justify-content: center; gap: 8px;
     padding: 12px; border: none; cursor: pointer;
     font-family: var(--font-mono); font-size: 12px; font-weight: 700;
-    letter-spacing: 0.8px; transition: all 0.25s ease; border-radius: var(--radius-md);
+    letter-spacing: 0.8px; border-radius: var(--radius-md); transition: opacity 0.2s ease;
   }
   .pdf-btn { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: #FFF; }
-  .pdf-btn:hover { box-shadow: 0 0 20px var(--primary-glow); filter: brightness(1.15); }
   .cart-btn { background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); color: var(--accent); }
-  .cart-btn:hover { background: rgba(56, 189, 248, 0.3); box-shadow: 0 0 20px rgba(56, 189, 248, 0.3); }
+  .pdf-btn:hover, .cart-btn:hover { opacity: 0.9; }
 
-  /* HUD AGGREGATOR CART TRAY */
   .cart-tray {
     margin-top: 30px; background: rgba(10, 15, 30, 0.95);
-    border: 1px solid rgba(16, 185, 129, 0.5); border-radius: var(--radius-lg);
-    padding: 20px; box-shadow: 0 0 30px rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.5); border-radius: var(--radius-lg); padding: 20px;
   }
   .cart-tray-header {
     display: flex; justify-content: space-between; align-items: center;
     border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px; margin-bottom: 12px;
   }
-  .cart-tray-title { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--success); display: flex; align-items: center; gap: 8px; }
+  .cart-tray-title { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--success); }
   .cart-item {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 8px 12px; background: rgba(15, 23, 42, 0.6); border-radius: 8px;
-    margin-bottom: 6px; font-size: 12.5px;
+    padding: 8px 12px; background: rgba(15, 23, 42, 0.6); border-radius: 8px; margin-bottom: 6px; font-size: 12.5px;
   }
   .cart-item-name { color: var(--text-main); font-weight: 500; }
   .cart-item-val { font-family: var(--font-mono); color: var(--accent); font-weight: 700; display: flex; align-items: center; gap: 10px; }
@@ -313,9 +281,7 @@
     </div>
   </div>
 
-  <!-- PANELS STACK CONTAINER -->
   <div class="panels-container" id="panels-container">
-    
     <!-- PBB-P2 -->
     <div class="card active" id="panel-pbb">
       <div class="hud-bracket tl"></div><div class="hud-bracket tr"></div><div class="hud-bracket bl"></div><div class="hud-bracket br"></div>
@@ -341,7 +307,7 @@
           <label class="radio-option"><input type="radio" name="pbb_jenis" value="pangan"><span class="opt-label">Lahan produksi pangan &mdash; tarif flat 0,015%</span></label>
           <label class="radio-option"><input type="radio" name="pbb_jenis" value="ternak"><span class="opt-label">Lahan produksi ternak &mdash; tarif flat 0,015%</span></label>
         </div>
-        <span class="hint">NJOPTKP dikunci Rp100.000.000 (Pasal 7 ayat 3)[cite: 1]. Dasar Pengenaan terkunci 70% sesuai Perwali Batu No. 20/2024 Pasal 25 ayat (2)[cite: 2].</span>
+        <span class="hint">NJOPTKP dikunci Rp100.000.000. Dasar Pengenaan terkunci 70% (Perwali No. 20/2024 Pasal 25)[cite: 2].</span>
       </div>
       <div class="alpha-card">
         <label>Dasar Pengenaan (% dari NJOP setelah TKP)</label>
@@ -355,19 +321,19 @@
       <div class="hud-bracket tl"></div><div class="hud-bracket tr"></div><div class="hud-bracket bl"></div><div class="hud-bracket br"></div>
       <div class="card-header-desc">
         <h2>Bea Perolehan Hak atas Tanah dan Bangunan (BPHTB)</h2>
-        <span class="hint">Pajak atas perolehan hak atas tanah dan/atau bangunan[cite: 1, 2].</span>
+        <span class="hint">Pajak atas perolehan hak atas tanah dan/atau bangunan.</span>
       </div>
       <div class="section-title">Nilai Transaksi Objek Pajak <span class="legal-ref">Pasal 14&ndash;16</span></div>
       <div class="row">
         <div class="form-group">
           <label>Nilai Perolehan (NPOP)</label>
           <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="b_npop" placeholder="0"></div>
-          <span class="hint">Harga transaksi riil[cite: 1].</span>
+          <span class="hint">Harga transaksi riil.</span>
         </div>
         <div class="form-group">
           <label>NJOP PBB Tahun Berjalan</label>
           <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="b_njop" placeholder="0"></div>
-          <span class="hint">Dasar pengenaan memakai nilai tertinggi antara NPOP dan NJOP[cite: 1].</span>
+          <span class="hint">Dasar pengenaan memakai nilai tertinggi antara NPOP dan NJOP.</span>
         </div>
       </div>
       <div class="form-group">
@@ -385,7 +351,7 @@
       <div class="hud-bracket tl"></div><div class="hud-bracket tr"></div><div class="hud-bracket bl"></div><div class="hud-bracket br"></div>
       <div class="card-header-desc">
         <h2>Pajak Barang dan Jasa Tertentu (PBJT)</h2>
-        <span class="hint">Pajak konsumen akhir atas makanan/minuman, perhotelan, parkir, listrik, dan hiburan[cite: 1, 2].</span>
+        <span class="hint">Pajak konsumen akhir atas makanan/minuman, perhotelan, parkir, listrik, dan hiburan.</span>
       </div>
       <div class="section-title">Kategori Objek <span class="legal-ref">Pasal 21&ndash;30</span></div>
       <div class="form-group">
@@ -404,7 +370,7 @@
       <div class="form-group" id="pj_omzet_field">
         <label>Peredaran Usaha / Bulan</label>
         <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="pj_omzet" placeholder="0"></div>
-        <span class="hint">&le; Rp10.000.000/bulan = bukan objek pajak (Pasal 22 ayat 2a)[cite: 1]. Khusus kategori Makanan &amp; Minuman.</span>
+        <span class="hint">&le; Rp10.000.000/bulan = bukan objek pajak (Pasal 22 ayat 2a). Khusus kategori Makanan &amp; Minuman.</span>
       </div>
       <div class="form-group">
         <label>Dasar Pengenaan (Pembayaran Konsumen / Nilai Jual Listrik)</label>
@@ -412,12 +378,12 @@
       </div>
     </div>
 
-    <!-- REKLAME REVISI (PERWALI NO 20/2024 LAMPIRAN A) -->
+    <!-- REKLAME -->
     <div class="card" id="panel-reklame">
       <div class="hud-bracket tl"></div><div class="hud-bracket tr"></div><div class="hud-bracket bl"></div><div class="hud-bracket br"></div>
       <div class="card-header-desc">
         <h2>Pajak Reklame</h2>
-        <span class="hint">Pajak atas penyelenggaraan reklame komersial[cite: 1, 2].</span>
+        <span class="hint">Pajak atas penyelenggaraan reklame komersial.</span>
       </div>
       <div class="section-title">Metode &amp; Parameter Penyelenggaraan <span class="legal-ref">Perwali 20/2024 Lampiran A</span></div>
       
@@ -429,16 +395,14 @@
         </select>
       </div>
 
-      <!-- Mode Pihak Ketiga -->
       <div id="rk_container_kontrak" class="hidden">
         <div class="form-group">
           <label>Nilai Kontrak Reklame</label>
           <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="rk_nilai_kontrak" placeholder="0"></div>
-          <span class="hint">Nilai kontrak tertulis dengan pihak ketiga (Pasal 34 ayat 2 Perda 4/2023)[cite: 1]. Tarif flat 25%[cite: 1, 2].</span>
+          <span class="hint">Nilai kontrak tertulis dengan pihak ketiga (Pasal 34 ayat 2 Perda 4/2023). Tarif flat 25%.</span>
         </div>
       </div>
 
-      <!-- Mode Diselenggarakan Sendiri -->
       <div id="rk_container_sendiri">
         <div class="form-group">
           <label>Kategori Durasi / Sifat</label>
@@ -448,14 +412,12 @@
           </select>
         </div>
 
-        <!-- Sub Permanen -->
         <div id="rk_sub_permanen">
-          <!-- SMART STREET LOOKUP -->
           <div class="form-group">
             <label>Cari Lokasi Jalan Kota Batu (Auto-Classify)</label>
             <input type="text" id="rk_street_search" placeholder="Ketik nama jalan (mis. Diponegoro, Agus Salim...)" autocomplete="off">
             <div id="rk_street_results" class="autocomplete-results hidden"></div>
-            <span class="hint">Otomatis menentukan Kelas Jalan berdasarkan Lampiran III Perwali No. 20/2024[cite: 2].</span>
+            <span class="hint">Otomatis menentukan Kelas Jalan berdasarkan Lampiran III Perwali No. 20/2024.</span>
           </div>
 
           <div class="row">
@@ -485,7 +447,6 @@
           </div>
         </div>
 
-        <!-- Sub Insidentil -->
         <div id="rk_sub_insidentil" class="hidden">
           <div class="form-group">
             <label>Jenis Reklame Insidentil</label>
@@ -507,12 +468,12 @@
       </div>
     </div>
 
-    <!-- PAT REVISI (PERWALI NO 20/2024 LAMPIRAN B) -->
+    <!-- PAT -->
     <div class="card" id="panel-pat">
       <div class="hud-bracket tl"></div><div class="hud-bracket tr"></div><div class="hud-bracket bl"></div><div class="hud-bracket br"></div>
       <div class="card-header-desc">
         <h2>Pajak Air Tanah (PAT)</h2>
-        <span class="hint">Pajak atas pengambilan dan/atau pemanfaatan air tanah[cite: 1, 2].</span>
+        <span class="hint">Pajak atas pengambilan dan/atau pemanfaatan air tanah.</span>
       </div>
       <div class="section-title">Metode Perhitungan <span class="legal-ref">Perwali 20/2024 Lampiran B</span></div>
       
@@ -524,7 +485,6 @@
         </select>
       </div>
 
-      <!-- Mode Auto HDA Matriks -->
       <div id="pat_container_auto">
         <div class="form-group">
           <label>Kelompok Pengguna Air Tanah</label>
@@ -539,31 +499,30 @@
         <div class="form-group">
           <label>Volume Pemakaian Air / Bulan (m³)</label>
           <input type="text" id="pat_volume" placeholder="0">
-          <span class="hint">Sistem akan secara otomatis menentukan Harga Dasar Air (HDA) berdasarkan braket volume Perwali No. 20/2024[cite: 2].</span>
+          <span class="hint">Sistem menentukan Harga Dasar Air (HDA) berdasarkan braket volume Perwali No. 20/2024.</span>
         </div>
       </div>
 
-      <!-- Mode Manual -->
       <div id="pat_container_manual" class="hidden">
         <div class="form-group">
           <label>Nilai Perolehan Air Tanah (NPAT) Manual</label>
           <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="pat_nilai_manual" placeholder="0"></div>
-          <span class="hint">Hasil perkalian ketetapan harga air baku x bobot air tanah. Tarif flat 5%[cite: 1, 2].</span>
+          <span class="hint">Hasil perkalian ketetapan harga air baku x bobot air tanah. Tarif flat 5%.</span>
         </div>
       </div>
     </div>
-
   </div>
 
   <div id="result-slot"></div>
 
-  <!-- TAX AGGREGATOR CART TRAY -->
+  <!-- CART TRAY FULL HEADER INTEGRATION -->
   <div class="cart-tray hidden" id="cart-tray">
     <div class="cart-tray-header">
-      <div class="cart-tray-title">
-        <span>KERANJANG PAJAK GABUNGAN</span>
+      <div class="cart-tray-title"><span>KERANJANG PAJAK GABUNGAN</span></div>
+      <div style="display:flex; gap:8px;">
+        <button class="cart-btn" onclick="clearCart()" style="padding: 6px 12px; font-size: 11px; border-color: rgba(239, 68, 68, 0.4); color: var(--danger);">HAPUS SEMUA [X]</button>
+        <button class="cart-btn" onclick="downloadConsolidatedPDF()" style="padding: 6px 12px; font-size: 11px;">UNDUH DRAF KONSOLIDASI</button>
       </div>
-      <button class="cart-btn" onclick="downloadConsolidatedPDF()" style="padding: 6px 12px; font-size: 11px;">UNDUH DRAF DOKUMEN KONSOLIDASI</button>
     </div>
     <div id="cart-items-list"></div>
   </div>
@@ -571,11 +530,23 @@
 
 <script>
 /* =================================================================
-   WEB AUDIO API SYNTHESIZER (ZERO DEPENDENCY SFX)
+   OPTIMIZED WEB AUDIO API SINGLETON (ZERO LAG SFX)
    ================================================================= */
+let globalAudioCtx = null;
+
+function getAudioCtx() {
+  if (!globalAudioCtx) {
+    globalAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (globalAudioCtx.state === 'suspended') {
+    globalAudioCtx.resume();
+  }
+  return globalAudioCtx;
+}
+
 function playHUDAudio(type = 'click') {
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = getAudioCtx();
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.connect(gain);
@@ -584,30 +555,30 @@ function playHUDAudio(type = 'click') {
     if (type === 'click') {
       osc.type = 'sine';
       osc.frequency.setValueAtTime(800, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.04);
-      gain.gain.setValueAtTime(0.03, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
-      osc.start(); osc.stop(ctx.currentTime + 0.04);
+      osc.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.03);
+      gain.gain.setValueAtTime(0.02, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.03);
+      osc.start(); osc.stop(ctx.currentTime + 0.03);
     } else if (type === 'tab') {
       osc.type = 'triangle';
       osc.frequency.setValueAtTime(520, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(1040, ctx.currentTime + 0.08);
-      gain.gain.setValueAtTime(0.05, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
-      osc.start(); osc.stop(ctx.currentTime + 0.08);
+      osc.frequency.exponentialRampToValueAtTime(1040, ctx.currentTime + 0.06);
+      gain.gain.setValueAtTime(0.03, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.06);
+      osc.start(); osc.stop(ctx.currentTime + 0.06);
     } else if (type === 'cart') {
       osc.type = 'square';
       osc.frequency.setValueAtTime(440, ctx.currentTime);
-      osc.frequency.setValueAtTime(880, ctx.currentTime + 0.06);
-      gain.gain.setValueAtTime(0.03, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
-      osc.start(); osc.stop(ctx.currentTime + 0.12);
+      osc.frequency.setValueAtTime(880, ctx.currentTime + 0.05);
+      gain.gain.setValueAtTime(0.02, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+      osc.start(); osc.stop(ctx.currentTime + 0.1);
     }
   } catch(e) {}
 }
 
 /* ============================================================
-   KOTA BATU STREET DICTIONARY ENGINE (PERWALI 20/2024 LAMPIRAN III)
+   STREET LOOKUP ENGINE
    ============================================================ */
 const KOTA_BATU_STREETS = {
   'AHMAD YANI': 'Utama', 'BHAYANGKARA': 'Utama', 'DIPONEGORO': 'Utama',
@@ -646,7 +617,7 @@ function selectStreet(name, classType) {
 }
 
 /* =================================================================
-   TAX ENGINE RULES & LOGIC
+   TAX RULES & CALCULATIONS
    ================================================================= */
 const PERDA_BATU_RULES = {
   pbb: {
@@ -812,7 +783,7 @@ function animateTotalNumber(targetValue) {
 
   if (animFrameId) cancelAnimationFrame(animFrameId);
   const startValue = currentAnimValue;
-  const duration = 450;
+  const duration = 300;
   const startTime = performance.now();
 
   function step(currentTime) {
@@ -830,7 +801,7 @@ function animateTotalNumber(targetValue) {
 }
 
 /* =================================================================
-   TAX AGGREGATOR CART ENGINE
+   TAX AGGREGATOR CART ENGINE (WITH CLEAR ALL)
    ================================================================= */
 let TAX_CART = [];
 
@@ -851,6 +822,12 @@ function addToCart() {
 
 function removeFromCart(id) {
   TAX_CART = TAX_CART.filter(item => item.id !== id);
+  playHUDAudio('click');
+  renderCartTray();
+}
+
+function clearCart() {
+  TAX_CART = [];
   playHUDAudio('click');
   renderCartTray();
 }
@@ -879,14 +856,14 @@ function renderCartTray() {
     `;
   }).join('') + `
     <div style="display:flex; justify-content:space-between; margin-top:12px; padding-top:10px; border-top:1px dashed var(--success); font-family:var(--font-mono); font-weight:700;">
-      <span>TOTAL ESTIMASI KONSOLIDASI</span>
+      <span>TOTAL KONSOLIDASI</span>
       <span style="color:var(--success); font-size:16px;">${formatRupiah(totalAll)}</span>
     </div>
   `;
 }
 
 /* =================================================================
-   PDF MAKE PRINT ENGINE (DARK HUD THEME)
+   PDF MAKE PRINT ENGINE
    ================================================================= */
 let currentPrintPayload = null;
 
@@ -897,7 +874,6 @@ function downloadPDFNative() {
 
 function downloadConsolidatedPDF() {
   if (TAX_CART.length === 0) return;
-  
   let combinedRows = [];
   let totalAll = 0;
   
@@ -948,12 +924,7 @@ function generatePDFDoc(title, dataRows) {
         layout: { hLineWidth: () => 0, vLineWidth: () => 0, paddingTop: () => 8, paddingBottom: () => 8 }
       },
       { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 372, y2: 0, lineWidth: 1.5, lineColor: '#38BDF8' }], margin: [0, 6, 0, 12] },
-      {
-        columns: [
-          { text: title.toUpperCase(), style: 'taxType' },
-          { text: '[ DRAF SIMULASI HUD ]', style: 'badge', alignment: 'right' }
-        ]
-      },
+      { columns: [{ text: title.toUpperCase(), style: 'taxType' }, { text: '[ DRAF SIMULASI HUD ]', style: 'badge', alignment: 'right' }] },
       { text: 'DASAR HUKUM: PERDA NO. 4/2023 & PERWALI NO. 20/2024', style: 'legalRef', margin: [0, 4, 0, 12] },
       { table: { widths: ['*', 'auto'], body: formattedRows }, layout: { hLineWidth: () => 0.5, vLineWidth: () => 0, hLineColor: () => '#1E293B' } },
       { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 372, y2: 0, lineWidth: 1, lineColor: '#1E293B' }], margin: [0, 14, 0, 8] },
@@ -992,7 +963,6 @@ function attachFormatter(id) {
   el.addEventListener('input', () => {
     const raw = parseInput(el.value);
     el.value = raw ? raw.toLocaleString('id-ID') : '';
-    playHUDAudio('click');
     render();
   });
 }
@@ -1013,11 +983,13 @@ const panels = {
 };
 
 function updateContainerHeight() {
-  const activeCard = document.querySelector('.card.active');
-  const container = document.getElementById('panels-container');
-  if (activeCard && container) {
-    container.style.height = activeCard.offsetHeight + 'px';
-  }
+  requestAnimationFrame(() => {
+    const activeCard = document.querySelector('.card.active');
+    const container = document.getElementById('panels-container');
+    if (activeCard && container) {
+      container.style.height = activeCard.offsetHeight + 'px';
+    }
+  });
 }
 
 function update3DStackClasses(activeKey) {
@@ -1025,7 +997,7 @@ function update3DStackClasses(activeKey) {
   
   panelKeys.forEach((key, idx) => {
     const card = panels[key];
-    card.className = 'card'; // Reset
+    card.className = 'card';
     
     if (key === activeKey) {
       card.classList.add('active');
@@ -1033,7 +1005,7 @@ function update3DStackClasses(activeKey) {
       const diff = idx - activeIndex;
       if (diff === 1 || (diff < 0 && idx === panelKeys.length - 1)) {
         card.classList.add('stack-back-1');
-      } else if (diff === 2 || diff === -1) {
+      } else {
         card.classList.add('stack-back-2');
       }
     }
@@ -1462,7 +1434,7 @@ function muatState() {
 window.addEventListener('load', () => { 
   muatState(); 
   render(); 
-  setTimeout(updateContainerHeight, 100);
+  setTimeout(updateContainerHeight, 50);
 });
 </script>
 </body>
