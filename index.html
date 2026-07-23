@@ -18,8 +18,8 @@
     --bg-main: #070B14;
     --bg-mesh: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.18) 0%, rgba(7, 11, 20, 0) 70%),
                radial-gradient(circle at 80% 20%, rgba(56, 189, 248, 0.12) 0%, rgba(7, 11, 20, 0) 50%);
-    --card-bg: rgba(15, 23, 42, 0.65);
-    --card-border: rgba(59, 130, 246, 0.3);
+    --card-bg: rgba(15, 23, 42, 0.7);
+    --card-border: rgba(59, 130, 246, 0.35);
     --primary: #6366F1;
     --primary-hover: #4F46E5;
     --primary-glow: rgba(99, 102, 241, 0.4);
@@ -28,7 +28,7 @@
     --text-main: #F8FAFC;
     --text-muted: #94A3B8;
     --text-dim: #64748B;
-    --input-bg: rgba(15, 23, 42, 0.8);
+    --input-bg: rgba(15, 23, 42, 0.85);
     --input-border: rgba(255, 255, 255, 0.12);
     --input-focus: #38BDF8;
     --success: #10B981;
@@ -99,14 +99,54 @@
     box-shadow: 0 0 20px rgba(56, 189, 248, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   }
 
-  /* SCI-FI GLASS CARD WITH CORNER BRACKETS */
+  /* LAYERING CARD CONTAINER (PANELS STACK) */
+  .panels-container {
+    position: relative;
+    width: 100%;
+    transition: height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* SCI-FI GLASS CARD WITH CORNER BRACKETS & OVERLAY TRANSITION */
   .card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
     background: var(--card-bg);
     border: 1px solid var(--card-border);
     border-radius: var(--radius-lg);
     padding: 32px; backdrop-filter: blur(18px);
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 40px rgba(59, 130, 246, 0.08);
-    position: relative; overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(40px) scale(0.95);
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 0.4s ease,
+                visibility 0.4s ease,
+                filter 0.4s ease,
+                box-shadow 0.4s ease;
+    z-index: 1;
+  }
+
+  /* Active Stacked Card (Top Layer) */
+  .card.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
+    z-index: 10;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(56, 189, 248, 0.2);
+    filter: blur(0px);
+  }
+
+  /* Exiting Card (Layer Underneath) */
+  .card.layer-exit {
+    opacity: 0;
+    visibility: visible;
+    transform: translateY(-25px) scale(0.97);
+    z-index: 5;
+    filter: blur(4px);
   }
 
   /* HUD Brackets */
@@ -240,7 +280,6 @@
   .hidden { display: none !important; }
   @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-  .panel-animate { animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
 </style>
 </head>
 <body>
@@ -264,233 +303,238 @@
     </div>
   </div>
 
-  <!-- PBB-P2 -->
-  <div class="card panel-animate" id="panel-pbb">
-    <div class="hud-bracket tl"></div><div class="hud-bracket tr"></div><div class="hud-bracket bl"></div><div class="hud-bracket br"></div>
-    <div class="card-header-desc">
-      <h2>Pajak Bumi dan Bangunan (PBB-P2)</h2>
-      <span class="hint">Pajak atas bumi dan/atau bangunan yang dimiliki, dikuasai, dan/atau dimanfaatkan.</span>
-    </div>
-    <div class="section-title">Data NJOP Objek <span class="legal-ref">Perda Pasal 7&ndash;9 | Perwali Pasal 25</span></div>
-    <div class="row">
-      <div class="form-group">
-        <label>NJOP Tanah</label>
-        <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="pbb_njop_tanah" placeholder="0"></div>
-      </div>
-      <div class="form-group">
-        <label>NJOP Bangunan</label>
-        <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="pbb_njop_bgn" placeholder="0"></div>
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Klasifikasi Lahan Objek</label>
-      <div class="radio-group">
-        <label class="radio-option"><input type="radio" name="pbb_jenis" value="none" checked><span class="opt-label">Umum &mdash; tarif progresif otomatis (0,02%&ndash;0,08%)</span></label>
-        <label class="radio-option"><input type="radio" name="pbb_jenis" value="pangan"><span class="opt-label">Lahan produksi pangan &mdash; tarif flat 0,015%</span></label>
-        <label class="radio-option"><input type="radio" name="pbb_jenis" value="ternak"><span class="opt-label">Lahan produksi ternak &mdash; tarif flat 0,015%</span></label>
-      </div>
-      <span class="hint">NJOPTKP dikunci Rp100.000.000 (Pasal 7 ayat 3). Dasar Pengenaan terkunci 70% sesuai Perwali Batu No. 20/2024 Pasal 25 ayat (2).</span>
-    </div>
-    <div class="alpha-card">
-      <label>Dasar Pengenaan (% dari NJOP setelah TKP)</label>
-      <input type="text" id="pbb_alpha" value="70">
-      <span class="hint">Telah disesuaikan dengan Perwali Batu No. 20/2024 Pasal 25 ayat (2) yaitu sebesar 70%.</span>
-    </div>
-  </div>
-
-  <!-- BPHTB -->
-  <div class="card hidden panel-animate" id="panel-bphtb">
-    <div class="hud-bracket tl"></div><div class="hud-bracket tr"></div><div class="hud-bracket bl"></div><div class="hud-bracket br"></div>
-    <div class="card-header-desc">
-      <h2>Bea Perolehan Hak atas Tanah dan Bangunan (BPHTB)</h2>
-      <span class="hint">Pajak atas perolehan hak atas tanah dan/atau bangunan.</span>
-    </div>
-    <div class="section-title">Nilai Transaksi Objek Pajak <span class="legal-ref">Pasal 14&ndash;16</span></div>
-    <div class="row">
-      <div class="form-group">
-        <label>Nilai Perolehan (NPOP)</label>
-        <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="b_npop" placeholder="0"></div>
-        <span class="hint">Harga transaksi riil.</span>
-      </div>
-      <div class="form-group">
-        <label>NJOP PBB Tahun Berjalan</label>
-        <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="b_njop" placeholder="0"></div>
-        <span class="hint">Dasar pengenaan memakai nilai tertinggi antara NPOP dan NJOP.</span>
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Jenis Perolehan Hak</label>
-      <select id="b_jenis">
-        <option value="umum">Jual beli / umum &mdash; NPOPTKP Rp90.000.000</option>
-        <option value="warisSedarah">Hibah wasiat / waris sedarah derajat 1 &mdash; NPOPTKP Rp600.000.000</option>
-        <option value="warisTertentu">Hibah wasiat / waris tertentu (kriteria Perwali) &mdash; NPOPTKP Rp1.000.000.000</option>
-      </select>
-    </div>
-  </div>
-
-  <!-- PBJT -->
-  <div class="card hidden panel-animate" id="panel-pbjt">
-    <div class="hud-bracket tl"></div><div class="hud-bracket tr"></div><div class="hud-bracket bl"></div><div class="hud-bracket br"></div>
-    <div class="card-header-desc">
-      <h2>Pajak Barang dan Jasa Tertentu (PBJT)</h2>
-      <span class="hint">Pajak konsumen akhir atas makanan/minuman, perhotelan, parkir, listrik, dan hiburan.</span>
-    </div>
-    <div class="section-title">Kategori Objek <span class="legal-ref">Pasal 21&ndash;30</span></div>
-    <div class="form-group">
-      <label>Jenis PBJT</label>
-      <select id="pj_kategori">
-        <option value="makanmin">Makanan &amp; Minuman (restoran/katering)</option>
-        <option value="hotel">Jasa Perhotelan</option>
-        <option value="parkir">Jasa Parkir</option>
-        <option value="hiburanUmum">Jasa Kesenian &amp; Hiburan &mdash; umum</option>
-        <option value="hiburanKhusus">Hiburan khusus: diskotek/karaoke/kelab malam/bar/spa (40%)</option>
-        <option value="listrikSumberLain">Tenaga Listrik &mdash; dari sumber lain (non-industri)</option>
-        <option value="listrikIndustri">Tenaga Listrik &mdash; industri/tambang migas (3%)</option>
-        <option value="listrikSendiri">Tenaga Listrik &mdash; dihasilkan sendiri (1,5%)</option>
-      </select>
-    </div>
-    <div class="form-group" id="pj_omzet_field">
-      <label>Peredaran Usaha / Bulan</label>
-      <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="pj_omzet" placeholder="0"></div>
-      <span class="hint">&le; Rp10.000.000/bulan = bukan objek pajak (Pasal 22 ayat 2a). Khusus kategori Makanan &amp; Minuman.</span>
-    </div>
-    <div class="form-group">
-      <label>Dasar Pengenaan (Pembayaran Konsumen / Nilai Jual Listrik)</label>
-      <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="pj_dpp" placeholder="0"></div>
-    </div>
-  </div>
-
-  <!-- REKLAME REVISI (PERWALI NO 20/2024 LAMPIRAN A) -->
-  <div class="card hidden panel-animate" id="panel-reklame">
-    <div class="hud-bracket tl"></div><div class="hud-bracket tr"></div><div class="hud-bracket bl"></div><div class="hud-bracket br"></div>
-    <div class="card-header-desc">
-      <h2>Pajak Reklame</h2>
-      <span class="hint">Pajak atas penyelenggaraan reklame komersial.</span>
-    </div>
-    <div class="section-title">Metode &amp; Parameter Penyelenggaraan <span class="legal-ref">Perwali 20/2024 Lampiran A</span></div>
+  <!-- PANELS STACK CONTAINER -->
+  <div class="panels-container" id="panels-container">
     
-    <div class="form-group">
-      <label>Penyelenggara Reklame</label>
-      <select id="rk_penyelenggara">
-        <option value="sendiri">Diselenggarakan Sendiri (Sesuai Tabel Perwali 20/2024)</option>
-        <option value="pihakKetiga">Pihak Ketiga (Berdasarkan Nilai Kontrak)</option>
-      </select>
-    </div>
-
-    <!-- Mode Pihak Ketiga -->
-    <div id="rk_container_kontrak" class="hidden">
+    <!-- PBB-P2 -->
+    <div class="card active" id="panel-pbb">
+      <div class="hud-bracket tl"></div><div class="hud-bracket tr"></div><div class="hud-bracket bl"></div><div class="hud-bracket br"></div>
+      <div class="card-header-desc">
+        <h2>Pajak Bumi dan Bangunan (PBB-P2)</h2>
+        <span class="hint">Pajak atas bumi dan/atau bangunan yang dimiliki, dikuasai, dan/atau dimanfaatkan.</span>
+      </div>
+      <div class="section-title">Data NJOP Objek <span class="legal-ref">Perda Pasal 7&ndash;9 | Perwali Pasal 25</span></div>
+      <div class="row">
+        <div class="form-group">
+          <label>NJOP Tanah</label>
+          <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="pbb_njop_tanah" placeholder="0"></div>
+        </div>
+        <div class="form-group">
+          <label>NJOP Bangunan</label>
+          <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="pbb_njop_bgn" placeholder="0"></div>
+        </div>
+      </div>
       <div class="form-group">
-        <label>Nilai Kontrak Reklame</label>
-        <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="rk_nilai_kontrak" placeholder="0"></div>
-        <span class="hint">Nilai kontrak tertulis dengan pihak ketiga (Pasal 34 ayat 2 Perda 4/2023). Tarif flat 25%.</span>
+        <label>Klasifikasi Lahan Objek</label>
+        <div class="radio-group">
+          <label class="radio-option"><input type="radio" name="pbb_jenis" value="none" checked><span class="opt-label">Umum &mdash; tarif progresif otomatis (0,02%&ndash;0,08%)</span></label>
+          <label class="radio-option"><input type="radio" name="pbb_jenis" value="pangan"><span class="opt-label">Lahan produksi pangan &mdash; tarif flat 0,015%</span></label>
+          <label class="radio-option"><input type="radio" name="pbb_jenis" value="ternak"><span class="opt-label">Lahan produksi ternak &mdash; tarif flat 0,015%</span></label>
+        </div>
+        <span class="hint">NJOPTKP dikunci Rp100.000.000 (Pasal 7 ayat 3). Dasar Pengenaan terkunci 70% sesuai Perwali Batu No. 20/2024 Pasal 25 ayat (2).</span>
+      </div>
+      <div class="alpha-card">
+        <label>Dasar Pengenaan (% dari NJOP setelah TKP)</label>
+        <input type="text" id="pbb_alpha" value="70">
+        <span class="hint">Telah disesuaikan dengan Perwali Batu No. 20/2024 Pasal 25 ayat (2) yaitu sebesar 70%.</span>
       </div>
     </div>
 
-    <!-- Mode Diselenggarakan Sendiri -->
-    <div id="rk_container_sendiri">
+    <!-- BPHTB -->
+    <div class="card" id="panel-bphtb">
+      <div class="hud-bracket tl"></div><div class="hud-bracket tr"></div><div class="hud-bracket bl"></div><div class="hud-bracket br"></div>
+      <div class="card-header-desc">
+        <h2>Bea Perolehan Hak atas Tanah dan Bangunan (BPHTB)</h2>
+        <span class="hint">Pajak atas perolehan hak atas tanah dan/atau bangunan.</span>
+      </div>
+      <div class="section-title">Nilai Transaksi Objek Pajak <span class="legal-ref">Pasal 14&ndash;16</span></div>
+      <div class="row">
+        <div class="form-group">
+          <label>Nilai Perolehan (NPOP)</label>
+          <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="b_npop" placeholder="0"></div>
+          <span class="hint">Harga transaksi riil.</span>
+        </div>
+        <div class="form-group">
+          <label>NJOP PBB Tahun Berjalan</label>
+          <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="b_njop" placeholder="0"></div>
+          <span class="hint">Dasar pengenaan memakai nilai tertinggi antara NPOP dan NJOP.</span>
+        </div>
+      </div>
       <div class="form-group">
-        <label>Kategori Durasi / Sifat</label>
-        <select id="rk_sifat">
-          <option value="permanen">Permanen (Masa Pajak 1 Tahun)</option>
-          <option value="insidentil">Insidentil (Spanduk, Baliho, Poster, Selebaran, Demo)</option>
+        <label>Jenis Perolehan Hak</label>
+        <select id="b_jenis">
+          <option value="umum">Jual beli / umum &mdash; NPOPTKP Rp90.000.000</option>
+          <option value="warisSedarah">Hibah wasiat / waris sedarah derajat 1 &mdash; NPOPTKP Rp600.000.000</option>
+          <option value="warisTertentu">Hibah wasiat / waris tertentu (kriteria Perwali) &mdash; NPOPTKP Rp1.000.000.000</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- PBJT -->
+    <div class="card" id="panel-pbjt">
+      <div class="hud-bracket tl"></div><div class="hud-bracket tr"></div><div class="hud-bracket bl"></div><div class="hud-bracket br"></div>
+      <div class="card-header-desc">
+        <h2>Pajak Barang dan Jasa Tertentu (PBJT)</h2>
+        <span class="hint">Pajak konsumen akhir atas makanan/minuman, perhotelan, parkir, listrik, dan hiburan.</span>
+      </div>
+      <div class="section-title">Kategori Objek <span class="legal-ref">Pasal 21&ndash;30</span></div>
+      <div class="form-group">
+        <label>Jenis PBJT</label>
+        <select id="pj_kategori">
+          <option value="makanmin">Makanan &amp; Minuman (restoran/katering)</option>
+          <option value="hotel">Jasa Perhotelan</option>
+          <option value="parkir">Jasa Parkir</option>
+          <option value="hiburanUmum">Jasa Kesenian &amp; Hiburan &mdash; umum</option>
+          <option value="hiburanKhusus">Hiburan khusus: diskotek/karaoke/kelab malam/bar/spa (40%)</option>
+          <option value="listrikSumberLain">Tenaga Listrik &mdash; dari sumber lain (non-industri)</option>
+          <option value="listrikIndustri">Tenaga Listrik &mdash; industri/tambang migas (3%)</option>
+          <option value="listrikSendiri">Tenaga Listrik &mdash; dihasilkan sendiri (1,5%)</option>
+        </select>
+      </div>
+      <div class="form-group" id="pj_omzet_field">
+        <label>Peredaran Usaha / Bulan</label>
+        <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="pj_omzet" placeholder="0"></div>
+        <span class="hint">&le; Rp10.000.000/bulan = bukan objek pajak (Pasal 22 ayat 2a). Khusus kategori Makanan &amp; Minuman.</span>
+      </div>
+      <div class="form-group">
+        <label>Dasar Pengenaan (Pembayaran Konsumen / Nilai Jual Listrik)</label>
+        <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="pj_dpp" placeholder="0"></div>
+      </div>
+    </div>
+
+    <!-- REKLAME REVISI (PERWALI NO 20/2024 LAMPIRAN A) -->
+    <div class="card" id="panel-reklame">
+      <div class="hud-bracket tl"></div><div class="hud-bracket tr"></div><div class="hud-bracket bl"></div><div class="hud-bracket br"></div>
+      <div class="card-header-desc">
+        <h2>Pajak Reklame</h2>
+        <span class="hint">Pajak atas penyelenggaraan reklame komersial.</span>
+      </div>
+      <div class="section-title">Metode &amp; Parameter Penyelenggaraan <span class="legal-ref">Perwali 20/2024 Lampiran A</span></div>
+      
+      <div class="form-group">
+        <label>Penyelenggara Reklame</label>
+        <select id="rk_penyelenggara">
+          <option value="sendiri">Diselenggarakan Sendiri (Sesuai Tabel Perwali 20/2024)</option>
+          <option value="pihakKetiga">Pihak Ketiga (Berdasarkan Nilai Kontrak)</option>
         </select>
       </div>
 
-      <!-- Sub Permanen -->
-      <div id="rk_sub_permanen">
-        <div class="row">
-          <div class="form-group">
-            <label>Jenis Media Permanen</label>
-            <select id="rk_jenis_permanen">
-              <option value="videotron">Videotron / Megatron</option>
-              <option value="billboard_bersinar">Papan / Billboard (Bersinar)</option>
-              <option value="billboard_tidak">Papan / Billboard (Tidak Bersinar)</option>
-              <option value="tembok">Tembok / Tugu / Kaca</option>
-              <option value="stiker_rombong">Stiker / Melekat pada Rombong</option>
-              <option value="kendaraan">Kendaraan</option>
-            </select>
-          </div>
-          <div class="form-group" id="rk_group_kelas_jalan">
-            <label>Klasifikasi Kelas Jalan</label>
-            <select id="rk_kelas_jalan">
-              <option value="Utama">Jalan Utama</option>
-              <option value="A">Jalan Kelas A</option>
-              <option value="B">Jalan Kelas B</option>
-            </select>
-          </div>
-        </div>
+      <!-- Mode Pihak Ketiga -->
+      <div id="rk_container_kontrak" class="hidden">
         <div class="form-group">
-          <label id="rk_label_volume_perm">Jumlah Unit / Ukuran (m²)</label>
-          <input type="text" id="rk_vol_permanen" value="1">
+          <label>Nilai Kontrak Reklame</label>
+          <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="rk_nilai_kontrak" placeholder="0"></div>
+          <span class="hint">Nilai kontrak tertulis dengan pihak ketiga (Pasal 34 ayat 2 Perda 4/2023). Tarif flat 25%.</span>
         </div>
       </div>
 
-      <!-- Sub Insidentil -->
-      <div id="rk_sub_insidentil" class="hidden">
+      <!-- Mode Diselenggarakan Sendiri -->
+      <div id="rk_container_sendiri">
         <div class="form-group">
-          <label>Jenis Reklame Insidentil</label>
-          <select id="rk_jenis_insidentil">
-            <option value="spanduk_bulan">Spanduk / Umbul-Umbul (Hitungan Bulan / m²)</option>
-            <option value="spanduk_minggu">Spanduk / Umbul-Umbul (Hitungan Minggu / m²)</option>
-            <option value="baliho_bulan">Baliho (Hitungan Bulan / m²)</option>
-            <option value="poster_m2">Poster / Stiker (m²)</option>
-            <option value="selebaran_warna">Selebaran / Leaflet Berwarna (Per Lembar)</option>
-            <option value="selebaran_polos">Selebaran / Leaflet Tidak Berwarna (Per Lembar)</option>
-            <option value="pameran_demo">Peragaan / Pameran Demo (Per Unit)</option>
+          <label>Kategori Durasi / Sifat</label>
+          <select id="rk_sifat">
+            <option value="permanen">Permanen (Masa Pajak 1 Tahun)</option>
+            <option value="insidentil">Insidentil (Spanduk, Baliho, Poster, Selebaran, Demo)</option>
+          </select>
+        </div>
+
+        <!-- Sub Permanen -->
+        <div id="rk_sub_permanen">
+          <div class="row">
+            <div class="form-group">
+              <label>Jenis Media Permanen</label>
+              <select id="rk_jenis_permanen">
+                <option value="videotron">Videotron / Megatron</option>
+                <option value="billboard_bersinar">Papan / Billboard (Bersinar)</option>
+                <option value="billboard_tidak">Papan / Billboard (Tidak Bersinar)</option>
+                <option value="tembok">Tembok / Tugu / Kaca</option>
+                <option value="stiker_rombong">Stiker / Melekat pada Rombong</option>
+                <option value="kendaraan">Kendaraan</option>
+              </select>
+            </div>
+            <div class="form-group" id="rk_group_kelas_jalan">
+              <label>Klasifikasi Kelas Jalan</label>
+              <select id="rk_kelas_jalan">
+                <option value="Utama">Jalan Utama</option>
+                <option value="A">Jalan Kelas A</option>
+                <option value="B">Jalan Kelas B</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label id="rk_label_volume_perm">Jumlah Unit / Ukuran (m²)</label>
+            <input type="text" id="rk_vol_permanen" value="1">
+          </div>
+        </div>
+
+        <!-- Sub Insidentil -->
+        <div id="rk_sub_insidentil" class="hidden">
+          <div class="form-group">
+            <label>Jenis Reklame Insidentil</label>
+            <select id="rk_jenis_insidentil">
+              <option value="spanduk_bulan">Spanduk / Umbul-Umbul (Hitungan Bulan / m²)</option>
+              <option value="spanduk_minggu">Spanduk / Umbul-Umbul (Hitungan Minggu / m²)</option>
+              <option value="baliho_bulan">Baliho (Hitungan Bulan / m²)</option>
+              <option value="poster_m2">Poster / Stiker (m²)</option>
+              <option value="selebaran_warna">Selebaran / Leaflet Berwarna (Per Lembar)</option>
+              <option value="selebaran_polos">Selebaran / Leaflet Tidak Berwarna (Per Lembar)</option>
+              <option value="pameran_demo">Peragaan / Pameran Demo (Per Unit)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label id="rk_label_insidentil_qty">Jumlah (Unit / m² / Lembar)</label>
+            <input type="text" id="rk_vol_insidentil" value="1">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAT REVISI (PERWALI NO 20/2024 LAMPIRAN B) -->
+    <div class="card" id="panel-pat">
+      <div class="hud-bracket tl"></div><div class="hud-bracket tr"></div><div class="hud-bracket bl"></div><div class="hud-bracket br"></div>
+      <div class="card-header-desc">
+        <h2>Pajak Air Tanah (PAT)</h2>
+        <span class="hint">Pajak atas pengambilan dan/atau pemanfaatan air tanah.</span>
+      </div>
+      <div class="section-title">Metode Perhitungan <span class="legal-ref">Perwali 20/2024 Lampiran B</span></div>
+      
+      <div class="form-group">
+        <label>Mode Input PAT</label>
+        <select id="pat_mode">
+          <option value="auto">Hitung Otomatis Matriks HDA (Volume m³ &amp; Kelompok Usaha)</option>
+          <option value="manual">Input Manual Nilai Perolehan Air Tanah (NPAT)</option>
+        </select>
+      </div>
+
+      <!-- Mode Auto HDA Matriks -->
+      <div id="pat_container_auto">
+        <div class="form-group">
+          <label>Kelompok Pengguna Air Tanah</label>
+          <select id="pat_kelompok">
+            <option value="1">Kelompok 1 &mdash; Pemasok Air Baku, AMDK, Pabrik Es Kristal (&gt;95% bahan utama)</option>
+            <option value="2">Kelompok 2 &mdash; Industri Tekstil, Pabrik Makanan, Hotel Bintang 3-5 (&gt;2.000 m³/bln)</option>
+            <option value="3">Kelompok 3 &mdash; Hotel Bintang 1-2, Apartemen, Agroindustri (1.500-2.000 m³/bln)</option>
+            <option value="4">Kelompok 4 &mdash; Losmen/Penginapan, Tempat Hiburan, Restoran (&gt;1.000 m³/bln)</option>
+            <option value="5">Kelompok 5 &mdash; Usaha Kecil Rumah Tangga, Hotel Non-Bintang, Rumah Makan, RS</option>
           </select>
         </div>
         <div class="form-group">
-          <label id="rk_label_insidentil_qty">Jumlah (Unit / m² / Lembar)</label>
-          <input type="text" id="rk_vol_insidentil" value="1">
+          <label>Volume Pemakaian Air / Bulan (m³)</label>
+          <input type="text" id="pat_volume" placeholder="0">
+          <span class="hint">Sistem akan secara otomatis menentukan Harga Dasar Air (HDA) berdasarkan braket volume Perwali No. 20/2024.</span>
+        </div>
+      </div>
+
+      <!-- Mode Manual -->
+      <div id="pat_container_manual" class="hidden">
+        <div class="form-group">
+          <label>Nilai Perolehan Air Tanah (NPAT) Manual</label>
+          <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="pat_nilai_manual" placeholder="0"></div>
+          <span class="hint">Hasil perkalian ketetapan harga air baku x bobot air tanah. Tarif flat 5%.</span>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- PAT REVISI (PERWALI NO 20/2024 LAMPIRAN B) -->
-  <div class="card hidden panel-animate" id="panel-pat">
-    <div class="hud-bracket tl"></div><div class="hud-bracket tr"></div><div class="hud-bracket bl"></div><div class="hud-bracket br"></div>
-    <div class="card-header-desc">
-      <h2>Pajak Air Tanah (PAT)</h2>
-      <span class="hint">Pajak atas pengambilan dan/atau pemanfaatan air tanah.</span>
-    </div>
-    <div class="section-title">Metode Perhitungan <span class="legal-ref">Perwali 20/2024 Lampiran B</span></div>
-    
-    <div class="form-group">
-      <label>Mode Input PAT</label>
-      <select id="pat_mode">
-        <option value="auto">Hitung Otomatis Matriks HDA (Volume m³ &amp; Kelompok Usaha)</option>
-        <option value="manual">Input Manual Nilai Perolehan Air Tanah (NPAT)</option>
-      </select>
-    </div>
-
-    <!-- Mode Auto HDA Matriks -->
-    <div id="pat_container_auto">
-      <div class="form-group">
-        <label>Kelompok Pengguna Air Tanah</label>
-        <select id="pat_kelompok">
-          <option value="1">Kelompok 1 &mdash; Pemasok Air Baku, AMDK, Pabrik Es Kristal (&gt;95% bahan utama)</option>
-          <option value="2">Kelompok 2 &mdash; Industri Tekstil, Pabrik Makanan, Hotel Bintang 3-5 (&gt;2.000 m³/bln)</option>
-          <option value="3">Kelompok 3 &mdash; Hotel Bintang 1-2, Apartemen, Agroindustri (1.500-2.000 m³/bln)</option>
-          <option value="4">Kelompok 4 &mdash; Losmen/Penginapan, Tempat Hiburan, Restoran (&gt;1.000 m³/bln)</option>
-          <option value="5">Kelompok 5 &mdash; Usaha Kecil Rumah Tangga, Hotel Non-Bintang, Rumah Makan, RS</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Volume Pemakaian Air / Bulan (m³)</label>
-        <input type="text" id="pat_volume" placeholder="0">
-        <span class="hint">Sistem akan secara otomatis menentukan Harga Dasar Air (HDA) berdasarkan braket volume Perwali No. 20/2024.</span>
-      </div>
-    </div>
-
-    <!-- Mode Manual -->
-    <div id="pat_container_manual" class="hidden">
-      <div class="form-group">
-        <label>Nilai Perolehan Air Tanah (NPAT) Manual</label>
-        <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="pat_nilai_manual" placeholder="0"></div>
-        <span class="hint">Hasil perkalian ketetapan harga air baku x bobot air tanah. Tarif flat 5%.</span>
-      </div>
-    </div>
   </div>
 
   <div id="result-slot"></div>
@@ -680,7 +724,7 @@ function hitungPATBatu(params) {
 }
 
 /* =================================================================
-   ANIMATED NUMBER TICKER (SCI-FI REALTIME EFFECT)
+   ANIMATED NUMBER TICKER (REALTIME EASING EFFECT)
    ================================================================= */
 let currentAnimValue = 0;
 let animFrameId = null;
@@ -692,7 +736,7 @@ function animateTotalNumber(targetValue) {
   if (animFrameId) cancelAnimationFrame(animFrameId);
 
   const startValue = currentAnimValue;
-  const duration = 500; // ms
+  const duration = 450; // ms
   const startTime = performance.now();
 
   function step(currentTime) {
@@ -713,7 +757,7 @@ function animateTotalNumber(targetValue) {
 }
 
 /* =================================================================
-   PDF MAKE PRINT ENGINE
+   PDF MAKE PRINT ENGINE (SETEMA DARK SCI-FI HUD THEME)
    ================================================================= */
 let currentPrintPayload = null;
 
@@ -725,59 +769,89 @@ function downloadPDFNative() {
   const tanggalCetak = sekarang.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
     + ', ' + sekarang.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
 
+  // Format dataCetak ke dalam gaya tabel Dark HUD
+  const formattedRows = dataCetak.map((row, idx) => {
+    const isTotal = row[0].bold || row[1].bold;
+    const bg = isTotal ? '#1E293B' : (idx % 2 === 0 ? '#0F172A' : '#111827');
+    return [
+      { text: row[0].text.toUpperCase(), color: isTotal ? '#38BDF8' : '#94A3B8', bold: isTotal, fontSize: isTotal ? 10 : 8.5, fillColor: bg, margin: [0, 4, 0, 4] },
+      { text: row[1].text, color: isTotal ? '#38BDF8' : '#F8FAFC', bold: isTotal, fontSize: isTotal ? 10 : 8.5, alignment: 'right', fillColor: bg, margin: [0, 4, 0, 4] }
+    ];
+  });
+
   const docDefinition = {
     pageSize: 'A5',
-    pageMargins: [0, 0, 0, 0],
+    pageMargins: [24, 20, 24, 20],
+    background: function() {
+      return {
+        canvas: [{ type: 'rect', x: 0, y: 0, w: 420, h: 595, color: '#070B14' }]
+      };
+    },
     content: [
+      // Cyber Band Header
       {
-        table: { widths: ['*'], body: [[ { text: 'SIPAD KOTA BATU', style: 'brand', fillColor: '#070B14' } ]] },
-        layout: { paddingTop: () => 16, paddingBottom: () => 4, hLineWidth: () => 0, vLineWidth: () => 0 }
+        table: {
+          widths: ['*'],
+          body: [
+            [{ text: 'SIPAD HUD v2.0 // KOTA BATU', style: 'brand', fillColor: '#0F172A' }],
+            [{ text: 'SISTEM SIMULASI PERHITUNGAN PAJAK DAERAH PRESISI', style: 'subBrand', fillColor: '#0F172A' }]
+          ]
+        },
+        layout: { hLineWidth: () => 0, vLineWidth: () => 0, paddingTop: () => 10, paddingBottom: () => 10 }
       },
+      { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 372, y2: 0, lineWidth: 1.5, lineColor: '#38BDF8' }], margin: [0, 8, 0, 14] },
+      
+      // Category & Badge
       {
-        table: { widths: ['*'], body: [[ { text: 'Simulasi Resmi Pajak Daerah Kota Batu', style: 'subBrand', fillColor: '#070B14' } ]] },
-        layout: { paddingTop: () => 0, paddingBottom: () => 16, hLineWidth: () => 0, vLineWidth: () => 0 }
-      },
-      {
-        margin: [28, 20, 28, 28],
-        stack: [
-          {
-            columns: [
-              { text: jenisPajak, style: 'taxType' },
-              { text: 'DRAF SIMULASI', style: 'badge', alignment: 'right' }
-            ]
-          },
-          { text: 'Berdasarkan Perda Kota Batu No. 4/2023 & Perwali No. 20/2024', style: 'legalRef', margin: [0, 2, 0, 16] },
-          { table: { widths: ['*', 'auto'], body: dataCetak }, layout: 'noBorders' },
-          { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 330, y2: 0, lineWidth: 1, lineColor: '#E2E8F0' }], margin: [0, 16, 0, 16] },
-          {
-            columns: [
-              { text: 'Dicetak ' + tanggalCetak, style: 'meta' },
-              { text: 'Kalkulator Pajak Kota Batu', style: 'meta', alignment: 'right' }
-            ]
-          },
-          { text: '\nDokumen ini adalah draf estimasi algoritma sistem dan bukan merupakan SKPD/SPPT resmi Bapenda Kota Batu.', style: 'disclaimer' }
+        columns: [
+          { text: jenisPajak.toUpperCase(), style: 'taxType' },
+          { text: '[ DRAF SIMULASI HUD ]', style: 'badge', alignment: 'right' }
         ]
-      }
+      },
+      { text: 'DASAR HUKUM: PERDA NO. 4/2023 & PERWALI NO. 20/2024', style: 'legalRef', margin: [0, 4, 0, 14] },
+      
+      // Main Data Table
+      {
+        table: {
+          widths: ['*', 'auto'],
+          body: formattedRows
+        },
+        layout: {
+          hLineWidth: () => 0.5,
+          vLineWidth: () => 0,
+          hLineColor: () => '#334155'
+        }
+      },
+      
+      // Footer & Disclaimer
+      { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 372, y2: 0, lineWidth: 1, lineColor: '#1E293B' }], margin: [0, 16, 0, 10] },
+      {
+        columns: [
+          { text: 'WAKTU CETAK: ' + tanggalCetak.toUpperCase(), style: 'meta' },
+          { text: 'SYSTEM: OK // LATENCY 12ms', style: 'meta', alignment: 'right' }
+        ]
+      },
+      { text: '\n* CATATAN: Hasil cetakan ini merupakan draf kalkulasi otomatis sistem SIPAD HUD dan bukan merupakan bukti SKPD/SPPT penetapan resmi Bapenda Kota Batu.', style: 'disclaimer' }
     ],
     styles: {
-      brand: { fontSize: 16, bold: true, color: '#FFFFFF', alignment: 'center', characterSpacing: 1 },
-      subBrand: { fontSize: 9.5, color: '#94A3B8', alignment: 'center' },
-      taxType: { fontSize: 13, bold: true, color: '#0F172A' },
-      badge: { fontSize: 8.5, bold: true, color: '#2563EB' },
-      legalRef: { fontSize: 8, color: '#94A3B8' },
-      meta: { fontSize: 7.5, color: '#94A3B8' },
-      disclaimer: { fontSize: 7, italics: true, alignment: 'justify', color: '#94A3B8' }
+      brand: { fontSize: 13, bold: true, color: '#38BDF8', alignment: 'center', characterSpacing: 1.5 },
+      subBrand: { fontSize: 7.5, color: '#94A3B8', alignment: 'center', characterSpacing: 1 },
+      taxType: { fontSize: 11.5, bold: true, color: '#FFFFFF' },
+      badge: { fontSize: 8, bold: true, color: '#38BDF8' },
+      legalRef: { fontSize: 7.5, color: '#64748B' },
+      meta: { fontSize: 7, color: '#64748B' },
+      disclaimer: { fontSize: 6.5, italics: true, alignment: 'justify', color: '#475569' }
     }
   };
-  pdfMake.createPdf(docDefinition).download('Draf_' + jenisPajak.replace(/[\s/]+/g, '_') + '.pdf');
+
+  pdfMake.createPdf(docDefinition).download('Draf_SIPAD_' + jenisPajak.replace(/[\s/]+/g, '_') + '.pdf');
 }
 
 function baris(label, value, kuat) {
   const isTotal = !!kuat;
-  const garis = { border: [false, false, false, true], borderColor: ['#fff', '#fff', '#fff', '#E2E8F0'], margin: [0, 5, 0, 5] };
   return [
-    Object.assign({ text: label, bold: isTotal, fillColor: isTotal ? '#EFF6FF' : null, color: isTotal ? '#1E3A8A' : '#475569' }, garis),
-    Object.assign({ text: value, bold: isTotal, fillColor: isTotal ? '#EFF6FF' : null, color: isTotal ? '#2563EB' : '#0F172A', alignment: 'right' }, garis)
+    { text: label, bold: isTotal },
+    { text: value, bold: isTotal }
   ];
 }
 
@@ -801,7 +875,7 @@ function attachFormatter(id) {
 ['pbb_njop_tanah','pbb_njop_bgn','b_npop','b_njop','pj_omzet','pj_dpp','rk_nilai_kontrak','pat_nilai_manual','pat_volume'].forEach(attachFormatter);
 
 /* ============================================================
-   UI DYNAMIC CONTROLLERS
+   LAYERING CARD TRANSITION & UI CONTROLLERS
    ============================================================ */
 const tabs = document.querySelectorAll('.tab');
 const panels = {
@@ -812,19 +886,42 @@ const panels = {
   pat: document.getElementById('panel-pat')
 };
 
+function updateContainerHeight() {
+  const activeCard = document.querySelector('.card.active');
+  const container = document.getElementById('panels-container');
+  if (activeCard && container) {
+    container.style.height = activeCard.offsetHeight + 'px';
+  }
+}
+
 tabs.forEach(tab => {
   tab.addEventListener('click', () => {
-    tabs.forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    Object.values(panels).forEach(p => p.classList.add('hidden'));
-    const target = panels[tab.dataset.tab];
-    target.classList.remove('hidden');
-    target.classList.remove('panel-animate');
-    void target.offsetWidth;
-    target.classList.add('panel-animate');
+    const targetTabId = tab.dataset.tab;
+    const currentActiveCard = document.querySelector('.card.active');
+    const targetCard = panels[targetTabId];
+
+    if (currentActiveCard === targetCard) return;
+
+    // Switch Active Tab Styling
+    tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === targetTabId));
+
+    // Stacking Layering Effect
+    if (currentActiveCard) {
+      currentActiveCard.classList.remove('active');
+      currentActiveCard.classList.add('layer-exit');
+      
+      setTimeout(() => {
+        currentActiveCard.classList.remove('layer-exit');
+      }, 450);
+    }
+
+    targetCard.classList.add('active');
+    updateContainerHeight();
     render();
   });
 });
+
+window.addEventListener('resize', updateContainerHeight);
 
 const rkPenyelenggara = document.getElementById('rk_penyelenggara');
 const rkSifat = document.getElementById('rk_sifat');
@@ -845,6 +942,7 @@ function syncReklameUI() {
       document.getElementById('rk_group_kelas_jalan').classList.toggle('hidden', rkJenisPermanen.value === 'kendaraan');
     }
   }
+  updateContainerHeight();
 }
 
 [rkPenyelenggara, rkSifat, rkJenisPermanen, rkJenisInsidentil, document.getElementById('rk_kelas_jalan')].forEach(el => {
@@ -859,6 +957,7 @@ function syncPatUI() {
   const isAuto = patMode.value === 'auto';
   document.getElementById('pat_container_auto').classList.toggle('hidden', !isAuto);
   document.getElementById('pat_container_manual').classList.toggle('hidden', isAuto);
+  updateContainerHeight();
 }
 patMode.addEventListener('change', () => { syncPatUI(); render(); });
 document.getElementById('pat_kelompok').addEventListener('change', render);
@@ -867,6 +966,7 @@ syncPatUI();
 const pjKategoriSelect = document.getElementById('pj_kategori');
 function syncPjOmzetVisibility() {
   document.getElementById('pj_omzet_field').classList.toggle('hidden', pjKategoriSelect.value !== 'makanmin');
+  updateContainerHeight();
 }
 pjKategoriSelect.addEventListener('change', () => { syncPjOmzetVisibility(); render(); });
 syncPjOmzetVisibility();
@@ -1095,7 +1195,9 @@ function renderPAT(r) {
 
 function render() {
   simpanState();
-  const activeTab = document.querySelector('.tab.active').dataset.tab;
+  const activeTabEl = document.querySelector('.tab.active');
+  if (!activeTabEl) return;
+  const activeTab = activeTabEl.dataset.tab;
   const resultSlot = document.getElementById('result-slot');
 
   if (activeTab === 'pbb') {
@@ -1176,7 +1278,8 @@ function simpanState() {
     FORM_IDS.forEach(id => { const el = document.getElementById(id); if (el) state[id] = el.value; });
     const checkedRadio = document.querySelector('input[name="pbb_jenis"]:checked');
     if (checkedRadio) state.pbb_jenis = checkedRadio.value;
-    state.activeTab = document.querySelector('.tab.active').dataset.tab;
+    const activeTabEl = document.querySelector('.tab.active');
+    if (activeTabEl) state.activeTab = activeTabEl.dataset.tab;
     localStorage.setItem('pajakBatuDraft', JSON.stringify(state));
   } catch (e) {}
 }
@@ -1184,7 +1287,10 @@ function simpanState() {
 function muatState() {
   try {
     const raw = localStorage.getItem('pajakBatuDraft');
-    if (!raw) return;
+    if (!raw) {
+      updateContainerHeight();
+      return;
+    }
     const state = JSON.parse(raw);
     FORM_IDS.forEach(id => { const el = document.getElementById(id); if (el && state[id] !== undefined) el.value = state[id]; });
     if (state.pbb_jenis) {
@@ -1196,13 +1302,20 @@ function muatState() {
     syncPjOmzetVisibility();
     if (state.activeTab && panels[state.activeTab]) {
       tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === state.activeTab));
-      Object.values(panels).forEach(p => p.classList.add('hidden'));
-      panels[state.activeTab].classList.remove('hidden');
+      Object.values(panels).forEach(p => {
+        p.classList.remove('active', 'layer-exit');
+      });
+      panels[state.activeTab].classList.add('active');
     }
+    updateContainerHeight();
   } catch (e) {}
 }
 
-window.addEventListener('load', () => { muatState(); render(); });
+window.addEventListener('load', () => { 
+  muatState(); 
+  render(); 
+  setTimeout(updateContainerHeight, 100);
+});
 </script>
 </body>
 </html>
