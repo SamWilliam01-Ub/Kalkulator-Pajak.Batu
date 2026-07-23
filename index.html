@@ -65,6 +65,19 @@
     color: var(--accent); font-size: 12px; font-weight: 700; padding: 6px 16px;
     border-radius: 30px; letter-spacing: 0.5px;
   }
+
+  /* FIX: PULSE ANIMATION */
+  .pulse {
+    width: 8px; height: 8px; background: var(--accent);
+    border-radius: 50%; box-shadow: 0 0 8px var(--accent);
+    animation: pulseAnim 1.5s infinite ease-in-out;
+  }
+  @keyframes pulseAnim {
+    0% { opacity: 0.3; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.2); }
+    100% { opacity: 0.3; transform: scale(0.8); }
+  }
+
   header h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.5px; color: #FFFFFF; }
   header p { font-size: 14.5px; color: var(--text-muted); margin-top: 6px; font-weight: 500; }
 
@@ -552,6 +565,18 @@
 
 <script>
 /* =================================================================
+   FIX: LEAFLET DEFAULT MARKER ASSETS
+   ================================================================= */
+if (typeof L !== 'undefined') {
+  delete L.Icon.Default.prototype._getIconUrl;
+  L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+  });
+}
+
+/* =================================================================
    WEB AUDIO API SINGLETON & SPEECH SYNTHESIS ACCESSIBILITY
    ================================================================= */
 let globalAudioCtx = null;
@@ -722,7 +747,7 @@ let mapMarker = null;
 
 function initGISMap() {
   if (mapInstance) {
-    setTimeout(() => mapInstance.invalidateSize(), 150);
+    setTimeout(() => mapInstance.invalidateSize(), 400);
     return;
   }
   const mapEl = document.getElementById('map');
@@ -771,7 +796,7 @@ function initGISMap() {
       .catch(() => {});
   });
 
-  setTimeout(() => mapInstance.invalidateSize(), 200);
+  setTimeout(() => mapInstance.invalidateSize(), 400);
 }
 
 /* ============================================================
@@ -897,6 +922,13 @@ streetInput.addEventListener('input', () => {
   streetResults.classList.remove('hidden');
 });
 
+/* FIX: Close autocomplete dropdown when clicking outside */
+document.addEventListener('click', (e) => {
+  if (!streetInput.contains(e.target) && !streetResults.contains(e.target)) {
+    streetResults.classList.add('hidden');
+  }
+});
+
 function selectStreet(name, classType) {
   streetInput.value = 'Jl. ' + name;
   document.getElementById('rk_kelas_jalan').value = classType;
@@ -974,7 +1006,7 @@ function tentukanTarifProgresif(Ntotal, klasifikasi) {
   const rules = PERDA_BATU_RULES.pbb;
   if (klasifikasi === 'pangan' || klasifikasi === 'ternak') return rules.tarifPanganTernak;
   const bracket = rules.tarifProgresif.find(b => Ntotal <= b.max);
-  return bracket.rate;
+  return bracket ? bracket.rate : 0.08;
 }
 
 function hitungPBBP2Batu({ njopTanah, njopBangunan, alphaPersen, klasifikasi }) {
@@ -990,7 +1022,7 @@ function hitungPBBP2Batu({ njopTanah, njopBangunan, alphaPersen, klasifikasi }) 
 function hitungBPHTBBatu({ npop, njopPbb, jenis }) {
   const rules = PERDA_BATU_RULES.bphtb;
   const dpp = Math.max(npop, njopPbb);
-  const npoptkp = rules.npoptkp[jenis];
+  const npoptkp = rules.npoptkp[jenis] || 90_000_000;
   const npopkp = Math.max(0, dpp - npoptkp);
   const pajak = npopkp * (rules.tarif / 100);
   return { dpp, npoptkp, npopkp, tarifPersen: rules.tarif, pajakTerutang: Math.round(pajak) };
@@ -1001,7 +1033,7 @@ function hitungPBJTBatu({ kategori, omzetBulanan, dpp }) {
   if (kategori === 'makanmin' && omzetBulanan > 0 && omzetBulanan <= rules.ambangBebasOmzetBulanan) {
     return { bukanObjek: true, pajakTerutang: 0 };
   }
-  const tarifPersen = rules.tarif[kategori];
+  const tarifPersen = rules.tarif[kategori] || 10;
   const pajak = dpp * (tarifPersen / 100);
   return { bukanObjek: false, tarifPersen, dpp, pajakTerutang: Math.round(pajak) };
 }
@@ -1035,7 +1067,7 @@ function hitungReklameBatu(params) {
 }
 
 function getHdaRate(kelompok, volume) {
-  const rates = PERDA_BATU_RULES.pat.hdaMatrix[kelompok];
+  const rates = PERDA_BATU_RULES.pat.hdaMatrix[kelompok] || PERDA_BATU_RULES.pat.hdaMatrix[5];
   if (volume <= 50) return rates[0];
   if (volume <= 500) return rates[1];
   if (volume <= 1000) return rates[2];
@@ -1152,7 +1184,7 @@ function renderCartTray() {
 }
 
 /* =================================================================
-   PDF MAKE PRINT ENGINE
+   PDF MAKE PRINT ENGINE (FIXED BOLD / TOTAL ROW RENDERING)
    ================================================================= */
 let currentPrintPayload = null;
 
@@ -1176,7 +1208,7 @@ function downloadConsolidatedPDF() {
   });
   
   combinedRows.push([
-    { text: 'TOTAL PAJAK DAERAH TERUTANG', bold: true },
+    { text: 'TOTAL PAJAK DAERAH TERUTANG (KONSOLIDASI)', bold: true },
     { text: formatRupiah(totalAll), bold: true }
   ]);
   
@@ -1184,20 +1216,14 @@ function downloadConsolidatedPDF() {
 }
 
 function generatePDFDoc(title, dataRows, grandTotalVal) {
+  if (typeof pdfMake !== 'undefined' && typeof pdfMakeFonts !== 'undefined') {
+    pdfMake.vfs = pdfMakeFonts.pdfMake ? pdfMakeFonts.pdfMake.vfs : pdfMake.vfs;
+  }
+
   const sekarang = new Date();
   const tanggalCetak = sekarang.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
     + ' - ' + sekarang.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB';
   const invoiceNo = 'SIM-BATU/' + sekarang.getFullYear() + '/' + Math.floor(100000 + Math.random() * 900000);
-
-  const regularRows = [];
-  let totalRowVal = grandTotalVal || 0;
-
-  dataRows.forEach((row) => {
-    const isTotal = row[0].bold || row[1].bold;
-    if (!isTotal) {
-      regularRows.push(row);
-    }
-  });
 
   const formattedTableBody = [
     [
@@ -1206,13 +1232,17 @@ function generatePDFDoc(title, dataRows, grandTotalVal) {
     ]
   ];
 
-  regularRows.forEach((row, idx) => {
-    const bg = idx % 2 === 0 ? '#F8FAFC' : '#FFFFFF';
+  /* FIX: Render all rows without stripping total/bold rows */
+  dataRows.forEach((row, idx) => {
+    const isBold = !!(row[0].bold || row[1].bold);
+    const bg = isBold ? '#E2E8F0' : (idx % 2 === 0 ? '#F8FAFC' : '#FFFFFF');
     formattedTableBody.push([
-      { text: row[0].text, fontSize: 9, color: '#334155', fillColor: bg, margin: [0, 5, 0, 5] },
-      { text: row[1].text, fontSize: 9, bold: true, color: '#0F172A', alignment: 'right', fillColor: bg, margin: [0, 5, 0, 5] }
+      { text: row[0].text, fontSize: 9, bold: isBold, color: '#0F172A', fillColor: bg, margin: [0, 5, 0, 5] },
+      { text: row[1].text, fontSize: 9, bold: isBold, color: '#0F172A', alignment: 'right', fillColor: bg, margin: [0, 5, 0, 5] }
     ]);
   });
+
+  const totalRowVal = grandTotalVal || 0;
 
   const docDefinition = {
     pageSize: 'A5',
@@ -1339,7 +1369,8 @@ function attachFormatter(id) {
   });
 }
 
-['pbb_njop_tanah','pbb_njop_bgn','b_npop','b_njop','pj_omzet','pj_dpp','rk_nilai_kontrak','pat_nilai_manual','pat_volume'].forEach(attachFormatter);
+const MONEY_FIELD_IDS = ['pbb_njop_tanah','pbb_njop_bgn','b_npop','b_njop','pj_omzet','pj_dpp','rk_nilai_kontrak','pat_nilai_manual','pat_volume'];
+MONEY_FIELD_IDS.forEach(attachFormatter);
 
 /* ============================================================
    3D SPATIAL LAYERING CONTROLLER
@@ -1359,7 +1390,7 @@ function updateContainerHeight() {
     const activeCard = document.querySelector('.card.active');
     const container = document.getElementById('panels-container');
     if (activeCard && container) {
-      container.style.height = activeCard.offsetHeight + 'px';
+      container.style.height = Math.max(activeCard.scrollHeight, activeCard.offsetHeight) + 'px';
     }
   });
 }
@@ -1457,7 +1488,7 @@ document.querySelectorAll('input[name="pbb_jenis"]').forEach(r => r.addEventList
    RENDERERS (WITH ACCESSIBILITY VOICE READER & SHARE LINK)
    ============================================================ */
 function renderPbb(r, klasifikasi) {
-  const label = { none: 'Umum', pangan: 'Lahan produksi pangan', ternak: 'Lahan produksi ternak' }[klasifikasi];
+  const label = { none: 'Umum', pangan: 'Lahan produksi pangan', ternak: 'Lahan produksi ternak' }[klasifikasi] || 'Umum';
   const speechText = `Pajak Bumi dan Bangunan PBB P2 kategori ${label}. Total terutang per tahun adalah ${formatRupiah(r.pajakTerutang)}.`;
   currentPrintPayload = {
     jenisPajak: 'PBB-P2 - ' + label,
@@ -1495,7 +1526,7 @@ function renderPbb(r, klasifikasi) {
 }
 
 function renderBphtb(r, jenis) {
-  const label = { umum: 'Jual beli / umum', warisSedarah: 'Waris/hibah wasiat sedarah', warisTertentu: 'Waris/hibah wasiat tertentu' }[jenis];
+  const label = { umum: 'Jual beli / umum', warisSedarah: 'Waris/hibah wasiat sedarah', warisTertentu: 'Waris/hibah wasiat tertentu' }[jenis] || 'Umum';
   const speechText = `Bea Perolehan Hak atas Tanah dan Bangunan kategori ${label}. Total terutang adalah ${formatRupiah(r.pajakTerutang)}.`;
   currentPrintPayload = {
     jenisPajak: 'BPHTB - ' + label,
@@ -1715,7 +1746,8 @@ function render() {
     const njopTanah = parseInput(document.getElementById('pbb_njop_tanah').value);
     const njopBgn = parseInput(document.getElementById('pbb_njop_bgn').value);
     if (njopTanah === 0 && njopBgn === 0) { resultSlot.innerHTML=''; return; }
-    const klasifikasi = document.querySelector('input[name="pbb_jenis"]:checked').value;
+    const checkedRadio = document.querySelector('input[name="pbb_jenis"]:checked');
+    const klasifikasi = checkedRadio ? checkedRadio.value : 'none';
     const alphaPersen = parsePercentInput(document.getElementById('pbb_alpha').value) || 70;
     renderPbb(hitungPBBP2Batu({ njopTanah, njopBangunan: njopBgn, alphaPersen, klasifikasi }), klasifikasi);
 
@@ -1812,7 +1844,19 @@ function muatState() {
       return;
     }
 
-    FORM_IDS.forEach(id => { const el = document.getElementById(id); if (el && state[id] !== undefined) el.value = state[id]; });
+    FORM_IDS.forEach(id => { 
+      const el = document.getElementById(id); 
+      if (el && state[id] !== undefined) {
+        /* FIX: Auto-format restored number input values */
+        if (MONEY_FIELD_IDS.includes(id)) {
+          const num = parseInput(state[id]);
+          el.value = num ? num.toLocaleString('id-ID') : state[id];
+        } else {
+          el.value = state[id];
+        }
+      } 
+    });
+
     if (state.pbb_jenis) {
       const r = document.querySelector(`input[name="pbb_jenis"][value="${state.pbb_jenis}"]`);
       if (r) r.checked = true;
@@ -1834,7 +1878,7 @@ function muatState() {
 window.addEventListener('load', () => { 
   muatState(); 
   render(); 
-  setTimeout(updateContainerHeight, 50);
+  setTimeout(updateContainerHeight, 100);
 });
 </script>
 </body>
