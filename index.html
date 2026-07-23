@@ -627,9 +627,16 @@ async function processSPPTOCR(event) {
   progress.classList.remove('hidden');
 
   try {
-    const worker = await Tesseract.createWorker('ind');
-    worker.setParameters({
-      tessedit_char_whitelist: '0123456789. ,Rp/'-ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    const worker = await Tesseract.createWorker('ind', 1, {
+      logger: m => {
+        if (m.status === 'recognizing text' && m.progress) {
+          percentSpan.innerText = Math.round(m.progress * 100) + '%';
+        }
+      }
+    });
+
+    await worker.setParameters({
+      tessedit_char_whitelist: "0123456789. ,Rp/'-ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     });
     
     const ret = await worker.recognize(file);
