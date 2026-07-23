@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SIPAD HUD v3.0 | Ultra Smooth & Complete Cart Edition</title>
+<title>Kalkulator Pajak Daerah | Kota Batu</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
 <script>
   window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
@@ -89,7 +89,6 @@
     color: #FFFFFF; border-color: rgba(56, 189, 248, 0.6);
   }
 
-  /* OPTIMIZED 3D SPATIAL DECK */
   .panels-container {
     position: relative;
     width: 100%;
@@ -265,10 +264,10 @@
 <div class="container">
   <header>
     <div class="badge-container">
-      <div class="badge"><span class="pulse"></span> SIPAD HUD v3.0 &bull; PERDA NO. 4/2023 &amp; PERWALI NO. 20/2024</div>
+      <div class="badge"><span class="pulse"></span> PERDA NO. 4/2023 &amp; PERWALI NO. 20/2024</div>
     </div>
-    <h1>Kalkulator Pajak Daerah</h1>
-    <p>Sistem Simulasi Realtime &amp; Presisi Pajak Daerah Kota Batu</p>
+    <h1>Kalkulator Pajak Daerah Kota Batu</h1>
+    <p>Simulasi Perhitungan Pajak Daerah &amp; Retribusi Resmi</p>
   </header>
 
   <div class="tabs-wrapper">
@@ -307,7 +306,7 @@
           <label class="radio-option"><input type="radio" name="pbb_jenis" value="pangan"><span class="opt-label">Lahan produksi pangan &mdash; tarif flat 0,015%</span></label>
           <label class="radio-option"><input type="radio" name="pbb_jenis" value="ternak"><span class="opt-label">Lahan produksi ternak &mdash; tarif flat 0,015%</span></label>
         </div>
-        <span class="hint">NJOPTKP dikunci Rp100.000.000. Dasar Pengenaan terkunci 70% (Perwali No. 20/2024 Pasal 25)[cite: 2].</span>
+        <span class="hint">NJOPTKP dikunci Rp100.000.000[cite: 1]. Dasar Pengenaan terkunci 70% (Perwali No. 20/2024 Pasal 25)[cite: 2].</span>
       </div>
       <div class="alpha-card">
         <label>Dasar Pengenaan (% dari NJOP setelah TKP)</label>
@@ -321,19 +320,19 @@
       <div class="hud-bracket tl"></div><div class="hud-bracket tr"></div><div class="hud-bracket bl"></div><div class="hud-bracket br"></div>
       <div class="card-header-desc">
         <h2>Bea Perolehan Hak atas Tanah dan Bangunan (BPHTB)</h2>
-        <span class="hint">Pajak atas perolehan hak atas tanah dan/atau bangunan.</span>
+        <span class="hint">Pajak atas perolehan hak atas tanah dan/atau bangunan[cite: 1, 2].</span>
       </div>
       <div class="section-title">Nilai Transaksi Objek Pajak <span class="legal-ref">Pasal 14&ndash;16</span></div>
       <div class="row">
         <div class="form-group">
           <label>Nilai Perolehan (NPOP)</label>
           <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="b_npop" placeholder="0"></div>
-          <span class="hint">Harga transaksi riil.</span>
+          <span class="hint">Harga transaksi riil[cite: 1].</span>
         </div>
         <div class="form-group">
           <label>NJOP PBB Tahun Berjalan</label>
           <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="b_njop" placeholder="0"></div>
-          <span class="hint">Dasar pengenaan memakai nilai tertinggi antara NPOP dan NJOP.</span>
+          <span class="hint">Dasar pengenaan memakai nilai tertinggi antara NPOP dan NJOP[cite: 1].</span>
         </div>
       </div>
       <div class="form-group">
@@ -351,7 +350,7 @@
       <div class="hud-bracket tl"></div><div class="hud-bracket tr"></div><div class="hud-bracket bl"></div><div class="hud-bracket br"></div>
       <div class="card-header-desc">
         <h2>Pajak Barang dan Jasa Tertentu (PBJT)</h2>
-        <span class="hint">Pajak konsumen akhir atas makanan/minuman, perhotelan, parkir, listrik, dan hiburan.</span>
+        <span class="hint">Pajak konsumen akhir atas makanan/minuman, perhotelan, parkir, listrik, dan hiburan[cite: 1, 2].</span>
       </div>
       <div class="section-title">Kategori Objek <span class="legal-ref">Pasal 21&ndash;30</span></div>
       <div class="form-group">
@@ -370,7 +369,7 @@
       <div class="form-group" id="pj_omzet_field">
         <label>Peredaran Usaha / Bulan</label>
         <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="pj_omzet" placeholder="0"></div>
-        <span class="hint">&le; Rp10.000.000/bulan = bukan objek pajak (Pasal 22 ayat 2a). Khusus kategori Makanan &amp; Minuman.</span>
+        <span class="hint">&le; Rp10.000.000/bulan = bukan objek pajak (Pasal 22 ayat 2a)[cite: 1]. Khusus kategori Makanan &amp; Minuman.</span>
       </div>
       <div class="form-group">
         <label>Dasar Pengenaan (Pembayaran Konsumen / Nilai Jual Listrik)</label>
@@ -383,7 +382,7 @@
       <div class="hud-bracket tl"></div><div class="hud-bracket tr"></div><div class="hud-bracket bl"></div><div class="hud-bracket br"></div>
       <div class="card-header-desc">
         <h2>Pajak Reklame</h2>
-        <span class="hint">Pajak atas penyelenggaraan reklame komersial.</span>
+        <span class="hint">Pajak atas penyelenggaraan reklame komersial[cite: 1, 2].</span>
       </div>
       <div class="section-title">Metode &amp; Parameter Penyelenggaraan <span class="legal-ref">Perwali 20/2024 Lampiran A</span></div>
       
@@ -399,7 +398,7 @@
         <div class="form-group">
           <label>Nilai Kontrak Reklame</label>
           <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="rk_nilai_kontrak" placeholder="0"></div>
-          <span class="hint">Nilai kontrak tertulis dengan pihak ketiga (Pasal 34 ayat 2 Perda 4/2023). Tarif flat 25%.</span>
+          <span class="hint">Nilai kontrak tertulis dengan pihak ketiga (Pasal 34 ayat 2 Perda 4/2023)[cite: 1]. Tarif flat 25%[cite: 1, 2].</span>
         </div>
       </div>
 
@@ -414,10 +413,10 @@
 
         <div id="rk_sub_permanen">
           <div class="form-group">
-            <label>Cari Lokasi Jalan Kota Batu (Auto-Classify)</label>
+            <label>Cari Lokasi Jalan Kota Batu (Klasifikasi Otomatis)</label>
             <input type="text" id="rk_street_search" placeholder="Ketik nama jalan (mis. Diponegoro, Agus Salim...)" autocomplete="off">
             <div id="rk_street_results" class="autocomplete-results hidden"></div>
-            <span class="hint">Otomatis menentukan Kelas Jalan berdasarkan Lampiran III Perwali No. 20/2024.</span>
+            <span class="hint">Otomatis menentukan Kelas Jalan berdasarkan Lampiran III Perwali No. 20/2024[cite: 2].</span>
           </div>
 
           <div class="row">
@@ -473,7 +472,7 @@
       <div class="hud-bracket tl"></div><div class="hud-bracket tr"></div><div class="hud-bracket bl"></div><div class="hud-bracket br"></div>
       <div class="card-header-desc">
         <h2>Pajak Air Tanah (PAT)</h2>
-        <span class="hint">Pajak atas pengambilan dan/atau pemanfaatan air tanah.</span>
+        <span class="hint">Pajak atas pengambilan dan/atau pemanfaatan air tanah[cite: 1, 2].</span>
       </div>
       <div class="section-title">Metode Perhitungan <span class="legal-ref">Perwali 20/2024 Lampiran B</span></div>
       
@@ -499,7 +498,7 @@
         <div class="form-group">
           <label>Volume Pemakaian Air / Bulan (m³)</label>
           <input type="text" id="pat_volume" placeholder="0">
-          <span class="hint">Sistem menentukan Harga Dasar Air (HDA) berdasarkan braket volume Perwali No. 20/2024.</span>
+          <span class="hint">Sistem menentukan Harga Dasar Air (HDA) berdasarkan braket volume Perwali No. 20/2024[cite: 2].</span>
         </div>
       </div>
 
@@ -507,7 +506,7 @@
         <div class="form-group">
           <label>Nilai Perolehan Air Tanah (NPAT) Manual</label>
           <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="pat_nilai_manual" placeholder="0"></div>
-          <span class="hint">Hasil perkalian ketetapan harga air baku x bobot air tanah. Tarif flat 5%.</span>
+          <span class="hint">Hasil perkalian ketetapan harga air baku x bobot air tanah. Tarif flat 5%[cite: 1, 2].</span>
         </div>
       </div>
     </div>
@@ -515,7 +514,7 @@
 
   <div id="result-slot"></div>
 
-  <!-- CART TRAY FULL HEADER INTEGRATION -->
+  <!-- CART TRAY -->
   <div class="cart-tray hidden" id="cart-tray">
     <div class="cart-tray-header">
       <div class="cart-tray-title"><span>KERANJANG PAJAK GABUNGAN</span></div>
@@ -530,7 +529,7 @@
 
 <script>
 /* =================================================================
-   OPTIMIZED WEB AUDIO API SINGLETON (ZERO LAG SFX)
+   WEB AUDIO API SINGLETON
    ================================================================= */
 let globalAudioCtx = null;
 
@@ -801,7 +800,7 @@ function animateTotalNumber(targetValue) {
 }
 
 /* =================================================================
-   TAX AGGREGATOR CART ENGINE (WITH CLEAR ALL)
+   TAX AGGREGATOR CART ENGINE
    ================================================================= */
 let TAX_CART = [];
 
@@ -856,14 +855,14 @@ function renderCartTray() {
     `;
   }).join('') + `
     <div style="display:flex; justify-content:space-between; margin-top:12px; padding-top:10px; border-top:1px dashed var(--success); font-family:var(--font-mono); font-weight:700;">
-      <span>TOTAL KONSOLIDASI</span>
+      <span>TOTAL ESTIMASI KONSOLIDASI</span>
       <span style="color:var(--success); font-size:16px;">${formatRupiah(totalAll)}</span>
     </div>
   `;
 }
 
 /* =================================================================
-   PDF MAKE PRINT ENGINE
+   PDF MAKE PRINT ENGINE (FORMAL DARK THEME)
    ================================================================= */
 let currentPrintPayload = null;
 
@@ -917,19 +916,19 @@ function generatePDFDoc(title, dataRows) {
         table: {
           widths: ['*'],
           body: [
-            [{ text: 'SIPAD HUD v3.0 // KOTA BATU', style: 'brand', fillColor: '#0D1324' }],
-            [{ text: 'SIMULASI KONSOLIDASI PERHITUNGAN PAJAK PRESISI', style: 'subBrand', fillColor: '#0D1324' }]
+            [{ text: 'SIMULASI PAJAK DAERAH KOTA BATU', style: 'brand', fillColor: '#0D1324' }],
+            [{ text: 'BADAN PENDAPATAN DAERAH / SIMULASI PERHITUNGAN PRESISI', style: 'subBrand', fillColor: '#0D1324' }]
           ]
         },
         layout: { hLineWidth: () => 0, vLineWidth: () => 0, paddingTop: () => 8, paddingBottom: () => 8 }
       },
       { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 372, y2: 0, lineWidth: 1.5, lineColor: '#38BDF8' }], margin: [0, 6, 0, 12] },
-      { columns: [{ text: title.toUpperCase(), style: 'taxType' }, { text: '[ DRAF SIMULASI HUD ]', style: 'badge', alignment: 'right' }] },
-      { text: 'DASAR HUKUM: PERDA NO. 4/2023 & PERWALI NO. 20/2024', style: 'legalRef', margin: [0, 4, 0, 12] },
+      { columns: [{ text: title.toUpperCase(), style: 'taxType' }, { text: '[ DRAF ESTIMASI ]', style: 'badge', alignment: 'right' }] },
+      { text: 'DASAR HUKUM: PERDA NO. 4 TAHUN 2023 & PERWALI NO. 20 TAHUN 2024', style: 'legalRef', margin: [0, 4, 0, 12] },
       { table: { widths: ['*', 'auto'], body: formattedRows }, layout: { hLineWidth: () => 0.5, vLineWidth: () => 0, hLineColor: () => '#1E293B' } },
       { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 372, y2: 0, lineWidth: 1, lineColor: '#1E293B' }], margin: [0, 14, 0, 8] },
-      { columns: [{ text: 'WAKTU CETAK: ' + tanggalCetak.toUpperCase(), style: 'meta' }, { text: 'SYSTEM: OK // LATENCY 12ms', style: 'meta', alignment: 'right' }] },
-      { text: '\n* Draf hasil kalkulasi otomatis SIPAD HUD, bukan bukti SKPD/SPPT penetapan resmi Bapenda Kota Batu.', style: 'disclaimer' }
+      { columns: [{ text: 'WAKTU CETAK: ' + tanggalCetak.toUpperCase(), style: 'meta' }, { text: 'BAPENDA KOTA BATU', style: 'meta', alignment: 'right' }] },
+      { text: '\n* Catatan: Dokumen ini merupakan hasil simulasi perhitungan otomatis dan bukan merupakan bukti SKPD/SPPT penetapan resmi Bapenda Kota Batu.', style: 'disclaimer' }
     ],
     styles: {
       brand: { fontSize: 12, bold: true, color: '#38BDF8', alignment: 'center', characterSpacing: 1.5 },
@@ -942,7 +941,7 @@ function generatePDFDoc(title, dataRows) {
     }
   };
 
-  pdfMake.createPdf(docDefinition).download('Draf_SIPAD_' + title.replace(/[\s/]+/g, '_') + '.pdf');
+  pdfMake.createPdf(docDefinition).download('Draf_Simulasi_' + title.replace(/[\s/]+/g, '_') + '.pdf');
 }
 
 function baris(label, value, kuat) {
@@ -1130,7 +1129,7 @@ function renderBphtb(r, jenis) {
   };
   document.getElementById('result-slot').innerHTML = `
     <div class="summary-card">
-      <div class="summary-header"><span>ESTIMASI BPHTB &mdash; ${label.toUpperCase()}</span><span class="tag">SIMULASI HUD</span></div>
+      <div class="summary-header"><span>ESTIMASI BPHTB &mdash; ${label.toUpperCase()}</span><span class="tag">ESTIMASI TERUTANG</span></div>
       <div class="summary-body">
         <div class="summary-line"><span>Dasar Pengenaan (Max NPOP, NJOP)</span><span class="value">${formatRupiah(r.dpp)}</span></div>
         <div class="summary-line warn"><span>Pengurang (NPOPTKP)</span><span class="value">- ${formatRupiah(r.npoptkp)}</span></div>
@@ -1172,7 +1171,7 @@ function renderPbjt(r, kategoriLabel) {
   };
   document.getElementById('result-slot').innerHTML = `
     <div class="summary-card">
-      <div class="summary-header"><span>ESTIMASI PBJT &mdash; ${kategoriLabel.toUpperCase()}</span><span class="tag">SIMULASI HUD</span></div>
+      <div class="summary-header"><span>ESTIMASI PBJT &mdash; ${kategoriLabel.toUpperCase()}</span><span class="tag">ESTIMASI TERUTANG</span></div>
       <div class="summary-body">
         <div class="summary-line"><span>Dasar Pengenaan (DPP)</span><span class="value">${formatRupiah(r.dpp)}</span></div>
         <div class="summary-line strong"><span>Tarif Pajak</span><span class="value">${r.tarifPersen}%</span></div>
