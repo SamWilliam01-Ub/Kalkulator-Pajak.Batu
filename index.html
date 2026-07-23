@@ -10,6 +10,12 @@
 </script>
 <script defer src="/_vercel/insights/script.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+<!-- FITUR 1: LEAFLET GIS MAP -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- FITUR 2: TESSERACT OCR SCANNER -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
@@ -30,6 +36,7 @@
     --success: #10B981;
     --warning: #F59E0B;
     --danger: #EF4444;
+    --purple: #A855F7;
     --radius-lg: 20px;
     --radius-md: 12px;
     --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
@@ -62,7 +69,6 @@
   header h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.5px; color: #FFFFFF; }
   header p { font-size: 14.5px; color: var(--text-muted); margin-top: 6px; font-weight: 500; }
 
-  /* QUICK PRESET BAR */
   .preset-bar {
     display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 18px;
     scrollbar-width: thin; scrollbar-color: var(--accent) transparent;
@@ -119,6 +125,17 @@
   .section-title::before { content: ""; display: block; width: 5px; height: 16px; background: var(--accent); border-radius: 4px; }
   .legal-ref { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-left: auto; text-transform: none; }
 
+  /* FITUR 2: OCR ZONE STYLING */
+  .ocr-zone {
+    border: 2px dashed var(--accent); background: rgba(56, 189, 248, 0.06);
+    border-radius: var(--radius-md); padding: 16px; text-align: center;
+    cursor: pointer; margin-bottom: 20px; transition: all 0.2s ease;
+  }
+  .ocr-zone:hover { background: rgba(56, 189, 248, 0.12); border-color: #FFF; }
+
+  /* FITUR 1: LEAFLET MAP STYLING */
+  #map { height: 230px; width: 100%; border-radius: var(--radius-md); border: 2px solid var(--card-border); margin-bottom: 16px; z-index: 10; }
+
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 8px; }
   @media (max-width: 640px) { .row { grid-template-columns: 1fr; } body { padding: 20px 10px; } .card { padding: 22px 18px; } }
 
@@ -174,7 +191,6 @@
   .alpha-card label { color: #FBBF24; font-size: 13px; }
   .alpha-card input { background: #0F172A; border-color: rgba(245, 158, 11, 0.4); color: #FBBF24; font-weight: 700; }
 
-  /* SUMMARY CARD HIGH CONTRAST */
   .summary-card {
     margin-top: 30px; background: #0F172A;
     border: 2px solid var(--accent); border-radius: var(--radius-lg); overflow: hidden;
@@ -206,21 +222,25 @@
     font-family: var(--font-mono); font-size: 28px; font-weight: 800; color: var(--accent);
   }
 
-  .btn-group-hud { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 16px 22px; background: rgba(0,0,0,0.25); border-top: 1px solid rgba(255,255,255,0.1); }
-  @media (max-width: 650px) { .btn-group-hud { grid-template-columns: 1fr; } }
+  .btn-group-hud { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 16px 22px; background: rgba(0,0,0,0.25); border-top: 1px solid rgba(255,255,255,0.1); }
+  @media (max-width: 650px) { .btn-group-hud { grid-template-columns: 1fr 1fr; } }
   
-  .pdf-btn, .cart-btn, .speak-btn {
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    padding: 13px 10px; border: none; cursor: pointer;
-    font-family: var(--font-sans); font-size: 12.5px; font-weight: 800;
+  .pdf-btn, .cart-btn, .speak-btn, .share-btn {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 12px 8px; border: none; cursor: pointer;
+    font-family: var(--font-sans); font-size: 12px; font-weight: 800;
     border-radius: var(--radius-md); transition: transform 0.15s ease, background 0.2s ease;
   }
   .pdf-btn { background: var(--primary); color: #FFF; }
   .cart-btn { background: rgba(56, 189, 248, 0.15); border: 2px solid rgba(56, 189, 248, 0.5); color: var(--accent); }
   .speak-btn { background: rgba(16, 185, 129, 0.2); border: 2px solid rgba(16, 185, 129, 0.5); color: var(--success); }
+  /* FITUR 4: SHARE BUTTON STYLING */
+  .share-btn { background: rgba(168, 85, 247, 0.2); border: 2px solid rgba(168, 85, 247, 0.5); color: var(--purple); }
+
   .pdf-btn:hover { background: var(--primary-hover); transform: translateY(-1px); }
   .cart-btn:hover { background: rgba(56, 189, 248, 0.25); transform: translateY(-1px); }
   .speak-btn:hover { background: rgba(16, 185, 129, 0.35); transform: translateY(-1px); }
+  .share-btn:hover { background: rgba(168, 85, 247, 0.35); transform: translateY(-1px); }
 
   .cart-tray {
     margin-top: 30px; background: #0F172A;
@@ -281,6 +301,14 @@
         <h2>Pajak Bumi dan Bangunan (PBB-P2)</h2>
         <span class="hint">Pajak atas bumi dan/atau bangunan yang dimiliki, dikuasai, dan/atau dimanfaatkan.</span>
       </div>
+
+      <!-- FITUR 2: OCR UPLOAD UI -->
+      <div class="ocr-zone" onclick="document.getElementById('pbb_ocr_input').click()">
+        <input type="file" id="pbb_ocr_input" accept="image/*" style="display:none;" onchange="processSPPTOCR(event)">
+        <div id="ocr_label">📷 <b>Scan Foto Kertas SPPT PBB (Auto-Fill AI)</b><br><span style="font-size:12px; color:var(--text-muted)">Klik di sini untuk upload foto SPPT &amp; mengekstrak NJOP otomatis</span></div>
+        <div id="ocr_progress" class="hidden" style="margin-top:6px; font-size:13px; color:var(--accent); font-weight:700;">Memproses OCR SPPT... Mohon Tunggu <span id="ocr_percent">0%</span></div>
+      </div>
+
       <div class="section-title">Data NJOP Objek <span class="legal-ref">Perda Pasal 7&ndash;9 | Perwali Pasal 25</span></div>
       <div class="row">
         <div class="form-group">
@@ -402,8 +430,15 @@
         </div>
 
         <div id="rk_sub_permanen">
+          <!-- FITUR 1: LEAFLET GIS MAP CONTAINER -->
           <div class="form-group">
-            <label>Cari Lokasi Jalan Kota Batu (Klasifikasi Otomatis)</label>
+            <label>Pilih Lokasi Reklame di Peta Interaktif Kota Batu</label>
+            <div id="map"></div>
+            <span class="hint">Klik titik pada peta untuk menentukan lokasi jalan &amp; klasifikasi Kelas Jalan secara otomatis.</span>
+          </div>
+
+          <div class="form-group">
+            <label>Cari Lokasi Jalan Kota Batu (Pencarian Manual)</label>
             <input type="text" id="rk_street_search" placeholder="Ketik nama jalan (misal: Diponegoro, Agus Salim...)" autocomplete="off">
             <div id="rk_street_results" class="autocomplete-results hidden"></div>
             <span class="hint">Otomatis menentukan Kelas Jalan berdasarkan Lampiran III Perwali No. 20/2024.</span>
@@ -573,8 +608,151 @@ function speakResultText(textToSpeak) {
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(textToSpeak);
   utterance.lang = 'id-ID';
-  utterance.rate = 0.95; // Kecepatan sedikit lebih santai agar ramah lansia
+  utterance.rate = 0.95;
   window.speechSynthesis.speak(utterance);
+}
+
+/* ============================================================
+   FITUR 2: OCR SPPT ENGINE (TESSERACT.JS)
+   ============================================================ */
+async function processSPPTOCR(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const label = document.getElementById('ocr_label');
+  const progress = document.getElementById('ocr_progress');
+  const percentSpan = document.getElementById('ocr_percent');
+
+  label.classList.add('hidden');
+  progress.classList.remove('hidden');
+
+  try {
+    const worker = await Tesseract.createWorker('ind');
+    worker.setParameters({
+      tessedit_char_whitelist: '0123456789. ,Rp/'-ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    });
+    
+    const ret = await worker.recognize(file);
+    await worker.terminate();
+
+    const text = ret.data.text.toUpperCase();
+    
+    // Pattern search for NJOP Bumi / Tanah & Bangunan
+    const tanahMatch = text.match(/(?:BUMI|TANAH)[^\d]*([\d.,]{5,})/);
+    const bgnMatch = text.match(/(?:BANGUNAN|BGN)[^\d]*([\d.,]{5,})/);
+
+    let found = false;
+    if (tanahMatch && tanahMatch[1]) {
+      const rawVal = parseInput(tanahMatch[1]);
+      if (rawVal > 0) {
+        document.getElementById('pbb_njop_tanah').value = rawVal.toLocaleString('id-ID');
+        found = true;
+      }
+    }
+    if (bgnMatch && bgnMatch[1]) {
+      const rawVal = parseInput(bgnMatch[1]);
+      if (rawVal > 0) {
+        document.getElementById('pbb_njop_bgn').value = rawVal.toLocaleString('id-ID');
+        found = true;
+      }
+    }
+
+    if (found) {
+      playHUDAudio('click');
+      alert('Berhasil mengabstraksi data SPPT PBB! Silakan periksa kembali angka NJOP.');
+      render();
+    } else {
+      alert('Teks berhasil dibaca, namun angka NJOP Bumi/Bangunan tidak terdeteksi presisi. Silakan ketik manual.');
+    }
+  } catch (err) {
+    alert('Terjadi kesalahan OCR: ' + err.message);
+  } finally {
+    label.classList.remove('hidden');
+    progress.classList.add('hidden');
+  }
+}
+
+/* ============================================================
+   FITUR 1: GIS MAP ENGINE (LEAFLET.JS)
+   ============================================================ */
+let mapInstance = null;
+let mapMarker = null;
+
+function initGISMap() {
+  if (mapInstance) {
+    setTimeout(() => mapInstance.invalidateSize(), 100);
+    return;
+  }
+  const mapEl = document.getElementById('map');
+  if (!mapEl) return;
+
+  // Kota Batu Center Coordinates
+  mapInstance = L.map('map').setView([-7.8702, 112.5271], 14);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap'
+  }).addTo(mapInstance);
+
+  const keyLocations = [
+    { name: 'DIPONEGORO', class: 'Utama', lat: -7.8715, lng: 112.5285 },
+    { name: 'IR. SOEKARNO', class: 'Utama', lat: -7.8863, lng: 112.5451 },
+    { name: 'AGUS SALIM', class: 'A', lat: -7.8752, lng: 112.5211 },
+    { name: 'ABDUL GANI', class: 'A', lat: -7.8810, lng: 112.5180 }
+  ];
+
+  keyLocations.forEach(loc => {
+    const m = L.marker([loc.lat, loc.lng]).addTo(mapInstance);
+    m.bindPopup(`<b>Jl. ${loc.name}</b><br>Kelas Jalan: ${loc.class}`);
+    m.on('click', () => {
+      selectStreet(loc.name, loc.class);
+    });
+  });
+
+  mapInstance.on('click', function(e) {
+    if (mapMarker) mapInstance.removeLayer(mapMarker);
+    mapMarker = L.marker(e.latlng).addTo(mapInstance);
+
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${e.latlng.lat}&lon=${e.latlng.lng}`)
+      .then(res => res.json())
+      .then(data => {
+        const road = data.address.road || data.address.suburb || "Jalan Lokasi Terpilih";
+        const upper = road.toUpperCase();
+        let foundClass = 'B';
+        for (let key in KOTA_BATU_STREETS) {
+          if (upper.includes(key)) {
+            foundClass = KOTA_BATU_STREETS[key];
+            break;
+          }
+        }
+        selectStreet(upper.replace('JL. ', '').replace('JALAN ', ''), foundClass);
+        mapMarker.bindPopup(`<b>${road}</b><br>Kelas Jalan Terdeteksi: ${foundClass}`).openPopup();
+      })
+      .catch(() => {});
+  });
+}
+
+/* ============================================================
+   FITUR 4: DYNAMIC PERMALINK & WHATSAPP SHARE ENGINE
+   ============================================================ */
+function shareSimul() {
+  simpanState();
+  const rawState = localStorage.getItem('pajakBatuDraft');
+  if (!rawState) return;
+
+  const encoded = btoa(encodeURIComponent(rawState));
+  const shareUrl = window.location.origin + window.location.pathname + '#' + encoded;
+
+  navigator.clipboard.writeText(shareUrl).then(() => {
+    playHUDAudio('click');
+    const waText = `*Simulasi Pajak Daerah Kota Batu*\nLihat draf kalkulasi pajak saya di sini:\n${shareUrl}`;
+    const waUrl = `https://wa.me/?text=${encodeURIComponent(waText)}`;
+
+    if (confirm('Link simulasi telah disalin ke clipboard! Apakah Anda ingin langsung membagikannya via WhatsApp?')) {
+      window.open(waUrl, '_blank');
+    }
+  }).catch(() => {
+    prompt('Salin link simulasi ini:', shareUrl);
+  });
 }
 
 /* ============================================================
@@ -583,21 +761,18 @@ function speakResultText(textToSpeak) {
 function applyPreset(type) {
   playHUDAudio('click');
   if (type === 'kafe') {
-    // Switch to PBJT
     document.querySelector('.tab[data-tab="pbjt"]').click();
     document.getElementById('pj_kategori').value = 'makanmin';
     syncPjOmzetVisibility();
     document.getElementById('pj_omzet').value = '25.000.000';
     document.getElementById('pj_dpp').value = '25.000.000';
   } else if (type === 'hotel') {
-    // Switch to PAT Auto
     document.querySelector('.tab[data-tab="pat"]').click();
     document.getElementById('pat_mode').value = 'auto';
     syncPatUI();
     document.getElementById('pat_kelompok').value = '3';
     document.getElementById('pat_volume').value = '1.600';
   } else if (type === 'reklame') {
-    // Switch to Reklame Sendiri Permanen di Jl Diponegoro
     document.querySelector('.tab[data-tab="reklame"]').click();
     document.getElementById('rk_penyelenggara').value = 'sendiri';
     syncReklameUI();
@@ -607,7 +782,6 @@ function applyPreset(type) {
     document.getElementById('rk_jenis_permanen').value = 'billboard_bersinar';
     document.getElementById('rk_vol_permanen').value = '12';
   } else if (type === 'rumah') {
-    // Switch to PBB
     document.querySelector('.tab[data-tab="pbb"]').click();
     document.getElementById('pbb_njop_tanah').value = '350.000.000';
     document.getElementById('pbb_njop_bgn').value = '150.000.000';
@@ -616,7 +790,7 @@ function applyPreset(type) {
 }
 
 /* ============================================================
-   TERBILANG CONVERTER ENGINE (UNTUK INVOICE PDF)
+   TERBILANG CONVERTER ENGINE
    ============================================================ */
 function terbilang(bilangan) {
   bilangan = Math.abs(bilangan);
@@ -935,7 +1109,7 @@ function renderCartTray() {
 }
 
 /* =================================================================
-   PDF MAKE PRINT ENGINE (MODERN CORPORATE INVOICE WITH QR)
+   PDF MAKE PRINT ENGINE
    ================================================================= */
 let currentPrintPayload = null;
 
@@ -1004,7 +1178,6 @@ function generatePDFDoc(title, dataRows, grandTotalVal) {
       return { canvas: [{ type: 'rect', x: 0, y: 0, w: 420, h: 595, color: '#FFFFFF' }] };
     },
     content: [
-      // Top Header Dual Column
       {
         columns: [
           {
@@ -1023,10 +1196,7 @@ function generatePDFDoc(title, dataRows, grandTotalVal) {
           }
         ]
       },
-
       { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 372, y2: 0, lineWidth: 1.5, lineColor: '#2563EB' }], margin: [0, 10, 0, 12] },
-
-      // Callout Info Box
       {
         table: {
           widths: ['*'],
@@ -1050,8 +1220,6 @@ function generatePDFDoc(title, dataRows, grandTotalVal) {
         },
         margin: [0, 0, 0, 12]
       },
-
-      // Itemized Invoice Table
       {
         table: {
           widths: ['*', 'auto'],
@@ -1063,8 +1231,6 @@ function generatePDFDoc(title, dataRows, grandTotalVal) {
           hLineColor: () => '#E2E8F0'
         }
       },
-
-      // Invoice Total Card & Terbilang
       {
         table: {
           widths: ['*', 'auto'],
@@ -1091,8 +1257,6 @@ function generatePDFDoc(title, dataRows, grandTotalVal) {
         },
         margin: [0, 10, 0, 12]
       },
-
-      // Footer & Disclaimer
       { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 372, y2: 0, lineWidth: 1, lineColor: '#E2E8F0' }], margin: [0, 8, 0, 6] },
       {
         columns: [
@@ -1176,6 +1340,10 @@ function update3DStackClasses(activeKey) {
     }
   });
   updateContainerHeight();
+
+  if (activeKey === 'reklame') {
+    initGISMap();
+  }
 }
 
 tabs.forEach(tab => {
@@ -1243,7 +1411,7 @@ document.getElementById('pbb_alpha').addEventListener('input', render);
 document.querySelectorAll('input[name="pbb_jenis"]').forEach(r => r.addEventListener('change', () => { playHUDAudio('click'); render(); }));
 
 /* ============================================================
-   RENDERERS (WITH ACCESSIBILITY VOICE READER BUTTON)
+   RENDERERS (WITH ACCESSIBILITY VOICE READER & SHARE LINK)
    ============================================================ */
 function renderPbb(r, klasifikasi) {
   const label = { none: 'Umum', pangan: 'Lahan produksi pangan', ternak: 'Lahan produksi ternak' }[klasifikasi];
@@ -1273,9 +1441,10 @@ function renderPbb(r, klasifikasi) {
         </div>
       </div>
       <div class="btn-group-hud">
-        <button class="pdf-btn" onclick="downloadPDFNative()">UNDUH INVOICE PDF</button>
+        <button class="pdf-btn" onclick="downloadPDFNative()">INVOICE PDF</button>
         <button class="cart-btn" onclick="addToCart()">+ KERANJANG</button>
-        <button class="speak-btn" onclick="speakResultText('${speechText}')">&#128266; BACA SUARA</button>
+        <button class="speak-btn" onclick="speakResultText('${speechText}')">&#128266; SUARA</button>
+        <button class="share-btn" onclick="shareSimul()">&#128279; BAGIKAN</button>
       </div>
       <div class="disclaimer">Sesuai Perwali Batu No. 20/2024 Pasal 25 ayat (2), persentase Dasar Pengenaan PBB-P2 terkunci pada angka 70%.</div>
     </div>`;
@@ -1310,9 +1479,10 @@ function renderBphtb(r, jenis) {
         </div>
       </div>
       <div class="btn-group-hud">
-        <button class="pdf-btn" onclick="downloadPDFNative()">UNDUH INVOICE PDF</button>
+        <button class="pdf-btn" onclick="downloadPDFNative()">INVOICE PDF</button>
         <button class="cart-btn" onclick="addToCart()">+ KERANJANG</button>
-        <button class="speak-btn" onclick="speakResultText('${speechText}')">&#128266; BACA SUARA</button>
+        <button class="speak-btn" onclick="speakResultText('${speechText}')">&#128266; SUARA</button>
+        <button class="share-btn" onclick="shareSimul()">&#128279; BAGIKAN</button>
       </div>
       <div class="disclaimer">Estimasi berbasis input manual, bukan SSPD resmi Bapenda.</div>
     </div>`;
@@ -1352,9 +1522,10 @@ function renderPbjt(r, kategoriLabel) {
         </div>
       </div>
       <div class="btn-group-hud">
-        <button class="pdf-btn" onclick="downloadPDFNative()">UNDUH INVOICE PDF</button>
+        <button class="pdf-btn" onclick="downloadPDFNative()">INVOICE PDF</button>
         <button class="cart-btn" onclick="addToCart()">+ KERANJANG</button>
-        <button class="speak-btn" onclick="speakResultText('${speechText}')">&#128266; BACA SUARA</button>
+        <button class="speak-btn" onclick="speakResultText('${speechText}')">&#128266; SUARA</button>
+        <button class="share-btn" onclick="shareSimul()">&#128279; BAGIKAN</button>
       </div>
       <div class="disclaimer">Estimasi hasil perhitungan otomatis, bukan bukti pembayaran / SKPD resmi.</div>
     </div>`;
@@ -1426,9 +1597,10 @@ function renderReklame(r) {
         </div>
       </div>
       <div class="btn-group-hud">
-        <button class="pdf-btn" onclick="downloadPDFNative()">UNDUH INVOICE PDF</button>
+        <button class="pdf-btn" onclick="downloadPDFNative()">INVOICE PDF</button>
         <button class="cart-btn" onclick="addToCart()">+ KERANJANG</button>
-        <button class="speak-btn" onclick="speakResultText('${speechText}')">&#128266; BACA SUARA</button>
+        <button class="speak-btn" onclick="speakResultText('${speechText}')">&#128266; SUARA</button>
+        <button class="share-btn" onclick="shareSimul()">&#128279; BAGIKAN</button>
       </div>
       <div class="disclaimer">Penghitungan mengacu pada Perda Kota Batu No. 4/2023 &amp; Perwali Kota Batu No. 20/2024 Lampiran A.</div>
     </div>`;
@@ -1479,9 +1651,10 @@ function renderPAT(r) {
         </div>
       </div>
       <div class="btn-group-hud">
-        <button class="pdf-btn" onclick="downloadPDFNative()">UNDUH INVOICE PDF</button>
+        <button class="pdf-btn" onclick="downloadPDFNative()">INVOICE PDF</button>
         <button class="cart-btn" onclick="addToCart()">+ KERANJANG</button>
-        <button class="speak-btn" onclick="speakResultText('${speechText}')">&#128266; BACA SUARA</button>
+        <button class="speak-btn" onclick="speakResultText('${speechText}')">&#128266; SUARA</button>
+        <button class="share-btn" onclick="shareSimul()">&#128279; BAGIKAN</button>
       </div>
       <div class="disclaimer">Penghitungan HDA otomatis berbasis Matriks Kelompok &amp; Volume Pemakaian m³ Perwali Batu No. 20/2024 Lampiran B.</div>
     </div>`;
@@ -1560,7 +1733,7 @@ document.getElementById('pj_omzet').addEventListener('input', render);
 document.getElementById('pj_dpp').addEventListener('input', render);
 
 /* =================================================================
-   LOCAL STORAGE PERSISTENCE
+   LOCAL STORAGE & HASH STATE PERSISTENCE
    ================================================================= */
 const FORM_IDS = ['pbb_njop_tanah','pbb_njop_bgn','pbb_alpha','b_npop','b_njop','b_jenis',
   'pj_kategori','pj_omzet','pj_dpp','rk_penyelenggara','rk_nilai_kontrak','rk_sifat',
@@ -1581,12 +1754,21 @@ function simpanState() {
 
 function muatState() {
   try {
-    const raw = localStorage.getItem('pajakBatuDraft');
-    if (!raw) {
+    let state = null;
+    if (window.location.hash && window.location.hash.length > 1) {
+      const hashData = window.location.hash.substring(1);
+      const decodedJson = decodeURIComponent(atob(hashData));
+      state = JSON.parse(decodedJson);
+    } else {
+      const raw = localStorage.getItem('pajakBatuDraft');
+      if (raw) state = JSON.parse(raw);
+    }
+
+    if (!state) {
       update3DStackClasses('pbb');
       return;
     }
-    const state = JSON.parse(raw);
+
     FORM_IDS.forEach(id => { const el = document.getElementById(id); if (el && state[id] !== undefined) el.value = state[id]; });
     if (state.pbb_jenis) {
       const r = document.querySelector(`input[name="pbb_jenis"][value="${state.pbb_jenis}"]`);
