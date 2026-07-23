@@ -389,7 +389,7 @@
           </div>
         </div>
         <div class="form-group">
-          <label id="rk_label_volume_perm">Jumlah Unit / Ukuran ($m^2$)</label>
+          <label id="rk_label_volume_perm">Jumlah Unit / Ukuran (m²)</label>
           <input type="text" id="rk_vol_permanen" value="1">
         </div>
       </div>
@@ -399,17 +399,17 @@
         <div class="form-group">
           <label>Jenis Reklame Insidentil</label>
           <select id="rk_jenis_insidentil">
-            <option value="spanduk_bulan">Spanduk / Umbul-Umbul (Hitungan Bulan / $m^2$)</option>
-            <option value="spanduk_minggu">Spanduk / Umbul-Umbul (Hitungan Minggu / $m^2$)</option>
-            <option value="baliho_bulan">Baliho (Hitungan Bulan / $m^2$)</option>
-            <option value="poster_m2">Poster / Stiker ($m^2$)</option>
+            <option value="spanduk_bulan">Spanduk / Umbul-Umbul (Hitungan Bulan / m²)</option>
+            <option value="spanduk_minggu">Spanduk / Umbul-Umbul (Hitungan Minggu / m²)</option>
+            <option value="baliho_bulan">Baliho (Hitungan Bulan / m²)</option>
+            <option value="poster_m2">Poster / Stiker (m²)</option>
             <option value="selebaran_warna">Selebaran / Leaflet Berwarna (Per Lembar)</option>
             <option value="selebaran_polos">Selebaran / Leaflet Tidak Berwarna (Per Lembar)</option>
             <option value="pameran_demo">Peragaan / Pameran Demo (Per Unit)</option>
           </select>
         </div>
         <div class="form-group">
-          <label id="rk_label_insidentil_qty">Jumlah (Unit / $m^2$ / Lembar)</label>
+          <label id="rk_label_insidentil_qty">Jumlah (Unit / m² / Lembar)</label>
           <input type="text" id="rk_vol_insidentil" value="1">
         </div>
       </div>
@@ -427,7 +427,7 @@
     <div class="form-group">
       <label>Mode Input PAT</label>
       <select id="pat_mode">
-        <option value="auto">Hitung Otomatis Matriks HDA (Volume $m^3$ &amp; Kelompok Usaha)</option>
+        <option value="auto">Hitung Otomatis Matriks HDA (Volume m³ &amp; Kelompok Usaha)</option>
         <option value="manual">Input Manual Nilai Perolehan Air Tanah (NPAT)</option>
       </select>
     </div>
@@ -437,15 +437,15 @@
       <div class="form-group">
         <label>Kelompok Pengguna Air Tanah</label>
         <select id="pat_kelompok">
-          <option value="1">Kelompok 1 &mdash; Pemasok Air Baku, AMDK, Pabrik Es Kristal (>95% bahan utama)</option>
-          <option value="2">Kelompok 2 &mdash; Industri Tekstil, Pabrik Makanan, Hotel Bintang 3-5 (>2.000 $m^3$/bln)</option>
-          <option value="3">Kelompok 3 &mdash; Hotel Bintang 1-2, Apartemen, Agroindustri (1.500-2.000 $m^3$/bln)</option>
-          <option value="4">Kelompok 4 &mdash; Losmen/Penginapan, Tempat Hiburan, Restoran (>1.000 $m^3$/bln)</option>
+          <option value="1">Kelompok 1 &mdash; Pemasok Air Baku, AMDK, Pabrik Es Kristal (&gt;95% bahan utama)</option>
+          <option value="2">Kelompok 2 &mdash; Industri Tekstil, Pabrik Makanan, Hotel Bintang 3-5 (&gt;2.000 m³/bln)</option>
+          <option value="3">Kelompok 3 &mdash; Hotel Bintang 1-2, Apartemen, Agroindustri (1.500-2.000 m³/bln)</option>
+          <option value="4">Kelompok 4 &mdash; Losmen/Penginapan, Tempat Hiburan, Restoran (&gt;1.000 m³/bln)</option>
           <option value="5">Kelompok 5 &mdash; Usaha Kecil Rumah Tangga, Hotel Non-Bintang, Rumah Makan, RS</option>
         </select>
       </div>
       <div class="form-group">
-        <label>Volume Pemakaian Air / Bulan ($m^3$)</label>
+        <label>Volume Pemakaian Air / Bulan (m³)</label>
         <input type="text" id="pat_volume" placeholder="0">
         <span class="hint">Sistem akan secara otomatis menentukan Harga Dasar Air (HDA) berdasarkan braket volume Perwali No. 20/2024.</span>
       </div>
@@ -481,7 +481,7 @@ const PERDA_BATU_RULES = {
       { max: 50_000_000_000, rate: 0.06 },
       { max: Infinity, rate: 0.08 }
     ],
-    defaultAlpha: 70 // Perwali 20/2024 Pasal 25 ayat (2)
+    defaultAlpha: 70
   },
   bphtb: {
     pasal: 'Perda Pasal 14–16',
@@ -499,7 +499,6 @@ const PERDA_BATU_RULES = {
   reklame: {
     pasal: 'Perda Pasal 34–35 | Perwali Lampiran A',
     tarif: 25,
-    // Perwali 20/2024 Lampiran A (NSR = Nilai Strategis + NJOR)
     permanen: {
       videotron: { Utama: 15_000_000, A: 14_000_000, B: 13_000_000 },
       billboard_bersinar: { Utama: 3_000_000, A: 2_500_000, B: 2_000_000 },
@@ -521,8 +520,6 @@ const PERDA_BATU_RULES = {
   pat: {
     pasal: 'Perda Pasal 40–41 | Perwali Lampiran B',
     tarif: 5,
-    // Perwali 20/2024 Lampiran B (Matriks HDA dalam Rp/m3)
-    // Rows: Kelompok 1..5, Cols: 0-50, 51-500, 501-1000, 1001-2500, >2500
     hdaMatrix: {
       1: [6300, 7100, 8400, 10300, 13200],
       2: [5900, 6600, 7650, 9050, 11300],
@@ -587,7 +584,6 @@ function hitungReklameBatu(params) {
     return { mode: 'kontrak', dpp, tarifPersen: rules.tarif, pajakTerutang };
   }
 
-  // Diselenggarakan Sendiri
   if (params.sifat === 'permanen') {
     const nsrSatuan = rules.permanen[params.jenisPermanen][params.kelasJalan];
     const nsrTotal = nsrSatuan * params.volPermanen;
@@ -602,7 +598,6 @@ function hitungReklameBatu(params) {
       pajakTerutang
     };
   } else {
-    // Insidentil
     const item = rules.insidentil[params.jenisInsidentil];
     if (item.isPajakDirect) {
       const pajakTerutang = Math.round(item.pajakDirect * params.volInsidentil);
@@ -775,7 +770,6 @@ tabs.forEach(tab => {
   });
 });
 
-// Reklame dynamic UI
 const rkPenyelenggara = document.getElementById('rk_penyelenggara');
 const rkSifat = document.getElementById('rk_sifat');
 const rkJenisPermanen = document.getElementById('rk_jenis_permanen');
@@ -804,7 +798,6 @@ document.getElementById('rk_vol_permanen').addEventListener('input', render);
 document.getElementById('rk_vol_insidentil').addEventListener('input', render);
 syncReklameUI();
 
-// PAT dynamic UI
 const patMode = document.getElementById('pat_mode');
 function syncPatUI() {
   const isAuto = patMode.value === 'auto';
@@ -815,7 +808,6 @@ patMode.addEventListener('change', () => { syncPatUI(); render(); });
 document.getElementById('pat_kelompok').addEventListener('change', render);
 syncPatUI();
 
-// PBJT dynamic UI
 const pjKategoriSelect = document.getElementById('pj_kategori');
 function syncPjOmzetVisibility() {
   document.getElementById('pj_omzet_field').classList.toggle('hidden', pjKategoriSelect.value !== 'makanmin');
@@ -933,7 +925,7 @@ function renderReklame(r) {
   } else if (r.mode === 'sendiri_permanen') {
     pdfRows = [
       baris('NSR Satuan Perwali', formatRupiah(r.nsrSatuan)),
-      baris('Volume / Luas / Qty', r.vol + ' unit/m2'),
+      baris('Volume / Luas / Qty', r.vol + ' unit/m²'),
       baris('Total NSR (DPP)', formatRupiah(r.nsrTotal)),
       baris('Tarif Pajak', r.tarifPersen + '%'),
       baris('PAJAK REKLAME TERUTANG', formatRupiah(r.pajakTerutang), true)
@@ -955,7 +947,7 @@ function renderReklame(r) {
   } else if (r.mode === 'sendiri_insidentil_nsr') {
     pdfRows = [
       baris('NSR Satuan Perwali', formatRupiah(r.nsrSatuan)),
-      baris('Jumlah Qty / m2', r.vol),
+      baris('Jumlah Qty / m²', r.vol),
       baris('Total NSR (DPP)', formatRupiah(r.nsrTotal)),
       baris('Tarif Pajak', r.tarifPersen + '%'),
       baris('PAJAK REKLAME TERUTANG', formatRupiah(r.pajakTerutang), true)
