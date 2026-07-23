@@ -5,20 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kalkulator Pajak Daerah &amp; Retribusi | Kota Batu</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-<script>
-  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-</script>
-<script defer src="/_vercel/insights/script.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+
 <!-- FITUR 1: LEAFLET GIS MAP -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <!-- FITUR 2: TESSERACT OCR SCANNER -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+
 <style>
   :root {
     --bg-main: #0B132B;
@@ -613,7 +612,7 @@ function speakResultText(textToSpeak) {
 }
 
 /* ============================================================
-   FITUR 2: OCR SPPT ENGINE (TESSERACT.JS PERBAIKAN AKURASI & AUTO-REFRESH)
+   FITUR 2: OCR SPPT ENGINE (TESSERACT.JS v5 ENGINE)
    ============================================================ */
 async function processSPPTOCR(event) {
   const inputEl = event.target;
@@ -650,18 +649,15 @@ async function processSPPTOCR(event) {
     let njopTanah = 0;
     let njopBgn = 0;
 
-    // Helper untuk mengekstrak deretan angka dari baris SPPT
     function extractNumbersFromLine(line) {
       const matches = line.match(/\b\d{1,3}(?:[.,]\d{3})+(?!\d)|\b\d{5,}\b/g);
       if (!matches) return [];
       return matches.map(m => parseInput(m)).filter(val => val >= 10000);
     }
 
-    // Pass 1: Line-by-Line Multi-Scan
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
 
-      // Deteksi NJOP Tanah / Bumi
       if (!njopTanah && (line.includes('BUMI') || line.includes('TANAH'))) {
         const nums = extractNumbersFromLine(line);
         if (nums.length > 0) {
@@ -672,7 +668,6 @@ async function processSPPTOCR(event) {
         }
       }
 
-      // Deteksi NJOP Bangunan
       if (!njopBgn && (line.includes('BANGUNAN') || line.includes('BGN'))) {
         const nums = extractNumbersFromLine(line);
         if (nums.length > 0) {
@@ -684,7 +679,6 @@ async function processSPPTOCR(event) {
       }
     }
 
-    // Pass 2: Fallback Regex jika line-scan tidak menemukan hasil
     if (!njopTanah) {
       const tanahMatch = text.match(/(?:BUMI|TANAH)[^\d\n]*([\d.,]{5,})/);
       if (tanahMatch && tanahMatch[1]) njopTanah = parseInput(tanahMatch[1]);
@@ -706,7 +700,7 @@ async function processSPPTOCR(event) {
 
     if (found) {
       playHUDAudio('click');
-      render(); // AUTO-REFRESH KALKULASI & HASIL UI
+      render();
       alert('Berhasil mengabstraksi data SPPT PBB! Silakan periksa kembali angka NJOP.');
     } else {
       alert('Teks berhasil dibaca, namun angka NJOP Bumi/Bangunan tidak terdeteksi presisi. Silakan ketik manual.');
@@ -716,7 +710,7 @@ async function processSPPTOCR(event) {
   } finally {
     label.classList.remove('hidden');
     progress.classList.add('hidden');
-    inputEl.value = ''; // RESETS INPUT AGAR BISA MEMASUKKAN ULANG FOTO SPPT KAPAN SAJA
+    inputEl.value = '';
   }
 }
 
@@ -728,13 +722,12 @@ let mapMarker = null;
 
 function initGISMap() {
   if (mapInstance) {
-    setTimeout(() => mapInstance.invalidateSize(), 100);
+    setTimeout(() => mapInstance.invalidateSize(), 150);
     return;
   }
   const mapEl = document.getElementById('map');
   if (!mapEl) return;
 
-  // Kota Batu Center Coordinates
   mapInstance = L.map('map').setView([-7.8702, 112.5271], 14);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
@@ -763,7 +756,7 @@ function initGISMap() {
     fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${e.latlng.lat}&lon=${e.latlng.lng}`)
       .then(res => res.json())
       .then(data => {
-        const road = data.address.road || data.address.suburb || "Jalan Lokasi Terpilih";
+        const road = (data.address && (data.address.road || data.address.suburb)) || "Jalan Lokasi Terpilih";
         const upper = road.toUpperCase();
         let foundClass = 'B';
         for (let key in KOTA_BATU_STREETS) {
@@ -777,6 +770,8 @@ function initGISMap() {
       })
       .catch(() => {});
   });
+
+  setTimeout(() => mapInstance.invalidateSize(), 200);
 }
 
 /* ============================================================
