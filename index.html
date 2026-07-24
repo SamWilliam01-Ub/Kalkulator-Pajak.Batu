@@ -145,7 +145,6 @@
   .section-title::before { content: ""; display: block; width: 5px; height: 16px; background: var(--accent); border-radius: 4px; }
   .legal-ref { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-left: auto; text-transform: none; }
 
-  /* OCR STYLING FIX */
   .ocr-zone {
     border: 2px dashed var(--accent); background: rgba(56, 189, 248, 0.06);
     border-radius: var(--radius-md); padding: 18px; text-align: center;
@@ -320,7 +319,7 @@
         <span class="hint">Pajak atas bumi dan/atau bangunan yang dimiliki, dikuasai, dan/atau dimanfaatkan.</span>
       </div>
 
-      <!-- OCR SPPT UPLOADER (ENHANCED PIPELINE) -->
+      <!-- OCR SPPT UPLOADER -->
       <div class="ocr-zone" onclick="document.getElementById('pbb_ocr_input').click()">
         <input type="file" id="pbb_ocr_input" accept="image/*" style="display:none;" onchange="processSPPTOCR(event)">
         <div id="ocr_label">📷 <b>Scan Foto Kertas SPPT PBB (Auto-Fill AI Engine)</b><br><span style="font-size:12px; color:var(--text-muted)">Klik untuk upload foto lembar SPPT PBB &amp; ekstrak NJOP otomatis</span></div>
@@ -347,12 +346,12 @@
           <label class="radio-option"><input type="radio" name="pbb_jenis" value="pangan"><span class="opt-label">Lahan produksi pangan &mdash; tarif flat 0,015%</span></label>
           <label class="radio-option"><input type="radio" name="pbb_jenis" value="ternak"><span class="opt-label">Lahan produksi ternak &mdash; tarif flat 0,015%</span></label>
         </div>
-        <span class="hint">NJOPTKP dikunci Rp100.000.000. Dasar Pengenaan terkunci 70% (Perwali No. 20/2024 Pasal 25).</span>
+        <span class="hint">NJOPTKP dikunci Rp100.000.000[cite: 1]. Dasar Pengenaan terkunci 70% (Perwali No. 20/2024 Pasal 25)[cite: 2].</span>
       </div>
       <div class="alpha-card">
         <label>Dasar Pengenaan (% dari NJOP setelah TKP)</label>
         <input type="text" id="pbb_alpha" value="70">
-        <span class="hint">Telah disesuaikan dengan Perwali Batu No. 20/2024 Pasal 25 ayat (2) yaitu sebesar 70%.</span>
+        <span class="hint">Telah disesuaikan dengan Perwali Batu No. 20/2024 Pasal 25 ayat (2) yaitu sebesar 70%[cite: 2].</span>
       </div>
     </div>
 
@@ -360,19 +359,19 @@
     <div class="card" id="panel-bphtb">
       <div class="card-header-desc">
         <h2>Bea Perolehan Hak atas Tanah dan Bangunan (BPHTB)</h2>
-        <span class="hint">Pajak atas perolehan hak atas tanah dan/atau bangunan.</span>
+        <span class="hint">Pajak atas perolehan hak atas tanah dan/atau bangunan[cite: 1, 2].</span>
       </div>
       <div class="section-title">Nilai Transaksi Objek Pajak <span class="legal-ref">Pasal 14&ndash;16</span></div>
       <div class="row">
         <div class="form-group">
           <label>Nilai Perolehan (NPOP)</label>
           <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="b_npop" placeholder="0"></div>
-          <span class="hint">Harga transaksi riil.</span>
+          <span class="hint">Harga transaksi riil[cite: 1].</span>
         </div>
         <div class="form-group">
           <label>NJOP PBB Tahun Berjalan</label>
           <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="b_njop" placeholder="0"></div>
-          <span class="hint">Dasar pengenaan memakai nilai tertinggi antara NPOP dan NJOP.</span>
+          <span class="hint">Dasar pengenaan memakai nilai tertinggi antara NPOP dan NJOP[cite: 1].</span>
         </div>
       </div>
       <div class="form-group">
@@ -389,7 +388,7 @@
     <div class="card" id="panel-pbjt">
       <div class="card-header-desc">
         <h2>Pajak Barang dan Jasa Tertentu (PBJT)</h2>
-        <span class="hint">Pajak konsumen akhir atas makanan/minuman, perhotelan, parkir, listrik, dan hiburan.</span>
+        <span class="hint">Pajak konsumen akhir atas makanan/minuman, perhotelan, parkir, listrik, dan hiburan[cite: 1, 2].</span>
       </div>
       <div class="section-title">Kategori Objek <span class="legal-ref">Pasal 21&ndash;30</span></div>
       <div class="form-group">
@@ -408,7 +407,7 @@
       <div class="form-group" id="pj_omzet_field">
         <label>Peredaran Usaha / Bulan</label>
         <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="pj_omzet" placeholder="0"></div>
-        <span class="hint">&le; Rp10.000.000/bulan = bukan objek pajak (Pasal 22 ayat 2a). Khusus kategori Makanan &amp; Minuman.</span>
+        <span class="hint">&le; Rp10.000.000/bulan = bukan objek pajak (Pasal 22 ayat 2a)[cite: 1]. Khusus kategori Makanan &amp; Minuman.</span>
       </div>
       <div class="form-group">
         <label>Dasar Pengenaan (Pembayaran Konsumen / Nilai Jual Listrik)</label>
@@ -420,7 +419,7 @@
     <div class="card" id="panel-reklame">
       <div class="card-header-desc">
         <h2>Pajak Reklame</h2>
-        <span class="hint">Pajak atas penyelenggaraan reklame komersial.</span>
+        <span class="hint">Pajak atas penyelenggaraan reklame komersial[cite: 1, 2].</span>
       </div>
       <div class="section-title">Metode &amp; Parameter Penyelenggaraan <span class="legal-ref">Perwali 20/2024 Lampiran A</span></div>
       
@@ -436,7 +435,7 @@
         <div class="form-group">
           <label>Nilai Kontrak Reklame</label>
           <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="rk_nilai_kontrak" placeholder="0"></div>
-          <span class="hint">Nilai kontrak tertulis dengan pihak ketiga (Pasal 34 ayat 2 Perda 4/2023). Tarif flat 25%.</span>
+          <span class="hint">Nilai kontrak tertulis dengan pihak ketiga (Pasal 34 ayat 2 Perda 4/2023)[cite: 1]. Tarif flat 25%[cite: 1, 2].</span>
         </div>
       </div>
 
@@ -460,7 +459,7 @@
             <label>Cari Lokasi Jalan Kota Batu (Pencarian Manual)</label>
             <input type="text" id="rk_street_search" placeholder="Ketik nama jalan (misal: Diponegoro, Agus Salim...)" autocomplete="off">
             <div id="rk_street_results" class="autocomplete-results hidden"></div>
-            <span class="hint">Otomatis menentukan Kelas Jalan berdasarkan Lampiran III Perwali No. 20/2024.</span>
+            <span class="hint">Otomatis menentukan Kelas Jalan berdasarkan Lampiran III Perwali No. 20/2024[cite: 2].</span>
           </div>
 
           <div class="row">
@@ -515,7 +514,7 @@
     <div class="card" id="panel-pat">
       <div class="card-header-desc">
         <h2>Pajak Air Tanah (PAT)</h2>
-        <span class="hint">Pajak atas pengambilan dan/atau pemanfaatan air tanah.</span>
+        <span class="hint">Pajak atas pengambilan dan/atau pemanfaatan air tanah[cite: 1, 2].</span>
       </div>
       <div class="section-title">Metode Perhitungan <span class="legal-ref">Perwali 20/2024 Lampiran B</span></div>
       
@@ -541,7 +540,7 @@
         <div class="form-group">
           <label>Volume Pemakaian Air / Bulan (m³)</label>
           <input type="text" id="pat_volume" placeholder="0">
-          <span class="hint">Sistem menentukan Harga Dasar Air (HDA) berdasarkan braket volume Perwali No. 20/2024.</span>
+          <span class="hint">Sistem menentukan Harga Dasar Air (HDA) berdasarkan braket volume Perwali No. 20/2024[cite: 2].</span>
         </div>
       </div>
 
@@ -549,7 +548,7 @@
         <div class="form-group">
           <label>Nilai Perolehan Air Tanah (NPAT) Manual</label>
           <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="pat_nilai_manual" placeholder="0"></div>
-          <span class="hint">Hasil perkalian ketetapan harga air baku x bobot air tanah. Tarif flat 5%.</span>
+          <span class="hint">Hasil perkalian ketetapan harga air baku x bobot air tanah. Tarif flat 5%[cite: 1, 2].</span>
         </div>
       </div>
     </div>
@@ -644,8 +643,20 @@ function speakResultText(textToSpeak) {
 }
 
 /* ============================================================
-   IMAGE PRE-PROCESSING FOR OCR (CANVAS CONTRAST BINARIZATION)
+   ENHANCED OCR SPPT ENGINE WITH MATH VERIFICATION & SANITIZER
    ============================================================ */
+function sanitizeOCRText(text) {
+  return text
+    .replace(/([0-9])[OoD]/g, '$10')
+    .replace(/[OoD]([0-9])/g, '0$1')
+    .replace(/([0-9])[Il|]/g, '$11')
+    .replace(/[Il|]([0-9])/g, '1$1')
+    .replace(/([0-9])S/gi, '$15')
+    .replace(/S([0-9])/gi, '5$1')
+    .replace(/([0-9])B/g, '$18')
+    .replace(/B([0-9])/g, '8$1');
+}
+
 function preprocessImageForOCR(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -655,8 +666,7 @@ function preprocessImageForOCR(file) {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
 
-        // Optimal width for OCR scanning ~1600px
-        const maxDim = 1600;
+        const maxDim = 1800;
         let width = img.width;
         let height = img.height;
 
@@ -677,13 +687,17 @@ function preprocessImageForOCR(file) {
         const imgData = ctx.getImageData(0, 0, width, height);
         const data = imgData.data;
 
-        // Grayscale + Adaptive Thresholding for crisp black-white contrast
+        const contrast = 1.4;
+        const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
+
         for (let i = 0; i < data.length; i += 4) {
-          const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-          const binarized = gray > 135 ? 255 : 0;
-          data[i] = binarized;
-          data[i + 1] = binarized;
-          data[i + 2] = binarized;
+          let gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+          gray = factor * (gray - 128) + 128;
+          gray = Math.max(0, Math.min(255, gray));
+
+          data[i] = gray;
+          data[i + 1] = gray;
+          data[i + 2] = gray;
         }
 
         ctx.putImageData(imgData, 0, 0);
@@ -697,9 +711,36 @@ function preprocessImageForOCR(file) {
   });
 }
 
-/* ============================================================
-   ENHANCED OCR SPPT ENGINE (STABLE & FAST 'ENG' ENGINE)
-   ============================================================ */
+function extractNJOPWithMathValidation(linesArray, keywords) {
+  for (let i = 0; i < linesArray.length; i++) {
+    const line = linesArray[i];
+    const hasKeyword = keywords.some(kw => line.includes(kw));
+
+    if (hasKeyword) {
+      const combinedLine = line + ' ' + (linesArray[i + 1] || '');
+      const sanitized = sanitizeOCRText(combinedLine);
+
+      const tokens = sanitized.match(/\b\d{1,3}(?:[.,]\d{3})+\b|\b\d{4,}\b/g) || [];
+      const numbers = tokens.map(t => parseInput(t)).filter(v => v > 0);
+
+      if (numbers.length >= 3) {
+        for (let a of numbers) {
+          for (let b of numbers) {
+            if (a === b) continue;
+            const product = a * b;
+            const match = numbers.find(c => c !== a && c !== b && Math.abs(c - product) <= product * 0.05);
+            if (match && match >= 100000) return match;
+          }
+        }
+      }
+
+      const validLarge = numbers.filter(n => n >= 100000);
+      if (validLarge.length > 0) return Math.max(...validLarge);
+    }
+  }
+  return 0;
+}
+
 async function processSPPTOCR(event) {
   const inputEl = event.target;
   const file = inputEl.files[0];
@@ -714,12 +755,10 @@ async function processSPPTOCR(event) {
   percentSpan.innerText = '0%';
 
   try {
-    // Canvas Preprocessing to clean up noise/shadows
-    percentSpan.innerText = 'Pre-filtering...';
+    percentSpan.innerText = 'Optimalisasi Kontras...';
     const processedCanvas = await preprocessImageForOCR(file);
 
-    percentSpan.innerText = 'Initializing AI...';
-    // Using 'eng' engine which is 100% reliable for digits and uppercase text
+    percentSpan.innerText = 'Inisialisasi Mesin AI...';
     const ret = await Tesseract.recognize(processedCanvas, 'eng', {
       logger: m => {
         if (m.status === 'recognizing text' && m.progress) {
@@ -729,66 +768,20 @@ async function processSPPTOCR(event) {
     });
 
     const rawText = ret.data.text.toUpperCase();
-    const lines = rawText.split(/\r?\n/);
+    const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
 
-    let njopTanah = 0;
-    let njopBgn = 0;
+    let njopTanah = extractNJOPWithMathValidation(lines, ['BUMI', 'TANAH']);
+    let njopBgn = extractNJOPWithMathValidation(lines, ['BANGUNAN', 'BGN', 'GEDUNG']);
 
-    // Helper: Extract all valid large numeric strings from line
-    function extractNumbersFromLine(lineStr) {
-      // Matches formatted numbers like 350.000.000 or raw numbers >= 100000
-      const matches = lineStr.match(/\b\d{1,3}(?:[.,]\d{3})+\b|\b\d{6,}\b/g);
-      if (!matches) return [];
-      return matches.map(m => parseInput(m)).filter(v => v >= 100000);
-    }
+    if (!njopTanah || !njopBgn) {
+      const sanitizedGlobal = sanitizeOCRText(rawText);
+      const allTokens = sanitizedGlobal.match(/\b\d{1,3}(?:[.,]\d{3})+\b|\b\d{6,}\b/g) || [];
+      const allNumbers = Array.from(new Set(allTokens.map(t => parseInput(t)))).filter(v => v >= 1000000);
+      
+      allNumbers.sort((a, b) => b - a);
 
-    // Pass 1: Line-by-Line Keyword Search
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-
-      // Match Bumi / Tanah
-      if (!njopTanah && (line.includes('BUMI') || line.includes('TANAH'))) {
-        const nums = extractNumbersFromLine(line);
-        if (nums.length > 0) {
-          njopTanah = Math.max(...nums);
-        } else if (i + 1 < lines.length) {
-          const nextNums = extractNumbersFromLine(lines[i + 1]);
-          if (nextNums.length > 0) njopTanah = Math.max(...nextNums);
-        }
-      }
-
-      // Match Bangunan / Gedung
-      if (!njopBgn && (line.includes('BANGUNAN') || line.includes('BGN') || line.includes('GEDUNG'))) {
-        const nums = extractNumbersFromLine(line);
-        if (nums.length > 0) {
-          njopBgn = Math.max(...nums);
-        } else if (i + 1 < lines.length) {
-          const nextNums = extractNumbersFromLine(lines[i + 1]);
-          if (nextNums.length > 0) njopBgn = Math.max(...nextNums);
-        }
-      }
-    }
-
-    // Pass 2: Fallback Global Regex Search if line-by-line misses
-    if (!njopTanah) {
-      const tanahMatch = rawText.match(/(?:BUMI|TANAH)[^\d]*([\d.,]{6,})/);
-      if (tanahMatch && tanahMatch[1]) njopTanah = parseInput(tanahMatch[1]);
-    }
-    if (!njopBgn) {
-      const bgnMatch = rawText.match(/(?:BANGUNAN|BGN|GEDUNG)[^\d]*([\d.,]{6,})/);
-      if (bgnMatch && bgnMatch[1]) njopBgn = parseInput(bgnMatch[1]);
-    }
-
-    // Pass 3: Ultimate Fallback (Grab top large numbers in document)
-    if (!njopTanah && !njopBgn) {
-      const allNumbers = extractNumbersFromLine(rawText);
-      if (allNumbers.length >= 2) {
-        allNumbers.sort((a, b) => b - a);
-        njopTanah = allNumbers[0];
-        njopBgn = allNumbers[1];
-      } else if (allNumbers.length === 1) {
-        njopTanah = allNumbers[0];
-      }
+      if (!njopTanah && allNumbers.length > 0) njopTanah = allNumbers[0];
+      if (!njopBgn && allNumbers.length > 1) njopBgn = allNumbers[1];
     }
 
     let found = false;
@@ -804,12 +797,12 @@ async function processSPPTOCR(event) {
     if (found) {
       playHUDAudio('click');
       render();
-      alert('Berhasil mengekstrak data SPPT PBB!\n\nNJOP Tanah: ' + formatRupiah(njopTanah) + '\nNJOP Bangunan: ' + formatRupiah(njopBgn));
+      alert(`Berhasil Mengabstraksi SPPT PBB!\n\n• NJOP Tanah: ${formatRupiah(njopTanah)}\n• NJOP Bangunan: ${formatRupiah(njopBgn)}`);
     } else {
-      alert('Teks berhasil dipindai, namun nominal NJOP tidak terdeteksi otomatis. Silakan masukkan angka secara manual.');
+      alert('Teks terbaca namun angka NJOP tidak terdeteksi presisi. Silakan isi angka secara manual.');
     }
   } catch (err) {
-    alert('Gagal memproses gambar OCR: ' + err.message);
+    alert('Terjadi kesalahan pemrosesan OCR: ' + err.message);
   } finally {
     label.classList.remove('hidden');
     progress.classList.add('hidden');
@@ -1404,7 +1397,7 @@ function generatePDFDoc(title, dataRows, grandTotalVal) {
         },
         margin: [0, 10, 0, 12]
       },
-      { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 372, y2: 0, lineWidth: 1, lineColor: '#E2E8F0' }], margin: [0, 10, 0, 8] },
+      { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 372, y2: 0, lineWidth: 1, lineColor: '#E2E8F0' }], margin: [0, 8, 0, 6] },
       {
         columns: [
           { text: 'Dibuat otomatis oleh Sistem Kalkulator Pajak Daerah.', fontSize: 7, color: '#64748B' },
@@ -1578,7 +1571,7 @@ function renderPbb(r, klasifikasi) {
         <button class="speak-btn" onclick="speakResultText('${speechText}')">&#128266; SUARA</button>
         <button class="share-btn" onclick="shareSimul()">&#128279; BAGIKAN</button>
       </div>
-      <div class="disclaimer">Sesuai Perwali Batu No. 20/2024 Pasal 25 ayat (2), persentase Dasar Pengenaan PBB-P2 terkunci pada angka 70%.</div>
+      <div class="disclaimer">Sesuai Perwali Batu No. 20/2024 Pasal 25 ayat (2), persentase Dasar Pengenaan PBB-P2 terkunci pada angka 70%[cite: 2].</div>
     </div>`;
   animateTotalNumber(r.pajakTerutang);
 }
@@ -1628,7 +1621,7 @@ function renderPbjt(r, kategoriLabel) {
       <div class="summary-card">
         <div class="summary-header blocked"><span>PBJT &mdash; ${kategoriLabel.toUpperCase()}</span><span class="tag">DIKECUALIKAN</span></div>
         <div class="summary-body"><div class="summary-line strong"><span>Status Kewajiban</span><span class="value" style="color:var(--success);">Bukan Objek Pajak (Omzet &le; Rp10jt/bln)</span></div></div>
-        <div class="disclaimer">Dikecualikan dari pengenaan PBJT sesuai Pasal 22 ayat (2) huruf a. PBJT terutang = Rp0.</div>
+        <div class="disclaimer">Dikecualikan dari pengenaan PBJT sesuai Pasal 22 ayat (2) huruf a[cite: 1]. PBJT terutang = Rp0.</div>
       </div>`;
     return;
   }
@@ -1734,7 +1727,7 @@ function renderReklame(r) {
         <button class="speak-btn" onclick="speakResultText('${speechText}')">&#128266; SUARA</button>
         <button class="share-btn" onclick="shareSimul()">&#128279; BAGIKAN</button>
       </div>
-      <div class="disclaimer">Penghitungan mengacu pada Perda Kota Batu No. 4/2023 &amp; Perwali Kota Batu No. 20/2024 Lampiran A.</div>
+      <div class="disclaimer">Penghitungan mengacu pada Perda Kota Batu No. 4/2023 &amp; Perwali Kota Batu No. 20/2024 Lampiran A[cite: 1, 2].</div>
     </div>`;
   animateTotalNumber(r.pajakTerutang);
 }
@@ -1788,7 +1781,7 @@ function renderPAT(r) {
         <button class="speak-btn" onclick="speakResultText('${speechText}')">&#128266; SUARA</button>
         <button class="share-btn" onclick="shareSimul()">&#128279; BAGIKAN</button>
       </div>
-      <div class="disclaimer">Penghitungan HDA otomatis berbasis Matriks Kelompok &amp; Volume Pemakaian m³ Perwali Batu No. 20/2024 Lampiran B.</div>
+      <div class="disclaimer">Penghitungan HDA otomatis berbasis Matriks Kelompok &amp; Volume Pemakaian m³ Perwali Batu No. 20/2024 Lampiran B[cite: 2].</div>
     </div>`;
   animateTotalNumber(r.pajakTerutang);
 }
