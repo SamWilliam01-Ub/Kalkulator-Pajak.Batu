@@ -57,18 +57,19 @@
 
   header { text-align: center; margin-bottom: 26px; }
   
-  /* HEADER LOGO STRATEGIS & STABIL */
+  /* HEADER LOGO STRATEGIS & STABLE DISPLAY */
   .header-logos {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 20px;
-    margin-bottom: 16px;
+    gap: 16px;
+    margin-bottom: 18px;
     flex-wrap: wrap;
   }
   .header-logo {
     height: 54px;
     width: auto;
+    max-width: 140px;
     object-fit: contain;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
     transition: transform 0.2s ease;
@@ -78,6 +79,20 @@
   }
   .header-logo.logo-round {
     border-radius: 50%;
+  }
+
+  /* STYLED FALLBACK BADGE BILA GAMBAR GAGAL MEMUAT TOTAL */
+  .logo-fallback-badge {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: #E5E7EB;
+    border: 1px solid #D1D5DB;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #374151;
   }
 
   header .badge-container { display: flex; justify-content: center; margin-bottom: 12px; }
@@ -140,7 +155,6 @@
   .section-title::before { content: ""; display: block; width: 5px; height: 16px; background: var(--primary); border-radius: 4px; }
   .legal-ref { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-left: auto; text-transform: none; }
 
-  /* OCR ZONE */
   .ocr-zone {
     border: 2px dashed var(--primary); background: #F9FAFB;
     border-radius: var(--radius-md); padding: 18px; text-align: center;
@@ -148,7 +162,6 @@
   }
   .ocr-zone:hover { background: #F3F4F6; }
 
-  /* LEAFLET GIS MAP STYLING */
   #map { height: 230px; width: 100%; border-radius: var(--radius-md); border: 1px solid var(--input-border); margin-bottom: 16px; z-index: 10; }
 
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 8px; }
@@ -282,19 +295,28 @@
 
 <div class="container">
   <header>
-    <!-- EMBED LOGO RESMI DENGAN URL CDN PUBLIK AGAR TIDAK PECAH -->
+    <!-- EMBED LOGO DENGAN ANTI-HOTLINK POLICY & SMART FALLBACK SYSTEM -->
     <div class="header-logos">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Logo_Kota_Batu_%28Jawa_Timur%29.png/500px-Logo_Kota_Batu_%28Jawa_Timur%29.png" 
-           alt="Logo Pemkot Batu" class="header-logo" title="Pemerintah Kota Batu"
-           onerror="this.onerror=null; this.src='Logo_kota_batu_(1).png';">
-           
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Logo_Universitas_Brawijaya.png/500px-Logo_Universitas_Brawijaya.png" 
-           alt="Logo Universitas Brawijaya" class="header-logo" title="Universitas Brawijaya"
-           onerror="this.onerror=null; this.src='logo-universitas-brawijaya-ub-png-svg.webp';">
-           
-      <img src="LOGO KELOMPOK 60 KKN-T FIA UB.jpg" 
-           alt="Logo KKN-T Kelompok 60 FIA UB" class="header-logo logo-round" title="KKN-T Kelompok 60 FIA UB 2026"
-           onerror="this.style.display='none';">
+      <img id="img-batu" 
+           src="Logo_kota_batu_(1).png" 
+           referrerpolicy="no-referrer"
+           onerror="handleLogoError(this, 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Logo_Kota_Batu_%28Jawa_Timur%29.png/240px-Logo_Kota_Batu_%28Jawa_Timur%29.png', 'badge-batu')" 
+           alt="Logo Pemkot Batu" class="header-logo" title="Pemerintah Kota Batu">
+      <span id="badge-batu" class="logo-fallback-badge">🏛️ Pemkot Batu</span>
+
+      <img id="img-ub" 
+           src="logo-universitas-brawijaya-ub-png-svg.webp" 
+           referrerpolicy="no-referrer"
+           onerror="handleLogoError(this, 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Logo_Universitas_Brawijaya.png/240px-Logo_Universitas_Brawijaya.png', 'badge-ub')" 
+           alt="Logo Universitas Brawijaya" class="header-logo" title="Universitas Brawijaya">
+      <span id="badge-ub" class="logo-fallback-badge">🎓 Univ. Brawijaya</span>
+
+      <img id="img-kkn" 
+           src="LOGO%20KELOMPOK%2060%20KKN-T%20FIA%20UB.jpg" 
+           referrerpolicy="no-referrer"
+           onerror="handleLogoError(this, '', 'badge-kkn')" 
+           alt="Logo KKN-T Kelompok 60 FIA UB" class="header-logo logo-round" title="KKN-T Kelompok 60 FIA UB 2026">
+      <span id="badge-kkn" class="logo-fallback-badge">🤝 KKN 60 FIA UB</span>
     </div>
 
     <div class="badge-container">
@@ -357,12 +379,12 @@
           <label class="radio-option"><input type="radio" name="pbb_jenis" value="pangan"><span class="opt-label">Lahan produksi pangan &mdash; tarif flat 0,015%</span></label>
           <label class="radio-option"><input type="radio" name="pbb_jenis" value="ternak"><span class="opt-label">Lahan produksi ternak &mdash; tarif flat 0,015%</span></label>
         </div>
-        <span class="hint">NJOPTKP dikunci Rp100.000.000[cite: 1]. Dasar Pengenaan terkunci 70% (Perwali No. 20/2024 Pasal 25)[cite: 2].</span>
+        <span class="hint">NJOPTKP dikunci Rp100.000.000. Dasar Pengenaan terkunci 70% (Perwali No. 20/2024 Pasal 25).</span>
       </div>
       <div class="alpha-card">
         <label>Dasar Pengenaan (% dari NJOP setelah TKP)</label>
         <input type="text" id="pbb_alpha" value="70">
-        <span class="hint">Telah disesuaikan dengan Perwali Batu No. 20/2024 Pasal 25 ayat (2) yaitu sebesar 70%[cite: 2].</span>
+        <span class="hint">Telah disesuaikan dengan Perwali Batu No. 20/2024 Pasal 25 ayat (2) yaitu sebesar 70%.</span>
       </div>
     </div>
 
@@ -370,19 +392,19 @@
     <div class="card" id="panel-bphtb">
       <div class="card-header-desc">
         <h2>Bea Perolehan Hak atas Tanah dan Bangunan (BPHTB)</h2>
-        <span class="hint">Pajak atas perolehan hak atas tanah dan/atau bangunan[cite: 1, 2].</span>
+        <span class="hint">Pajak atas perolehan hak atas tanah dan/atau bangunan.</span>
       </div>
       <div class="section-title">Nilai Transaksi Objek Pajak <span class="legal-ref">Pasal 14&ndash;16</span></div>
       <div class="row">
         <div class="form-group">
           <label>Nilai Perolehan (NPOP)</label>
           <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="b_npop" placeholder="0"></div>
-          <span class="hint">Harga transaksi riil[cite: 1].</span>
+          <span class="hint">Harga transaksi riil.</span>
         </div>
         <div class="form-group">
           <label>NJOP PBB Tahun Berjalan</label>
           <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="b_njop" placeholder="0"></div>
-          <span class="hint">Dasar pengenaan memakai nilai tertinggi antara NPOP dan NJOP[cite: 1].</span>
+          <span class="hint">Dasar pengenaan memakai nilai tertinggi antara NPOP dan NJOP.</span>
         </div>
       </div>
       <div class="form-group">
@@ -399,7 +421,7 @@
     <div class="card" id="panel-pbjt">
       <div class="card-header-desc">
         <h2>Pajak Barang dan Jasa Tertentu (PBJT)</h2>
-        <span class="hint">Pajak konsumen akhir atas makanan/minuman, perhotelan, parkir, listrik, dan hiburan[cite: 1, 2].</span>
+        <span class="hint">Pajak konsumen akhir atas makanan/minuman, perhotelan, parkir, listrik, dan hiburan.</span>
       </div>
       <div class="section-title">Kategori Objek <span class="legal-ref">Pasal 21&ndash;30</span></div>
       <div class="form-group">
@@ -418,7 +440,7 @@
       <div class="form-group" id="pj_omzet_field">
         <label>Peredaran Usaha / Bulan</label>
         <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="pj_omzet" placeholder="0"></div>
-        <span class="hint">&le; Rp10.000.000/bulan = bukan objek pajak (Pasal 22 ayat 2a)[cite: 1]. Khusus kategori Makanan &amp; Minuman.</span>
+        <span class="hint">&le; Rp10.000.000/bulan = bukan objek pajak. Khusus kategori Makanan &amp; Minuman.</span>
       </div>
       <div class="form-group">
         <label>Dasar Pengenaan (Pembayaran Konsumen / Nilai Jual Listrik)</label>
@@ -430,7 +452,7 @@
     <div class="card" id="panel-reklame">
       <div class="card-header-desc">
         <h2>Pajak Reklame</h2>
-        <span class="hint">Pajak atas penyelenggaraan reklame komersial[cite: 1, 2].</span>
+        <span class="hint">Pajak atas penyelenggaraan reklame komersial.</span>
       </div>
       <div class="section-title">Metode &amp; Parameter Penyelenggaraan <span class="legal-ref">Perwali 20/2024 Lampiran A</span></div>
       
@@ -446,7 +468,7 @@
         <div class="form-group">
           <label>Nilai Kontrak Reklame</label>
           <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="rk_nilai_kontrak" placeholder="0"></div>
-          <span class="hint">Nilai kontrak tertulis dengan pihak ketiga (Pasal 34 ayat 2 Perda 4/2023)[cite: 1]. Tarif flat 25%[cite: 1, 2].</span>
+          <span class="hint">Nilai kontrak tertulis dengan pihak ketiga. Tarif flat 25%.</span>
         </div>
       </div>
 
@@ -470,7 +492,7 @@
             <label>Cari Lokasi Jalan Kota Batu (Pencarian Manual)</label>
             <input type="text" id="rk_street_search" placeholder="Ketik nama jalan (misal: Diponegoro, Agus Salim...)" autocomplete="off">
             <div id="rk_street_results" class="autocomplete-results hidden"></div>
-            <span class="hint">Otomatis menentukan Kelas Jalan berdasarkan Lampiran III Perwali No. 20/2024[cite: 2].</span>
+            <span class="hint">Otomatis menentukan Kelas Jalan berdasarkan Lampiran III Perwali No. 20/2024.</span>
           </div>
 
           <div class="row">
@@ -525,7 +547,7 @@
     <div class="card" id="panel-pat">
       <div class="card-header-desc">
         <h2>Pajak Air Tanah (PAT)</h2>
-        <span class="hint">Pajak atas pengambilan dan/atau pemanfaatan air tanah[cite: 1, 2].</span>
+        <span class="hint">Pajak atas pengambilan dan/atau pemanfaatan air tanah.</span>
       </div>
       <div class="section-title">Metode Perhitungan <span class="legal-ref">Perwali 20/2024 Lampiran B</span></div>
       
@@ -551,7 +573,7 @@
         <div class="form-group">
           <label>Volume Pemakaian Air / Bulan (m³)</label>
           <input type="text" id="pat_volume" placeholder="0">
-          <span class="hint">Sistem menentukan Harga Dasar Air (HDA) berdasarkan braket volume Perwali No. 20/2024[cite: 2].</span>
+          <span class="hint">Sistem menentukan Harga Dasar Air (HDA) berdasarkan braket volume Perwali No. 20/2024.</span>
         </div>
       </div>
 
@@ -559,7 +581,7 @@
         <div class="form-group">
           <label>Nilai Perolehan Air Tanah (NPAT) Manual</label>
           <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="pat_nilai_manual" placeholder="0"></div>
-          <span class="hint">Hasil perkalian ketetapan harga air baku x bobot air tanah. Tarif flat 5%[cite: 1, 2].</span>
+          <span class="hint">Hasil perkalian ketetapan harga air baku x bobot air tanah. Tarif flat 5%.</span>
         </div>
       </div>
     </div>
@@ -581,6 +603,20 @@
 </div>
 
 <script>
+/* =================================================================
+   SMART LOGO ERROR HANDLER (PREVENT BROKEN IMAGE ICONS)
+   ================================================================= */
+function handleLogoError(imgEl, fallbackUrl, badgeId) {
+  if (fallbackUrl && imgEl.getAttribute('data-tried-fallback') !== 'true') {
+    imgEl.setAttribute('data-tried-fallback', 'true');
+    imgEl.src = fallbackUrl;
+  } else {
+    imgEl.style.display = 'none';
+    const badgeEl = document.getElementById(badgeId);
+    if (badgeEl) badgeEl.style.display = 'inline-flex';
+  }
+}
+
 /* =================================================================
    LEAFLET DEFAULT MARKER ASSETS FIX
    ================================================================= */
@@ -1454,6 +1490,10 @@ function update3DStackClasses(activeKey) {
       card.classList.remove('active');
     }
   });
+
+  if (activeKey === 'reklame') {
+    initGISMap();
+  }
 }
 
 tabs.forEach(tab => {
@@ -1519,6 +1559,7 @@ document.querySelectorAll('input[name="pbb_jenis"]').forEach(r => r.addEventList
    ============================================================ */
 function renderPbb(r, klasifikasi) {
   const label = { none: 'Umum', pangan: 'Lahan produksi pangan', ternak: 'Lahan produksi ternak' }[klasifikasi] || 'Umum';
+  const speechText = `TaxCalc PBB P2 kategori ${label}. Total terutang per tahun adalah ${formatRupiah(r.pajakTerutang)}.`;
   currentPrintPayload = {
     jenisPajak: 'PBB-P2 - ' + label,
     TerutangVal: r.pajakTerutang,
@@ -1546,16 +1587,17 @@ function renderPbb(r, klasifikasi) {
       <div class="btn-group-hud">
         <button class="pdf-btn" onclick="downloadPDFNative()">INVOICE PDF</button>
         <button class="cart-btn" onclick="addToCart()">+ KERANJANG</button>
-        <button class="speak-btn" onclick="speakResultText('${'TaxCalc PBB-P2 kategori ' + label + '. Total terutang per tahun adalah ' + formatRupiah(r.pajakTerutang)}')">&#128266; SUARA</button>
+        <button class="speak-btn" onclick="speakResultText('${speechText}')">&#128266; SUARA</button>
         <button class="share-btn" onclick="shareSimul()">&#128279; BAGIKAN</button>
       </div>
-      <div class="disclaimer">Sesuai Perwali Batu No. 20/2024 Pasal 25 ayat (2), persentase Dasar Pengenaan PBB-P2 terkunci pada angka 70%[cite: 2].</div>
+      <div class="disclaimer">Sesuai Perwali Batu No. 20/2024 Pasal 25 ayat (2), persentase Dasar Pengenaan PBB-P2 terkunci pada angka 70%.</div>
     </div>`;
   animateTotalNumber(r.pajakTerutang);
 }
 
 function renderBphtb(r, jenis) {
   const label = { umum: 'Jual beli / umum', warisSedarah: 'Waris/hibah wasiat sedarah', warisTertentu: 'Waris/hibah wasiat tertentu' }[jenis] || 'Umum';
+  const speechText = `TaxCalc BPHTB kategori ${label}. Total terutang adalah ${formatRupiah(r.pajakTerutang)}.`;
   currentPrintPayload = {
     jenisPajak: 'BPHTB - ' + label,
     TerutangVal: r.pajakTerutang,
@@ -1583,7 +1625,7 @@ function renderBphtb(r, jenis) {
       <div class="btn-group-hud">
         <button class="pdf-btn" onclick="downloadPDFNative()">INVOICE PDF</button>
         <button class="cart-btn" onclick="addToCart()">+ KERANJANG</button>
-        <button class="speak-btn" onclick="speakResultText('${'TaxCalc BPHTB kategori ' + label + '. Total terutang adalah ' + formatRupiah(r.pajakTerutang)}')">&#128266; SUARA</button>
+        <button class="speak-btn" onclick="speakResultText('${speechText}')">&#128266; SUARA</button>
         <button class="share-btn" onclick="shareSimul()">&#128279; BAGIKAN</button>
       </div>
       <div class="disclaimer">Estimasi berbasis input manual, bukan SSPD resmi Bapenda.</div>
@@ -1598,10 +1640,11 @@ function renderPbjt(r, kategoriLabel) {
       <div class="summary-card">
         <div class="summary-header blocked"><span>PBJT &mdash; ${kategoriLabel.toUpperCase()}</span><span class="tag">DIKECUALIKAN</span></div>
         <div class="summary-body"><div class="summary-line strong"><span>Status Kewajiban</span><span class="value" style="color:var(--success);">Bukan Objek Pajak (Omzet &le; Rp10jt/bln)</span></div></div>
-        <div class="disclaimer">Dikecualikan dari pengenaan PBJT sesuai Pasal 22 ayat (2) huruf a[cite: 1]. PBJT terutang = Rp0.</div>
+        <div class="disclaimer">Dikecualikan dari pengenaan PBJT sesuai Pasal 22 ayat (2) huruf a. PBJT terutang = Rp0.</div>
       </div>`;
     return;
   }
+  const speechText = `TaxCalc PBJT kategori ${kategoriLabel}. Pajak terutang adalah ${formatRupiah(r.pajakTerutang)}.`;
   currentPrintPayload = {
     jenisPajak: 'PBJT - ' + kategoriLabel,
     TerutangVal: r.pajakTerutang,
@@ -1625,7 +1668,7 @@ function renderPbjt(r, kategoriLabel) {
       <div class="btn-group-hud">
         <button class="pdf-btn" onclick="downloadPDFNative()">INVOICE PDF</button>
         <button class="cart-btn" onclick="addToCart()">+ KERANJANG</button>
-        <button class="speak-btn" onclick="speakResultText('${'TaxCalc PBJT kategori ' + kategoriLabel + '. Pajak terutang adalah ' + formatRupiah(r.pajakTerutang)}')">&#128266; SUARA</button>
+        <button class="speak-btn" onclick="speakResultText('${speechText}')">&#128266; SUARA</button>
         <button class="share-btn" onclick="shareSimul()">&#128279; BAGIKAN</button>
       </div>
       <div class="disclaimer">Estimasi hasil perhitungan otomatis, bukan bukti pembayaran / SKPD resmi.</div>
@@ -1684,6 +1727,7 @@ function renderReklame(r) {
       <div class="summary-line strong"><span>Tarif Pajak</span><span class="value">${r.tarifPersen}%</span></div>`;
   }
 
+  const speechText = `TaxCalc Pajak Reklame. Total pajak reklame terutang adalah ${formatRupiah(r.pajakTerutang)}.`;
   currentPrintPayload = { jenisPajak: 'Pajak Reklame', TerutangVal: r.pajakTerutang, dataCetak: pdfRows };
 
   document.getElementById('result-slot').innerHTML = `
@@ -1699,10 +1743,10 @@ function renderReklame(r) {
       <div class="btn-group-hud">
         <button class="pdf-btn" onclick="downloadPDFNative()">INVOICE PDF</button>
         <button class="cart-btn" onclick="addToCart()">+ KERANJANG</button>
-        <button class="speak-btn" onclick="speakResultText('${'TaxCalc Pajak Reklame. Total terutang adalah ' + formatRupiah(r.pajakTerutang)}')">&#128266; SUARA</button>
+        <button class="speak-btn" onclick="speakResultText('${speechText}')">&#128266; SUARA</button>
         <button class="share-btn" onclick="shareSimul()">&#128279; BAGIKAN</button>
       </div>
-      <div class="disclaimer">Penghitungan mengacu pada Perda Kota Batu No. 4/2023 &amp; Perwali Kota Batu No. 20/2024 Lampiran A[cite: 1, 2].</div>
+      <div class="disclaimer">Penghitungan mengacu pada Perda Kota Batu No. 4/2023 &amp; Perwali Kota Batu No. 20/2024 Lampiran A.</div>
     </div>`;
   animateTotalNumber(r.pajakTerutang);
 }
@@ -1737,6 +1781,7 @@ function renderPAT(r) {
       <div class="summary-line strong"><span>Tarif Pajak</span><span class="value">${r.tarifPersen}%</span></div>`;
   }
 
+  const speechText = `TaxCalc Pajak Air Tanah. Total PAT terutang per bulan adalah ${formatRupiah(r.pajakTerutang)}.`;
   currentPrintPayload = { jenisPajak: 'Pajak Air Tanah (PAT)', TerutangVal: r.pajakTerutang, dataCetak: pdfRows };
 
   document.getElementById('result-slot').innerHTML = `
@@ -1752,10 +1797,10 @@ function renderPAT(r) {
       <div class="btn-group-hud">
         <button class="pdf-btn" onclick="downloadPDFNative()">INVOICE PDF</button>
         <button class="cart-btn" onclick="addToCart()">+ KERANJANG</button>
-        <button class="speak-btn" onclick="speakResultText('${'TaxCalc Pajak Air Tanah. Total terutang per bulan adalah ' + formatRupiah(r.pajakTerutang)}')">&#128266; SUARA</button>
+        <button class="speak-btn" onclick="speakResultText('${speechText}')">&#128266; SUARA</button>
         <button class="share-btn" onclick="shareSimul()">&#128279; BAGIKAN</button>
       </div>
-      <div class="disclaimer">Penghitungan HDA otomatis berbasis Matriks Kelompok &amp; Volume Pemakaian m³ Perwali Batu No. 20/2024 Lampiran B[cite: 2].</div>
+      <div class="disclaimer">Penghitungan HDA otomatis berbasis Matriks Kelompok &amp; Volume Pemakaian m³ Perwali Batu No. 20/2024 Lampiran B.</div>
     </div>`;
   animateTotalNumber(r.pajakTerutang);
 }
