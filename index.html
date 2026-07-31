@@ -57,18 +57,19 @@
 
   header { text-align: center; margin-bottom: 26px; }
   
-  /* HEADER LOGO STRATEGIS */
+  /* HEADER LOGO STRATEGIS & STABLE DISPLAY */
   .header-logos {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 18px;
-    margin-bottom: 16px;
+    gap: 20px;
+    margin-bottom: 18px;
     flex-wrap: wrap;
   }
   .header-logo {
-    height: 52px;
+    height: 56px;
     width: auto;
+    max-width: 140px;
     object-fit: contain;
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
     transition: transform 0.2s ease;
@@ -140,7 +141,6 @@
   .section-title::before { content: ""; display: block; width: 5px; height: 16px; background: var(--primary); border-radius: 4px; }
   .legal-ref { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-left: auto; text-transform: none; }
 
-  /* OCR ZONE */
   .ocr-zone {
     border: 2px dashed var(--primary); background: #F9FAFB;
     border-radius: var(--radius-md); padding: 18px; text-align: center;
@@ -148,7 +148,6 @@
   }
   .ocr-zone:hover { background: #F3F4F6; }
 
-  /* LEAFLET GIS MAP STYLING */
   #map { height: 230px; width: 100%; border-radius: var(--radius-md); border: 1px solid var(--input-border); margin-bottom: 16px; z-index: 10; }
 
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 8px; }
@@ -282,11 +281,19 @@
 
 <div class="container">
   <header>
-    <!-- EMBED LOGO RESMI PEMKOT BATU, UB, DAN KKN 60 FIA UB -->
+    <!-- EMBED LOGO RESMI DENGAN FALLBACK ONLINE CDN & SANITIZED SRC -->
     <div class="header-logos">
-      <img src="Logo_kota_batu_(1).png" alt="Logo Pemkot Batu" class="header-logo" title="Pemerintah Kota Batu">
-      <img src="logo-universitas-brawijaya-ub-png-svg.webp" alt="Logo Universitas Brawijaya" class="header-logo" title="Universitas Brawijaya">
-      <img src="LOGO KELOMPOK 60 KKN-T FIA UB.jpg" alt="Logo KKN-T Kelompok 60 FIA UB" class="header-logo logo-round" title="KKN-T Kelompok 60 FIA UB 2026">
+      <img src="Logo_kota_batu_(1).png" 
+           onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/b/b2/Logo_Kota_Batu_%28Jawa_Timur%29.png';" 
+           alt="Logo Pemkot Batu" class="header-logo" title="Pemerintah Kota Batu">
+      
+      <img src="logo-universitas-brawijaya-ub-png-svg.webp" 
+           onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/2/23/Logo_Universitas_Brawijaya.png';" 
+           alt="Logo Universitas Brawijaya" class="header-logo" title="Universitas Brawijaya">
+      
+      <img src="LOGO%20KELOMPOK%2060%20KKN-T%20FIA%20UB.jpg" 
+           onerror="this.onerror=null; this.src='LOGO KELOMPOK 60 KKN-T FIA UB.jpg';" 
+           alt="Logo KKN-T Kelompok 60 FIA UB" class="header-logo logo-round" title="KKN-T Kelompok 60 FIA UB 2026">
     </div>
 
     <div class="badge-container">
