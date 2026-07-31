@@ -282,9 +282,10 @@
 
 <div class="container">
   <header>
+    <!-- EMBED LOGO SIMETRIS DENGAN NAMA FILE GITHUB -->
     <div class="header-logos">
       <img src="logo-batu.png.png" alt="Logo Pemkot Batu" class="header-logo logo-batu">
-      <img src="logo-ub.png.png" alt="Logo Universitas Brawijaya" class="header-logo logo-ub">
+      <img src="logo-ub.png.webp" alt="Logo Universitas Brawijaya" class="header-logo logo-ub">
       <img src="logo-kkn.jpg.PNG" alt="Logo KKN 60 FIA UB" class="header-logo logo-kkn">
     </div>
 
@@ -767,10 +768,9 @@ async function processSPPTOCR(event) {
 }
 
 /* ============================================================
-   STREET LOOKUP & CATEGORIZATION DICTIONARY (BERDASARKAN PERWALI)
+   STREET LOOKUP & CATEGORIZATION DICTIONARY
    ============================================================ */
 const KOTA_BATU_STREETS = {
-  // JALAN KELAS UTAMA (PROTOKOL & ARTERI WISATA)
   'DIPONEGORO': 'Utama', 'IR. SOEKARNO': 'Utama', 'PANGLIMA SUDIRMAN': 'Utama',
   'PATTIMURA': 'Utama', 'SULTAN AGUNG': 'Utama', 'RAYA PUNTEN': 'Utama',
   'RAYA PENDEM': 'Utama', 'RAYA MOJOREJO': 'Utama', 'SUROPATI': 'Utama',
@@ -779,7 +779,6 @@ const KOTA_BATU_STREETS = {
   'HASANUDIN': 'Utama', 'WR SUPRATMAN': 'Utama', 'W.R. SUPRATMAN': 'Utama',
   'ABDUL GANI ATAS': 'Utama', 'DEWI SARTIKA': 'Utama', 'DIRAN': 'Utama',
 
-  // JALAN KELAS A (KOLEKTOR SEKUNDER / PENGHUBUNG STRATEGIS)
   'AGUS SALIM': 'A', 'ABDUL GANI': 'A', 'ARJUNO': 'A', 'FLAMBOYAN': 'A',
   'PANDAN REJO': 'A', 'PANDANREJO': 'A', 'SEKAR PUTIH': 'A', 'SEKARPUTIH': 'A',
   'ORO-ORO OMBO': 'A', 'ORO ORO OMBO': 'A', 'JUNREJO': 'A', 'INDRAGIRI': 'A',
@@ -789,7 +788,7 @@ const KOTA_BATU_STREETS = {
 };
 
 /* ============================================================
-   GIS MAP ENGINE (LEAFLET.JS) WITH AUTOMATIC STREET CLASSIFICATION
+   GIS MAP ENGINE (LEAFLET.JS) WITH AUTO-STREET CLASSIFICATION
    ============================================================ */
 let mapInstance = null;
 let selectionMarker = null;
@@ -810,7 +809,7 @@ function classifyStreetName(rawName) {
       return KOTA_BATU_STREETS[key];
     }
   }
-  return 'B'; // Default ke Kelas B untuk jalan lokal / jalan desa
+  return 'B';
 }
 
 function initGISMap() {
@@ -877,21 +876,45 @@ function updateMapMarkerPosition(lat, lng, title, classType) {
 }
 
 /* ============================================================
-   SHARE SIMULATION ENGINE
+   SHARE SIMULATION ENGINE (COMPACT COMPRESSED URL PARAMETERS)
    ============================================================ */
+const SHORT_KEY_MAP = {
+  activeTab: 't', pbb_njop_tanah: 'pt', pbb_njop_bgn: 'pb', pbb_jenis: 'pj', pbb_alpha: 'pa',
+  b_npop: 'bp', b_njop: 'bn', b_jenis: 'bj',
+  pj_kategori: 'pk', pj_omzet: 'po', pj_dpp: 'pd',
+  rk_penyelenggara: 'rp', rk_nilai_kontrak: 'rn', rk_sifat: 'rs',
+  rk_jenis_permanen: 'rjp', rk_kelas_jalan: 'rkj', rk_vol_permanen: 'rvp',
+  rk_jenis_insidentil: 'rji', rk_vol_insidentil: 'rvi',
+  pat_mode: 'pm', pat_kelompok: 'pkl', pat_volume: 'pv', pat_nilai_manual: 'pnm'
+};
+
+const REVERSE_SHORT_KEY_MAP = Object.fromEntries(
+  Object.entries(SHORT_KEY_MAP).map(([k, v]) => [v, k])
+);
+
 function shareSimul() {
   simpanState();
   const rawState = localStorage.getItem('pajakBatuDraft');
   if (!rawState) return;
 
-  const encoded = btoa(encodeURIComponent(rawState));
-  const shareUrl = window.location.origin + window.location.pathname + '#' + encoded;
+  const state = JSON.parse(rawState);
+  const params = new URLSearchParams();
+
+  Object.keys(state).forEach(key => {
+    const val = state[key];
+    const shortKey = SHORT_KEY_MAP[key] || key;
+    if (val && val !== '0' && val !== 'none' && val !== '') {
+      params.set(shortKey, parseInput(val) || val);
+    }
+  });
+
+  const shareUrl = window.location.origin + window.location.pathname + '#' + params.toString();
 
   navigator.clipboard.writeText(shareUrl).then(() => {
     const waText = `*Simulasi TaxCalc Kota Batu*\nLihat draf kalkulasi pajak saya di sini:\n${shareUrl}`;
     const waUrl = `https://wa.me/?text=${encodeURIComponent(waText)}`;
 
-    if (confirm('Link simulasi telah disalin ke clipboard! Apakah Anda ingin langsung membagikannya via WhatsApp?')) {
+    if (confirm('Link ringkas berhasil disalin ke clipboard! Apakah Anda ingin langsung membagikannya via WhatsApp?')) {
       window.open(waUrl, '_blank');
     }
   }).catch(() => {
@@ -1686,7 +1709,7 @@ function renderReklame(r) {
     linesHtml = `
       <div class="summary-line"><span>NSR Satuan Perwali</span><span class="value">${formatRupiah(r.nsrSatuan)}</span></div>
       <div class="summary-line"><span>Jumlah Qty / m²</span><span class="value">${r.vol}</span></div>
-      <div class="summary-line"><span>Total NSR (DPP)</span><span class="value">${formatRupiah(r.nsrTotal)}</span></div>
+      <div class="summary-line"><span>Total Nilai Sewa Reklame (DPP)</span><span class="value">${formatRupiah(r.nsrTotal)}</span></div>
       <div class="summary-line strong"><span>Tarif Pajak</span><span class="value">${r.tarifPersen}%</span></div>`;
   }
 
@@ -1841,7 +1864,7 @@ document.getElementById('pj_omzet').addEventListener('input', render);
 document.getElementById('pj_dpp').addEventListener('input', render);
 
 /* =================================================================
-   LOCAL STORAGE & HASH STATE PERSISTENCE
+   LOCAL STORAGE & HASH STATE PERSISTENCE (COMPACT DECODER)
    ================================================================= */
 const FORM_IDS = ['pbb_njop_tanah','pbb_njop_bgn','pbb_alpha','b_npop','b_njop','b_jenis',
   'pj_kategori','pj_omzet','pj_dpp','rk_penyelenggara','rk_nilai_kontrak','rk_sifat',
@@ -1864,9 +1887,19 @@ function muatState() {
   try {
     let state = null;
     if (window.location.hash && window.location.hash.length > 1) {
-      const hashData = window.location.hash.substring(1);
-      const decodedJson = decodeURIComponent(atob(hashData));
-      state = JSON.parse(decodedJson);
+      const hashStr = window.location.hash.substring(1);
+      
+      if (hashStr.includes('=')) {
+        const params = new URLSearchParams(hashStr);
+        state = {};
+        params.forEach((val, shortKey) => {
+          const fullKey = REVERSE_SHORT_KEY_MAP[shortKey] || shortKey;
+          state[fullKey] = val;
+        });
+      } else {
+        const decodedJson = decodeURIComponent(atob(hashStr));
+        state = JSON.parse(decodedJson);
+      }
     } else {
       const raw = localStorage.getItem('pajakBatuDraft');
       if (raw) state = JSON.parse(raw);
