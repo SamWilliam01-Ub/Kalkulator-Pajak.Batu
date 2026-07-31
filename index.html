@@ -56,44 +56,31 @@
   .container { max-width: 840px; margin: 0 auto; position: relative; }
 
   header { text-align: center; margin-bottom: 26px; }
-  
-  /* HEADER LOGO STRATEGIS & STABLE DISPLAY */
+
+  /* LOGO HEADER SIMETRIS DENGAN VISUAL WEIGHT COMPENSATION */
   .header-logos {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 16px;
-    margin-bottom: 18px;
+    gap: 24px;
+    margin-bottom: 20px;
     flex-wrap: wrap;
   }
+
   .header-logo {
-    height: 54px;
     width: auto;
-    max-width: 140px;
     object-fit: contain;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
+    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.1));
     transition: transform 0.2s ease;
   }
+
   .header-logo:hover {
-    transform: scale(1.05);
-  }
-  .header-logo.logo-round {
-    border-radius: 50%;
+    transform: scale(1.06);
   }
 
-  /* STYLED FALLBACK BADGE BILA GAMBAR GAGAL MEMUAT TOTAL */
-  .logo-fallback-badge {
-    display: none;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 14px;
-    background: #E5E7EB;
-    border: 1px solid #D1D5DB;
-    border-radius: 20px;
-    font-size: 11.5px;
-    font-weight: 700;
-    color: #374151;
-  }
+  .logo-batu { height: 54px; }
+  .logo-ub   { height: 58px; }
+  .logo-kkn  { height: 65px; }
 
   header .badge-container { display: flex; justify-content: center; margin-bottom: 12px; }
   header .badge {
@@ -162,7 +149,7 @@
   }
   .ocr-zone:hover { background: #F3F4F6; }
 
-  #map { height: 230px; width: 100%; border-radius: var(--radius-md); border: 1px solid var(--input-border); margin-bottom: 16px; z-index: 10; }
+  #map { height: 260px; width: 100%; border-radius: var(--radius-md); border: 1px solid var(--input-border); margin-bottom: 16px; z-index: 10; }
 
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 8px; }
   @media (max-width: 640px) { .row { grid-template-columns: 1fr; } body { padding: 20px 10px; } .card { padding: 22px 18px; } }
@@ -295,12 +282,11 @@
 
 <div class="container">
   <header>
-    <!-- EMBED LOGO DENGAN ANTI-HOTLINK POLICY & SMART FALLBACK SYSTEM -->
-   <div class="header-logos">
-  <img src="logo-batu.png.png" alt="Logo Pemkot Batu" class="header-logo">
-  <img src="logo-ub.png.png" alt="Logo Universitas Brawijaya" class="header-logo">
-  <img src="logo-kkn.jpg.PNG" alt="Logo KKN 60 FIA UB" class="header-logo logo-round">
-</div>
+    <div class="header-logos">
+      <img src="logo-batu.png.png" alt="Logo Pemkot Batu" class="header-logo logo-batu">
+      <img src="logo-ub.png.webp" alt="Logo Universitas Brawijaya" class="header-logo logo-ub">
+      <img src="logo-kkn.jpg.PNG" alt="Logo KKN 60 FIA UB" class="header-logo logo-kkn">
+    </div>
 
     <div class="badge-container">
       <div class="badge">PERDA NO. 4 TAHUN 2023 &amp; PERWALI NO. 20 TAHUN 2024</div>
@@ -468,14 +454,14 @@
           <div class="form-group">
             <label>Pilih Lokasi Reklame di Peta Interaktif Kota Batu</label>
             <div id="map"></div>
-            <span class="hint">Klik titik pada peta untuk menentukan lokasi jalan &amp; klasifikasi Kelas Jalan secara otomatis.</span>
+            <span class="hint">Klik titik mana saja pada peta Kota Batu. Sistem akan otomatis mendeteksi nama jalan dan mengklasifikasikan Kelas Jalan (Utama, A, B) secara otomatis!</span>
           </div>
 
           <div class="form-group">
             <label>Cari Lokasi Jalan Kota Batu (Pencarian Manual)</label>
             <input type="text" id="rk_street_search" placeholder="Ketik nama jalan (misal: Diponegoro, Agus Salim...)" autocomplete="off">
             <div id="rk_street_results" class="autocomplete-results hidden"></div>
-            <span class="hint">Otomatis menentukan Kelas Jalan berdasarkan Lampiran III Perwali No. 20/2024.</span>
+            <span class="hint">Otomatis menentukan Kelas Jalan berdasarkan Lampiran Perwali No. 20/2024.</span>
           </div>
 
           <div class="row">
@@ -491,11 +477,11 @@
               </select>
             </div>
             <div class="form-group" id="rk_group_kelas_jalan">
-              <label>Klasifikasi Kelas Jalan</label>
+              <label>Klasifikasi Kelas Jalan Terdeteksi</label>
               <select id="rk_kelas_jalan">
-                <option value="Utama">Jalan Utama</option>
-                <option value="A">Jalan Kelas A</option>
-                <option value="B">Jalan Kelas B</option>
+                <option value="Utama">Jalan Utama (Protokol / Arteri Wisata)</option>
+                <option value="A">Jalan Kelas A (Kolektor Sekunder)</option>
+                <option value="B">Jalan Kelas B (Lokal / Desa)</option>
               </select>
             </div>
           </div>
@@ -586,20 +572,6 @@
 </div>
 
 <script>
-/* =================================================================
-   SMART LOGO ERROR HANDLER (PREVENT BROKEN IMAGE ICONS)
-   ================================================================= */
-function handleLogoError(imgEl, fallbackUrl, badgeId) {
-  if (fallbackUrl && imgEl.getAttribute('data-tried-fallback') !== 'true') {
-    imgEl.setAttribute('data-tried-fallback', 'true');
-    imgEl.src = fallbackUrl;
-  } else {
-    imgEl.style.display = 'none';
-    const badgeEl = document.getElementById(badgeId);
-    if (badgeEl) badgeEl.style.display = 'inline-flex';
-  }
-}
-
 /* =================================================================
    LEAFLET DEFAULT MARKER ASSETS FIX
    ================================================================= */
@@ -795,30 +767,51 @@ async function processSPPTOCR(event) {
 }
 
 /* ============================================================
-   GIS MAP ENGINE (LEAFLET.JS) - SINGLE SELECTION MARKER FIX
+   STREET LOOKUP & CATEGORIZATION DICTIONARY (BERDASARKAN PERWALI)
+   ============================================================ */
+const KOTA_BATU_STREETS = {
+  // JALAN KELAS UTAMA (PROTOKOL & ARTERI WISATA)
+  'DIPONEGORO': 'Utama', 'IR. SOEKARNO': 'Utama', 'PANGLIMA SUDIRMAN': 'Utama',
+  'PATTIMURA': 'Utama', 'SULTAN AGUNG': 'Utama', 'RAYA PUNTEN': 'Utama',
+  'RAYA PENDEM': 'Utama', 'RAYA MOJOREJO': 'Utama', 'SUROPATI': 'Utama',
+  'TRUNOJOYO': 'Utama', 'BRANTAS': 'Utama', 'A. YANI': 'Utama', 'AHMAD YANI': 'Utama',
+  'GAJAH MADA': 'Utama', 'BROMO': 'Utama', 'SEMERU': 'Utama', 'HASANUDDIN': 'Utama',
+  'HASANUDIN': 'Utama', 'WR SUPRATMAN': 'Utama', 'W.R. SUPRATMAN': 'Utama',
+  'ABDUL GANI ATAS': 'Utama', 'DEWI SARTIKA': 'Utama', 'DIRAN': 'Utama',
+
+  // JALAN KELAS A (KOLEKTOR SEKUNDER / PENGHUBUNG STRATEGIS)
+  'AGUS SALIM': 'A', 'ABDUL GANI': 'A', 'ARJUNO': 'A', 'FLAMBOYAN': 'A',
+  'PANDAN REJO': 'A', 'PANDANREJO': 'A', 'SEKAR PUTIH': 'A', 'SEKARPUTIH': 'A',
+  'ORO-ORO OMBO': 'A', 'ORO ORO OMBO': 'A', 'JUNREJO': 'A', 'INDRAGIRI': 'A',
+  'SAMADI': 'A', 'WUKIR': 'A', 'LAHOR': 'A', 'LESTI': 'A', 'MAWAR': 'A',
+  'CEMPAKA': 'A', 'SONGGORITI': 'A', 'METRO': 'A', 'IMAM BONJOL': 'A',
+  'KARTINI': 'A', 'PAHLAWAN': 'A', 'IR. H. JUANDA': 'A'
+};
+
+/* ============================================================
+   GIS MAP ENGINE (LEAFLET.JS) WITH AUTOMATIC STREET CLASSIFICATION
    ============================================================ */
 let mapInstance = null;
 let selectionMarker = null;
 
-const KOTA_BATU_STREET_COORDS = {
-  'DIPONEGORO': { class: 'Utama', lat: -7.8715, lng: 112.5285 },
-  'IR. SOEKARNO': { class: 'Utama', lat: -7.8863, lng: 112.5451 },
-  'AGUS SALIM': { class: 'A', lat: -7.8752, lng: 112.5211 },
-  'ABDUL GANI': { class: 'A', lat: -7.8810, lng: 112.5180 },
-  'AHMAD YANI': { class: 'Utama', lat: -7.8705, lng: 112.5260 },
-  'BHAYANGKARA': { class: 'Utama', lat: -7.8720, lng: 112.5240 },
-  'GAJAH MADA': { class: 'Utama', lat: -7.8710, lng: 112.5270 },
-  'HASANUDDIN': { class: 'Utama', lat: -7.8730, lng: 112.5290 },
-  'IMAM BONJOL': { class: 'Utama', lat: -7.8740, lng: 112.5250 },
-  'KARTINI': { class: 'Utama', lat: -7.8718, lng: 112.5230 },
-  'PAHLAWAN': { class: 'Utama', lat: -7.8725, lng: 112.5210 },
-  'RAYA PUNTEN': { class: 'Utama', lat: -7.8480, lng: 112.5200 },
-  'RAYA SIDOMULYO': { class: 'Utama', lat: -7.8550, lng: 112.5220 },
-  'PANDAN REJO': { class: 'A', lat: -7.8620, lng: 112.5350 },
-  'RAYA REJE': { class: 'Utama', lat: -7.8900, lng: 112.5500 },
-  'RAYA MOJOREJO': { class: 'Utama', lat: -7.8920, lng: 112.5550 },
-  'SEKAR PUTIH': { class: 'A', lat: -7.8950, lng: 112.5600 }
-};
+function classifyStreetName(rawName) {
+  if (!rawName) return 'B';
+  const clean = rawName.toUpperCase()
+    .replace(/^JL\.\s*/, '')
+    .replace(/^JALAN\.\s*/, '')
+    .replace(/^JALAN\s*/, '')
+    .replace(/^GANG\s*/, '')
+    .replace(/^GG\.\s*/, '')
+    .replace(/^GG\s*/, '')
+    .trim();
+
+  for (let key in KOTA_BATU_STREETS) {
+    if (clean.includes(key) || key.includes(clean)) {
+      return KOTA_BATU_STREETS[key];
+    }
+  }
+  return 'B'; // Default ke Kelas B untuk jalan lokal / jalan desa
+}
 
 function initGISMap() {
   if (mapInstance) {
@@ -845,24 +838,25 @@ function initGISMap() {
     fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${e.latlng.lat}&lon=${e.latlng.lng}`)
       .then(res => res.json())
       .then(data => {
-        const road = (data.address && (data.address.road || data.address.suburb)) || "Jalan Lokasi Terpilih";
-        const upper = road.toUpperCase();
-        let foundClass = 'B';
-        for (let key in KOTA_BATU_STREETS) {
-          if (upper.includes(key)) {
-            foundClass = KOTA_BATU_STREETS[key];
-            break;
-          }
+        const roadName = (data.address && (data.address.road || data.address.pedestrian || data.address.suburb)) || "Jalan Lokasi Terpilih";
+        const detectedClass = classifyStreetName(roadName);
+        
+        let formattedStreetInput = roadName;
+        if (!formattedStreetInput.toUpperCase().startsWith('JL')) {
+          formattedStreetInput = 'Jl. ' + roadName;
         }
-        const cleanName = upper.replace('JL. ', '').replace('JALAN ', '');
+
+        document.getElementById('rk_street_search').value = formattedStreetInput;
+        document.getElementById('rk_kelas_jalan').value = detectedClass;
         
-        document.getElementById('rk_street_search').value = 'Jl. ' + cleanName;
-        document.getElementById('rk_kelas_jalan').value = foundClass;
-        
-        selectionMarker.bindPopup(`<b>${road}</b><br>Kelas Jalan: ${foundClass}`).openPopup();
+        const labelText = detectedClass === 'Utama' ? 'Jalan Utama (Protokol / Arteri)' : (detectedClass === 'A' ? 'Jalan Kelas A (Kolektor Sekunder)' : 'Jalan Kelas B (Lokal / Desa)');
+
+        selectionMarker.bindPopup(`<b>${formattedStreetInput}</b><br>Klasifikasi: <b>${labelText}</b>`).openPopup();
         render();
       })
-      .catch(() => {});
+      .catch(() => {
+        selectionMarker.bindPopup(`<b>Titik Terpilih</b><br>Klasifikasi: Kelas B (Default)`).openPopup();
+      });
   });
 
   setTimeout(() => mapInstance.invalidateSize(), 300);
@@ -877,7 +871,8 @@ function updateMapMarkerPosition(lat, lng, title, classType) {
   }
   
   selectionMarker = L.marker([lat, lng]).addTo(mapInstance);
-  selectionMarker.bindPopup(`<b>Jl. ${title}</b><br>Kelas Jalan: ${classType}`).openPopup();
+  const labelText = classType === 'Utama' ? 'Jalan Utama' : (classType === 'A' ? 'Jalan Kelas A' : 'Jalan Kelas B');
+  selectionMarker.bindPopup(`<b>Jl. ${title}</b><br>Klasifikasi: <b>${labelText}</b>`).openPopup();
   mapInstance.panTo([lat, lng]);
 }
 
@@ -971,17 +966,8 @@ function formatTerbilang(nilai) {
 }
 
 /* ============================================================
-   STREET LOOKUP ENGINE
+   STREET LOOKUP AUTOCOMPLETE ENGINE
    ============================================================ */
-const KOTA_BATU_STREETS = {
-  'AHMAD YANI': 'Utama', 'BHAYANGKARA': 'Utama', 'DIPONEGORO': 'Utama',
-  'GAJAH MADA': 'Utama', 'IR. SOEKARNO': 'Utama', 'AGUS SALIM': 'A',
-  'ABDUL GANI': 'A', 'ARJUNO': 'A', 'FLAMBOYAN': 'A', 'HASANUDDIN': 'Utama',
-  'IMAM BONJOL': 'Utama', 'KARTINI': 'Utama', 'PAHLAWAN': 'Utama',
-  'RAYA PUNTEN': 'Utama', 'RAYA SIDOMULYO': 'Utama', 'PANDAN REJO': 'A',
-  'RAYA REJE': 'Utama', 'RAYA MOJOREJO': 'Utama', 'SEKAR PUTIH': 'A'
-};
-
 const streetInput = document.getElementById('rk_street_search');
 const streetResults = document.getElementById('rk_street_results');
 
@@ -1011,12 +997,6 @@ function selectStreet(name, classType) {
   streetInput.value = 'Jl. ' + name;
   document.getElementById('rk_kelas_jalan').value = classType;
   streetResults.classList.add('hidden');
-
-  if (KOTA_BATU_STREET_COORDS[name]) {
-    const loc = KOTA_BATU_STREET_COORDS[name];
-    updateMapMarkerPosition(loc.lat, loc.lng, name, classType);
-  }
-
   render();
 }
 
