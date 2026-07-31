@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TaxCalc | Kota Batu</title>
+<title>TaxCalc Kota Batu</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
@@ -20,24 +20,24 @@
 
 <style>
   :root {
-    --bg-main: #0B132B;
-    --card-bg: rgba(23, 32, 54, 0.95);
-    --card-border: rgba(56, 189, 248, 0.35);
-    --primary: #2563EB;
-    --primary-hover: #1D4ED8;
-    --accent: #38BDF8;
-    --text-main: #FFFFFF;
-    --text-muted: #94A3B8;
-    --text-dim: #CBD5E1;
-    --input-bg: #0F172A;
-    --input-border: #334155;
-    --input-focus: #38BDF8;
-    --success: #10B981;
-    --warning: #F59E0B;
-    --danger: #EF4444;
-    --purple: #A855F7;
-    --radius-lg: 20px;
-    --radius-md: 12px;
+    --bg-main: #F3F4F6;
+    --card-bg: #FFFFFF;
+    --card-border: #E5E7EB;
+    --primary: #374151;
+    --primary-hover: #1F2937;
+    --accent: #4B5563;
+    --text-main: #111827;
+    --text-muted: #6B7280;
+    --text-dim: #9CA3AF;
+    --input-bg: #FFFFFF;
+    --input-border: #D1D5DB;
+    --input-focus: #9CA3AF;
+    --success: #059669;
+    --warning: #D97706;
+    --danger: #DC2626;
+    --purple: #7C3AED;
+    --radius-lg: 12px;
+    --radius-md: 8px;
     --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
   }
@@ -46,8 +46,6 @@
 
   body {
     background-color: var(--bg-main);
-    background-image: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.2) 0%, rgba(11, 19, 43, 0) 75%);
-    background-attachment: fixed;
     font-family: var(--font-sans);
     color: var(--text-main);
     line-height: 1.6;
@@ -58,26 +56,39 @@
   .container { max-width: 840px; margin: 0 auto; position: relative; }
 
   header { text-align: center; margin-bottom: 26px; }
+  
+  /* HEADER LOGO STRATEGIS */
+  .header-logos {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .header-logo {
+    height: 52px;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
+    transition: transform 0.2s ease;
+  }
+  .header-logo:hover {
+    transform: scale(1.05);
+  }
+  .header-logo.logo-round {
+    border-radius: 50%;
+  }
+
   header .badge-container { display: flex; justify-content: center; margin-bottom: 12px; }
   header .badge {
     display: inline-flex; align-items: center; gap: 8px;
-    background: rgba(37, 99, 235, 0.2); border: 1px solid rgba(56, 189, 248, 0.4);
+    background: #E5E7EB; border: 1px solid #D1D5DB;
     color: var(--accent); font-size: 12px; font-weight: 700; padding: 6px 16px;
     border-radius: 30px; letter-spacing: 0.5px;
   }
 
-  .pulse {
-    width: 8px; height: 8px; background: var(--accent);
-    border-radius: 50%; box-shadow: 0 0 8px var(--accent);
-    animation: pulseAnim 1.5s infinite ease-in-out;
-  }
-  @keyframes pulseAnim {
-    0% { opacity: 0.3; transform: scale(0.8); }
-    50% { opacity: 1; transform: scale(1.2); }
-    100% { opacity: 0.3; transform: scale(0.8); }
-  }
-
-  header h1 { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; color: #FFFFFF; }
+  header h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.5px; color: var(--text-main); }
   header p { font-size: 14.5px; color: var(--text-muted); margin-top: 6px; font-weight: 500; }
 
   .preset-bar {
@@ -85,197 +96,182 @@
     scrollbar-width: thin; scrollbar-color: var(--accent) transparent;
   }
   .preset-btn {
-    white-space: nowrap; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3);
-    color: var(--accent); padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
-    cursor: pointer; transition: background 0.2s ease, transform 0.1s ease;
+    white-space: nowrap; background: #F9FAFB; border: 1px solid #D1D5DB;
+    color: var(--text-main); padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
+    cursor: pointer; transition: background 0.2s ease;
   }
-  .preset-btn:hover { background: rgba(56, 189, 248, 0.25); transform: translateY(-1px); }
+  .preset-btn:hover { background: #E5E7EB; }
 
   .tabs-wrapper {
-    background: rgba(15, 23, 42, 0.9);
-    padding: 8px; border-radius: 18px; border: 1px solid var(--card-border);
-    margin-bottom: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    background: var(--card-bg);
+    padding: 8px; border-radius: 12px; border: 1px solid var(--card-border);
+    margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   }
   .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
   .tab {
     flex: 1; min-width: 100px; text-align: center; padding: 12px 10px; font-size: 14px; font-weight: 700;
-    color: var(--text-muted); border-radius: 12px; cursor: pointer;
-    transition: all 0.25s ease; border: 2px solid transparent; user-select: none;
+    color: var(--text-muted); border-radius: 8px; cursor: pointer;
+    transition: all 0.2s ease; border: 1px solid transparent; user-select: none;
   }
-  .tab:hover { color: #FFF; background: rgba(255, 255, 255, 0.08); }
+  .tab:hover { background: #F3F4F6; color: var(--text-main); }
   .tab.active {
-    background: var(--primary); color: #FFFFFF; border-color: var(--accent);
-    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+    background: var(--primary); color: #FFFFFF;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   }
 
-  .panels-container {
-    display: grid; grid-template-columns: 1fr; position: relative; width: 100%;
-  }
+  .panels-container { display: block; width: 100%; }
 
   .card {
-    grid-column: 1; grid-row: 1;
-    background: var(--card-bg); border: 1.5px solid var(--card-border);
+    background: var(--card-bg); border: 1px solid var(--card-border);
     border-radius: var(--radius-lg); padding: 32px;
-    will-change: transform, opacity;
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease, visibility 0.35s ease;
-    opacity: 0; visibility: hidden; pointer-events: none; z-index: 1;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    display: none;
   }
-  .card.active {
-    opacity: 1; visibility: visible; pointer-events: auto; z-index: 10;
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  .card.stack-back-1 {
-    opacity: 0.4; visibility: visible; z-index: 5;
-    transform: translate3d(0, -12px, -30px) scale(0.97);
-  }
-  .card.stack-back-2 {
-    opacity: 0.15; visibility: visible; z-index: 2;
-    transform: translate3d(0, -22px, -60px) scale(0.94);
-  }
+  .card.active { display: block; }
 
-  .card-header-desc { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-  .card-header-desc h2 { font-size: 22px; font-weight: 800; color: #FFF; }
-  .card-header-desc .hint { margin-top: 6px; font-size: 13.5px; color: var(--text-dim); }
+  .card-header-desc { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--card-border); }
+  .card-header-desc h2 { font-size: 22px; font-weight: 800; color: var(--text-main); }
+  .card-header-desc .hint { margin-top: 6px; font-size: 13.5px; color: var(--text-muted); }
 
   .section-title {
-    font-size: 13px; font-weight: 800; color: var(--accent); margin-bottom: 18px;
+    font-size: 13px; font-weight: 800; color: var(--primary); margin-bottom: 18px;
     display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.5px;
   }
-  .section-title::before { content: ""; display: block; width: 5px; height: 16px; background: var(--accent); border-radius: 4px; }
+  .section-title::before { content: ""; display: block; width: 5px; height: 16px; background: var(--primary); border-radius: 4px; }
   .legal-ref { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-left: auto; text-transform: none; }
 
+  /* OCR ZONE */
   .ocr-zone {
-    border: 2px dashed var(--accent); background: rgba(56, 189, 248, 0.06);
+    border: 2px dashed var(--primary); background: #F9FAFB;
     border-radius: var(--radius-md); padding: 18px; text-align: center;
     cursor: pointer; margin-bottom: 20px; transition: all 0.2s ease;
   }
-  .ocr-zone:hover { background: rgba(56, 189, 248, 0.14); border-color: #FFF; }
+  .ocr-zone:hover { background: #F3F4F6; }
 
-  #map { height: 230px; width: 100%; border-radius: var(--radius-md); border: 2px solid var(--card-border); margin-bottom: 16px; z-index: 10; }
+  /* LEAFLET GIS MAP STYLING */
+  #map { height: 230px; width: 100%; border-radius: var(--radius-md); border: 1px solid var(--input-border); margin-bottom: 16px; z-index: 10; }
 
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 8px; }
   @media (max-width: 640px) { .row { grid-template-columns: 1fr; } body { padding: 20px 10px; } .card { padding: 22px 18px; } }
 
   .form-group { margin-bottom: 20px; position: relative; }
-  label { display: block; font-size: 13.5px; font-weight: 700; color: #FFFFFF; margin-bottom: 8px; }
+  label { display: block; font-size: 13.5px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; }
 
   .input-wrapper { position: relative; }
   .input-wrapper .prefix {
     position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
-    color: var(--accent); font-family: var(--font-mono); font-weight: 700; font-size: 15px; pointer-events: none;
+    color: var(--text-muted); font-family: var(--font-mono); font-weight: 700; font-size: 15px; pointer-events: none;
   }
 
   input[type="text"], select {
     width: 100%; padding: 14px 16px; background: var(--input-bg);
-    border: 2px solid var(--input-border); border-radius: var(--radius-md);
-    font-family: var(--font-sans); font-size: 15px; color: #FFFFFF; outline: none;
+    border: 1px solid var(--input-border); border-radius: var(--radius-md);
+    font-family: var(--font-sans); font-size: 15px; color: var(--text-main); outline: none;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
-  .input-wrapper input { padding-left: 48px; font-family: var(--font-mono); font-weight: 700; color: var(--accent); font-size: 16px; }
+  .input-wrapper input { padding-left: 48px; font-family: var(--font-mono); font-weight: 700; color: var(--text-main); font-size: 16px; }
 
   input[type="text"]:focus, select:focus {
     border-color: var(--input-focus);
-    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.3);
+    box-shadow: 0 0 0 2px rgba(156, 163, 175, 0.2);
   }
-  select option { background: #0F172A; color: #FFFFFF; }
-  .hint { display: block; font-size: 12.5px; color: var(--text-dim); margin-top: 6px; line-height: 1.4; }
+  
+  .hint { display: block; font-size: 12.5px; color: var(--text-muted); margin-top: 6px; line-height: 1.4; }
 
   .autocomplete-results {
     position: absolute; top: 100%; left: 0; right: 0; z-index: 50;
-    background: #0F172A; border: 2px solid var(--accent);
+    background: #FFFFFF; border: 1px solid var(--card-border);
     border-radius: var(--radius-md); margin-top: 4px; max-height: 180px; overflow-y: auto;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
   }
   .autocomplete-item {
-    padding: 12px 16px; font-size: 13.5px; cursor: pointer; color: #FFFFFF;
-    display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 12px 16px; font-size: 13.5px; cursor: pointer; color: var(--text-main);
+    display: flex; justify-content: space-between; border-bottom: 1px solid var(--card-border);
   }
-  .autocomplete-item:hover { background: rgba(56, 189, 248, 0.2); color: var(--accent); }
+  .autocomplete-item:hover { background: #F3F4F6; }
 
   .radio-group { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
   .radio-option {
     display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px;
-    background: rgba(15, 23, 42, 0.6); border: 1.5px solid var(--input-border);
+    background: #F9FAFB; border: 1px solid var(--input-border);
     border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s ease;
   }
-  .radio-option:hover { border-color: var(--accent); background: rgba(56, 189, 248, 0.08); }
+  .radio-option:hover { border-color: var(--input-focus); background: #F3F4F6; }
   .radio-option input { margin-top: 3px; accent-color: var(--primary); width: 18px; height: 18px; }
-  .radio-option .opt-label { font-size: 14px; font-weight: 500; color: #FFFFFF; }
+  .radio-option .opt-label { font-size: 14px; font-weight: 500; color: var(--text-main); }
 
   .alpha-card {
-    background: rgba(245, 158, 11, 0.08); border: 1.5px solid rgba(245, 158, 11, 0.35);
+    background: #F9FAFB; border: 1px solid var(--card-border);
     border-radius: var(--radius-md); padding: 18px; margin-top: 10px;
   }
-  .alpha-card label { color: #FBBF24; font-size: 13px; }
-  .alpha-card input { background: #0F172A; border-color: rgba(245, 158, 11, 0.4); color: #FBBF24; font-weight: 700; }
 
   .summary-card {
-    margin-top: 30px; background: #0F172A;
-    border: 2px solid var(--accent); border-radius: var(--radius-lg); overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    margin-top: 30px; background: var(--card-bg);
+    border: 1px solid var(--card-border); border-radius: var(--radius-lg); overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
   }
   .summary-header {
-    background: linear-gradient(135deg, #1E3A8A, #0284C7);
+    background: var(--primary);
     color: #FFF; padding: 16px 22px; font-weight: 800; font-size: 15px;
     display: flex; justify-content: space-between; align-items: center;
   }
-  .summary-header.blocked { background: rgba(239, 68, 68, 0.2); border-bottom: 2px solid var(--danger); color: var(--danger); }
+  .summary-header.blocked { background: #FEF2F2; border-bottom: 1px solid var(--danger); color: var(--danger); }
   .summary-header .tag {
     background: rgba(255, 255, 255, 0.2); padding: 4px 12px; border-radius: 20px;
     font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
   }
   
   .summary-body { padding: 22px; }
-  .summary-line { display: flex; justify-content: space-between; padding: 9px 0; font-size: 14px; color: var(--text-dim); }
-  .summary-line .value { font-family: var(--font-mono); color: #FFFFFF; font-weight: 700; }
-  .summary-line.warn .value { color: #FBBF24; }
-  .summary-line.strong { font-weight: 700; border-top: 1px dashed rgba(255, 255, 255, 0.15); margin-top: 8px; padding-top: 14px; color: #FFFFFF; }
+  .summary-line { display: flex; justify-content: space-between; padding: 9px 0; font-size: 14px; color: var(--text-muted); }
+  .summary-line .value { font-family: var(--font-mono); color: var(--text-main); font-weight: 700; }
+  .summary-line.warn .value { color: var(--warning); }
+  .summary-line.strong { font-weight: 700; border-top: 1px dashed var(--card-border); margin-top: 8px; padding-top: 14px; color: var(--text-main); }
   
   .summary-total {
     display: flex; justify-content: space-between; align-items: center;
-    margin-top: 18px; padding-top: 18px; border-top: 2px solid rgba(255, 255, 255, 0.2);
+    margin-top: 18px; padding-top: 18px; border-top: 2px solid var(--card-border);
   }
-  .summary-total .label { font-size: 15px; font-weight: 800; color: #FFF; }
+  .summary-total .label { font-size: 15px; font-weight: 800; color: var(--text-main); }
   .summary-total .value {
-    font-family: var(--font-mono); font-size: 28px; font-weight: 800; color: var(--accent);
+    font-family: var(--font-mono); font-size: 28px; font-weight: 800; color: var(--primary);
   }
 
-  .btn-group-hud { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 16px 22px; background: rgba(0,0,0,0.25); border-top: 1px solid rgba(255,255,255,0.1); }
+  .btn-group-hud { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 16px 22px; background: #F9FAFB; border-top: 1px solid var(--card-border); }
   @media (max-width: 650px) { .btn-group-hud { grid-template-columns: 1fr 1fr; } }
   
   .pdf-btn, .cart-btn, .speak-btn, .share-btn {
     display: flex; align-items: center; justify-content: center; gap: 6px;
     padding: 12px 8px; border: none; cursor: pointer;
     font-family: var(--font-sans); font-size: 12px; font-weight: 800;
-    border-radius: var(--radius-md); transition: transform 0.15s ease, background 0.2s ease;
+    border-radius: var(--radius-md); transition: background 0.2s ease, transform 0.1s ease;
   }
   .pdf-btn { background: var(--primary); color: #FFF; }
-  .cart-btn { background: rgba(56, 189, 248, 0.15); border: 2px solid rgba(56, 189, 248, 0.5); color: var(--accent); }
-  .speak-btn { background: rgba(16, 185, 129, 0.2); border: 2px solid rgba(16, 185, 129, 0.5); color: var(--success); }
-  .share-btn { background: rgba(168, 85, 247, 0.2); border: 2px solid rgba(168, 85, 247, 0.5); color: var(--purple); }
+  .cart-btn { background: #E5E7EB; border: 1px solid #D1D5DB; color: var(--text-main); }
+  .speak-btn { background: #ECFDF5; border: 1px solid #A7F3D0; color: var(--success); }
+  .share-btn { background: #F3E8FF; border: 1px solid #DDD6FE; color: var(--purple); }
 
   .pdf-btn:hover { background: var(--primary-hover); transform: translateY(-1px); }
-  .cart-btn:hover { background: rgba(56, 189, 248, 0.25); transform: translateY(-1px); }
-  .speak-btn:hover { background: rgba(16, 185, 129, 0.35); transform: translateY(-1px); }
-  .share-btn:hover { background: rgba(168, 85, 247, 0.35); transform: translateY(-1px); }
+  .cart-btn:hover { background: #D1D5DB; transform: translateY(-1px); }
+  .speak-btn:hover { background: #D1FAE5; transform: translateY(-1px); }
+  .share-btn:hover { background: #E9D5FF; transform: translateY(-1px); }
 
   .cart-tray {
-    margin-top: 30px; background: #0F172A;
+    margin-top: 30px; background: var(--card-bg);
     border: 2px solid var(--success); border-radius: var(--radius-lg); padding: 22px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
   }
   .cart-tray-header {
     display: flex; justify-content: space-between; align-items: center;
-    border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 14px; margin-bottom: 14px;
+    border-bottom: 1px solid var(--card-border); padding-bottom: 14px; margin-bottom: 14px;
     flex-wrap: wrap; gap: 10px;
   }
   .cart-tray-title { font-size: 15px; font-weight: 800; color: var(--success); }
   .cart-item {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 14px; background: rgba(30, 41, 59, 0.8); border-radius: 10px; margin-bottom: 8px; font-size: 13.5px;
+    padding: 10px 14px; background: #F9FAFB; border: 1px solid var(--card-border); border-radius: 10px; margin-bottom: 8px; font-size: 13.5px;
   }
-  .cart-item-name { color: #FFFFFF; font-weight: 600; }
-  .cart-item-val { font-family: var(--font-mono); color: var(--accent); font-weight: 700; display: flex; align-items: center; gap: 12px; }
+  .cart-item-name { color: var(--text-main); font-weight: 600; }
+  .cart-item-val { font-family: var(--font-mono); color: var(--primary); font-weight: 700; display: flex; align-items: center; gap: 12px; }
   .cart-del-btn { color: var(--danger); cursor: pointer; font-weight: 800; font-size: 18px; line-height: 1; padding: 2px 6px; }
 
   .disclaimer { font-size: 12px; color: var(--text-muted); padding: 14px 22px; text-align: center; line-height: 1.5; }
@@ -286,8 +282,15 @@
 
 <div class="container">
   <header>
+    <!-- EMBED LOGO RESMI PEMKOT BATU, UB, DAN KKN 60 FIA UB -->
+    <div class="header-logos">
+      <img src="Logo_kota_batu_(1).png" alt="Logo Pemkot Batu" class="header-logo" title="Pemerintah Kota Batu">
+      <img src="logo-universitas-brawijaya-ub-png-svg.webp" alt="Logo Universitas Brawijaya" class="header-logo" title="Universitas Brawijaya">
+      <img src="LOGO KELOMPOK 60 KKN-T FIA UB.jpg" alt="Logo KKN-T Kelompok 60 FIA UB" class="header-logo logo-round" title="KKN-T Kelompok 60 FIA UB 2026">
+    </div>
+
     <div class="badge-container">
-      <div class="badge"><span class="pulse"></span> TaxCalc v2.0 &bull; PERDA NO. 4/2023 &amp; PERWALI NO. 20/2024</div>
+      <div class="badge">PERDA NO. 4 TAHUN 2023 &amp; PERWALI NO. 20 TAHUN 2024</div>
     </div>
     <h1>TaxCalc Kota Batu</h1>
     <p>Simulasi Perhitungan Resmi Pajak Daerah &amp; Retribusi</p>
@@ -323,7 +326,7 @@
       <div class="ocr-zone" onclick="document.getElementById('pbb_ocr_input').click()">
         <input type="file" id="pbb_ocr_input" accept="image/*" style="display:none;" onchange="processSPPTOCR(event)">
         <div id="ocr_label">📷 <b>Scan Foto Kertas SPPT PBB (Auto-Fill AI Engine)</b><br><span style="font-size:12px; color:var(--text-muted)">Klik untuk upload foto lembar SPPT PBB &amp; ekstrak NJOP otomatis</span></div>
-        <div id="ocr_progress" class="hidden" style="margin-top:6px; font-size:13px; color:var(--accent); font-weight:700;">
+        <div id="ocr_progress" class="hidden" style="margin-top:6px; font-size:13px; color:var(--primary); font-weight:700;">
           Pre-processing Image &amp; OCR Engine Active... <span id="ocr_percent">0%</span>
         </div>
       </div>
@@ -346,12 +349,12 @@
           <label class="radio-option"><input type="radio" name="pbb_jenis" value="pangan"><span class="opt-label">Lahan produksi pangan &mdash; tarif flat 0,015%</span></label>
           <label class="radio-option"><input type="radio" name="pbb_jenis" value="ternak"><span class="opt-label">Lahan produksi ternak &mdash; tarif flat 0,015%</span></label>
         </div>
-        <span class="hint">NJOPTKP dikunci Rp100.000.000[cite: 1]. Dasar Pengenaan terkunci 70% (Perwali No. 20/2024 Pasal 25)[cite: 2].</span>
+        <span class="hint">NJOPTKP dikunci Rp100.000.000. Dasar Pengenaan terkunci 70% (Perwali No. 20/2024 Pasal 25).</span>
       </div>
       <div class="alpha-card">
         <label>Dasar Pengenaan (% dari NJOP setelah TKP)</label>
         <input type="text" id="pbb_alpha" value="70">
-        <span class="hint">Telah disesuaikan dengan Perwali Batu No. 20/2024 Pasal 25 ayat (2) yaitu sebesar 70%[cite: 2].</span>
+        <span class="hint">Telah disesuaikan dengan Perwali Batu No. 20/2024 Pasal 25 ayat (2) yaitu sebesar 70%.</span>
       </div>
     </div>
 
@@ -359,19 +362,19 @@
     <div class="card" id="panel-bphtb">
       <div class="card-header-desc">
         <h2>Bea Perolehan Hak atas Tanah dan Bangunan (BPHTB)</h2>
-        <span class="hint">Pajak atas perolehan hak atas tanah dan/atau bangunan[cite: 1, 2].</span>
+        <span class="hint">Pajak atas perolehan hak atas tanah dan/atau bangunan.</span>
       </div>
       <div class="section-title">Nilai Transaksi Objek Pajak <span class="legal-ref">Pasal 14&ndash;16</span></div>
       <div class="row">
         <div class="form-group">
           <label>Nilai Perolehan (NPOP)</label>
           <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="b_npop" placeholder="0"></div>
-          <span class="hint">Harga transaksi riil[cite: 1].</span>
+          <span class="hint">Harga transaksi riil.</span>
         </div>
         <div class="form-group">
           <label>NJOP PBB Tahun Berjalan</label>
           <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="b_njop" placeholder="0"></div>
-          <span class="hint">Dasar pengenaan memakai nilai tertinggi antara NPOP dan NJOP[cite: 1].</span>
+          <span class="hint">Dasar pengenaan memakai nilai tertinggi antara NPOP dan NJOP.</span>
         </div>
       </div>
       <div class="form-group">
@@ -388,7 +391,7 @@
     <div class="card" id="panel-pbjt">
       <div class="card-header-desc">
         <h2>Pajak Barang dan Jasa Tertentu (PBJT)</h2>
-        <span class="hint">Pajak konsumen akhir atas makanan/minuman, perhotelan, parkir, listrik, dan hiburan[cite: 1, 2].</span>
+        <span class="hint">Pajak konsumen akhir atas makanan/minuman, perhotelan, parkir, listrik, dan hiburan.</span>
       </div>
       <div class="section-title">Kategori Objek <span class="legal-ref">Pasal 21&ndash;30</span></div>
       <div class="form-group">
@@ -407,7 +410,7 @@
       <div class="form-group" id="pj_omzet_field">
         <label>Peredaran Usaha / Bulan</label>
         <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="pj_omzet" placeholder="0"></div>
-        <span class="hint">&le; Rp10.000.000/bulan = bukan objek pajak (Pasal 22 ayat 2a)[cite: 1]. Khusus kategori Makanan &amp; Minuman.</span>
+        <span class="hint">&le; Rp10.000.000/bulan = bukan objek pajak. Khusus kategori Makanan &amp; Minuman.</span>
       </div>
       <div class="form-group">
         <label>Dasar Pengenaan (Pembayaran Konsumen / Nilai Jual Listrik)</label>
@@ -419,7 +422,7 @@
     <div class="card" id="panel-reklame">
       <div class="card-header-desc">
         <h2>Pajak Reklame</h2>
-        <span class="hint">Pajak atas penyelenggaraan reklame komersial[cite: 1, 2].</span>
+        <span class="hint">Pajak atas penyelenggaraan reklame komersial.</span>
       </div>
       <div class="section-title">Metode &amp; Parameter Penyelenggaraan <span class="legal-ref">Perwali 20/2024 Lampiran A</span></div>
       
@@ -435,7 +438,7 @@
         <div class="form-group">
           <label>Nilai Kontrak Reklame</label>
           <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="rk_nilai_kontrak" placeholder="0"></div>
-          <span class="hint">Nilai kontrak tertulis dengan pihak ketiga (Pasal 34 ayat 2 Perda 4/2023)[cite: 1]. Tarif flat 25%[cite: 1, 2].</span>
+          <span class="hint">Nilai kontrak tertulis dengan pihak ketiga. Tarif flat 25%.</span>
         </div>
       </div>
 
@@ -459,7 +462,7 @@
             <label>Cari Lokasi Jalan Kota Batu (Pencarian Manual)</label>
             <input type="text" id="rk_street_search" placeholder="Ketik nama jalan (misal: Diponegoro, Agus Salim...)" autocomplete="off">
             <div id="rk_street_results" class="autocomplete-results hidden"></div>
-            <span class="hint">Otomatis menentukan Kelas Jalan berdasarkan Lampiran III Perwali No. 20/2024[cite: 2].</span>
+            <span class="hint">Otomatis menentukan Kelas Jalan berdasarkan Lampiran III Perwali No. 20/2024.</span>
           </div>
 
           <div class="row">
@@ -514,7 +517,7 @@
     <div class="card" id="panel-pat">
       <div class="card-header-desc">
         <h2>Pajak Air Tanah (PAT)</h2>
-        <span class="hint">Pajak atas pengambilan dan/atau pemanfaatan air tanah[cite: 1, 2].</span>
+        <span class="hint">Pajak atas pengambilan dan/atau pemanfaatan air tanah.</span>
       </div>
       <div class="section-title">Metode Perhitungan <span class="legal-ref">Perwali 20/2024 Lampiran B</span></div>
       
@@ -540,7 +543,7 @@
         <div class="form-group">
           <label>Volume Pemakaian Air / Bulan (m³)</label>
           <input type="text" id="pat_volume" placeholder="0">
-          <span class="hint">Sistem menentukan Harga Dasar Air (HDA) berdasarkan braket volume Perwali No. 20/2024[cite: 2].</span>
+          <span class="hint">Sistem menentukan Harga Dasar Air (HDA) berdasarkan braket volume Perwali No. 20/2024.</span>
         </div>
       </div>
 
@@ -548,7 +551,7 @@
         <div class="form-group">
           <label>Nilai Perolehan Air Tanah (NPAT) Manual</label>
           <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="pat_nilai_manual" placeholder="0"></div>
-          <span class="hint">Hasil perkalian ketetapan harga air baku x bobot air tanah. Tarif flat 5%[cite: 1, 2].</span>
+          <span class="hint">Hasil perkalian ketetapan harga air baku x bobot air tanah. Tarif flat 5%.</span>
         </div>
       </div>
     </div>
@@ -561,7 +564,7 @@
     <div class="cart-tray-header">
       <div class="cart-tray-title"><span>KERANJANG PAJAK GABUNGAN</span></div>
       <div style="display:flex; gap:8px;">
-        <button class="cart-btn" onclick="clearCart()" style="padding: 8px 14px; font-size: 12px; border-color: rgba(239, 68, 68, 0.5); color: var(--danger);">HAPUS SEMUA [X]</button>
+        <button class="cart-btn" onclick="clearCart()" style="padding: 8px 14px; font-size: 12px; border-color: var(--danger); color: var(--danger); background: #FEF2F2;">HAPUS SEMUA [X]</button>
         <button class="cart-btn" onclick="downloadConsolidatedPDF()" style="padding: 8px 14px; font-size: 12px; background: var(--success); color: #FFF; border: none;">UNDUH DRAF KONSOLIDASI</button>
       </div>
     </div>
@@ -583,53 +586,8 @@ if (typeof L !== 'undefined') {
 }
 
 /* =================================================================
-   WEB AUDIO API SINGLETON & SPEECH SYNTHESIS ACCESSIBILITY
+   SPEECH SYNTHESIS ACCESSIBILITY ENGINE
    ================================================================= */
-let globalAudioCtx = null;
-
-function getAudioCtx() {
-  if (!globalAudioCtx) {
-    globalAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }
-  if (globalAudioCtx.state === 'suspended') {
-    globalAudioCtx.resume();
-  }
-  return globalAudioCtx;
-}
-
-function playHUDAudio(type = 'click') {
-  try {
-    const ctx = getAudioCtx();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-
-    if (type === 'click') {
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(600, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 0.03);
-      gain.gain.setValueAtTime(0.015, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.03);
-      osc.start(); osc.stop(ctx.currentTime + 0.03);
-    } else if (type === 'tab') {
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(400, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.05);
-      gain.gain.setValueAtTime(0.02, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
-      osc.start(); osc.stop(ctx.currentTime + 0.05);
-    } else if (type === 'cart') {
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(500, ctx.currentTime);
-      osc.frequency.setValueAtTime(1000, ctx.currentTime + 0.04);
-      gain.gain.setValueAtTime(0.02, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
-      osc.start(); osc.stop(ctx.currentTime + 0.08);
-    }
-  } catch(e) {}
-}
-
 function speakResultText(textToSpeak) {
   if (!('speechSynthesis' in window)) {
     alert('Maaf, peramban Anda tidak mendukung fitur pembaca suara.');
@@ -795,7 +753,6 @@ async function processSPPTOCR(event) {
     }
 
     if (found) {
-      playHUDAudio('click');
       render();
       alert(`Berhasil Mengabstraksi SPPT PBB!\n\n• NJOP Tanah: ${formatRupiah(njopTanah)}\n• NJOP Bangunan: ${formatRupiah(njopBgn)}`);
     } else {
@@ -811,10 +768,10 @@ async function processSPPTOCR(event) {
 }
 
 /* ============================================================
-   GIS MAP ENGINE (LEAFLET.JS) - FIX SINGLE SELECTION MARKER
+   GIS MAP ENGINE (LEAFLET.JS) - SINGLE SELECTION MARKER FIX
    ============================================================ */
 let mapInstance = null;
-let selectionMarker = null; // SINGLE SELECTION MARKER TO PREVENT STACKING
+let selectionMarker = null;
 
 const KOTA_BATU_STREET_COORDS = {
   'DIPONEGORO': { class: 'Utama', lat: -7.8715, lng: 112.5285 },
@@ -850,7 +807,6 @@ function initGISMap() {
     attribution: '© OpenStreetMap'
   }).addTo(mapInstance);
 
-  // Map Click Listener -> Single Selection Marker Update
   mapInstance.on('click', function(e) {
     if (selectionMarker) {
       mapInstance.removeLayer(selectionMarker);
@@ -873,12 +829,10 @@ function initGISMap() {
         }
         const cleanName = upper.replace('JL. ', '').replace('JALAN ', '');
         
-        // Update input without triggering map loop
         document.getElementById('rk_street_search').value = 'Jl. ' + cleanName;
         document.getElementById('rk_kelas_jalan').value = foundClass;
         
         selectionMarker.bindPopup(`<b>${road}</b><br>Kelas Jalan: ${foundClass}`).openPopup();
-        playHUDAudio('click');
         render();
       })
       .catch(() => {});
@@ -887,7 +841,6 @@ function initGISMap() {
   setTimeout(() => mapInstance.invalidateSize(), 300);
 }
 
-/* Helper to place/move the single map marker when street is selected via search/preset */
 function updateMapMarkerPosition(lat, lng, title, classType) {
   if (!mapInstance) return;
   
@@ -913,7 +866,6 @@ function shareSimul() {
   const shareUrl = window.location.origin + window.location.pathname + '#' + encoded;
 
   navigator.clipboard.writeText(shareUrl).then(() => {
-    playHUDAudio('click');
     const waText = `*Simulasi TaxCalc Kota Batu*\nLihat draf kalkulasi pajak saya di sini:\n${shareUrl}`;
     const waUrl = `https://wa.me/?text=${encodeURIComponent(waText)}`;
 
@@ -929,7 +881,6 @@ function shareSimul() {
    QUICK PRESET TEMPLATES
    ============================================================ */
 function applyPreset(type) {
-  playHUDAudio('click');
   if (type === 'kafe') {
     document.querySelector('.tab[data-tab="pbjt"]').click();
     document.getElementById('pj_kategori').value = 'makanmin';
@@ -1017,7 +968,7 @@ streetInput.addEventListener('input', () => {
   streetResults.innerHTML = matches.map(m => `
     <div class="autocomplete-item" onclick="selectStreet('${m}', '${KOTA_BATU_STREETS[m]}')">
       <span>Jl. ${m}</span>
-      <span style="font-family:var(--font-mono); color:var(--accent); font-weight:700;">[ Kelas ${KOTA_BATU_STREETS[m]} ]</span>
+      <span style="font-family:var(--font-mono); color:var(--primary); font-weight:700;">[ Kelas ${KOTA_BATU_STREETS[m]} ]</span>
     </div>
   `).join('');
   streetResults.classList.remove('hidden');
@@ -1033,9 +984,7 @@ function selectStreet(name, classType) {
   streetInput.value = 'Jl. ' + name;
   document.getElementById('rk_kelas_jalan').value = classType;
   streetResults.classList.add('hidden');
-  playHUDAudio('click');
 
-  // If coordinates exist, update single map marker position
   if (KOTA_BATU_STREET_COORDS[name]) {
     const loc = KOTA_BATU_STREET_COORDS[name];
     updateMapMarkerPosition(loc.lat, loc.lng, name, classType);
@@ -1244,19 +1193,16 @@ function addToCart() {
     details: dataCetak
   });
   
-  playHUDAudio('cart');
   renderCartTray();
 }
 
 function removeFromCart(id) {
   TAX_CART = TAX_CART.filter(item => item.id !== id);
-  playHUDAudio('click');
   renderCartTray();
 }
 
 function clearCart() {
   TAX_CART = [];
-  playHUDAudio('click');
   renderCartTray();
 }
 
@@ -1375,9 +1321,7 @@ function generatePDFDoc(title, dataRows, grandTotalVal) {
           }
         ]
       },
-
       { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 372, y2: 0, lineWidth: 1.5, lineColor: '#2563EB' }], margin: [0, 10, 0, 12] },
-
       {
         table: {
           widths: ['*'],
@@ -1401,7 +1345,6 @@ function generatePDFDoc(title, dataRows, grandTotalVal) {
         },
         margin: [0, 0, 0, 12]
       },
-
       {
         table: {
           widths: ['*', 'auto'],
@@ -1413,7 +1356,6 @@ function generatePDFDoc(title, dataRows, grandTotalVal) {
           hLineColor: () => '#E2E8F0'
         }
       },
-
       {
         table: {
           widths: ['*', 'auto'],
@@ -1440,7 +1382,6 @@ function generatePDFDoc(title, dataRows, grandTotalVal) {
         },
         margin: [0, 10, 0, 12]
       },
-
       { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 372, y2: 0, lineWidth: 1, lineColor: '#E2E8F0' }], margin: [0, 10, 0, 8] },
       {
         columns: [
@@ -1484,7 +1425,7 @@ const MONEY_FIELD_IDS = ['pbb_njop_tanah','pbb_njop_bgn','b_npop','b_njop','pj_o
 MONEY_FIELD_IDS.forEach(attachFormatter);
 
 /* ============================================================
-   CSS GRID STACKING CONTROLLER
+   TAB DISPLAY CONTROLLER (SIMPLE & RELIABLE DISPLAY TOGGLE)
    ============================================================ */
 const tabs = document.querySelectorAll('.tab');
 const panelKeys = ['pbb', 'bphtb', 'pbjt', 'reklame', 'pat'];
@@ -1497,21 +1438,12 @@ const panels = {
 };
 
 function update3DStackClasses(activeKey) {
-  const activeIndex = panelKeys.indexOf(activeKey);
-  
-  panelKeys.forEach((key, idx) => {
+  panelKeys.forEach(key => {
     const card = panels[key];
-    card.className = 'card';
-    
     if (key === activeKey) {
       card.classList.add('active');
     } else {
-      const diff = idx - activeIndex;
-      if (diff === 1 || (diff < 0 && idx === panelKeys.length - 1)) {
-        card.classList.add('stack-back-1');
-      } else {
-        card.classList.add('stack-back-2');
-      }
+      card.classList.remove('active');
     }
   });
 
@@ -1523,7 +1455,6 @@ function update3DStackClasses(activeKey) {
 tabs.forEach(tab => {
   tab.addEventListener('click', () => {
     const targetTabId = tab.dataset.tab;
-    playHUDAudio('tab');
     tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === targetTabId));
     update3DStackClasses(targetTabId);
     render();
@@ -1552,7 +1483,7 @@ function syncReklameUI() {
 }
 
 [rkPenyelenggara, rkSifat, rkJenisPermanen, rkJenisInsidentil, document.getElementById('rk_kelas_jalan')].forEach(el => {
-  el.addEventListener('change', () => { playHUDAudio('click'); syncReklameUI(); render(); });
+  el.addEventListener('change', () => { syncReklameUI(); render(); });
 });
 document.getElementById('rk_vol_permanen').addEventListener('input', render);
 document.getElementById('rk_vol_insidentil').addEventListener('input', render);
@@ -1564,20 +1495,20 @@ function syncPatUI() {
   document.getElementById('pat_container_auto').classList.toggle('hidden', !isAuto);
   document.getElementById('pat_container_manual').classList.toggle('hidden', isAuto);
 }
-patMode.addEventListener('change', () => { playHUDAudio('click'); syncPatUI(); render(); });
-document.getElementById('pat_kelompok').addEventListener('change', () => { playHUDAudio('click'); render(); });
+patMode.addEventListener('change', () => { syncPatUI(); render(); });
+document.getElementById('pat_kelompok').addEventListener('change', () => { render(); });
 syncPatUI();
 
 const pjKategoriSelect = document.getElementById('pj_kategori');
 function syncPjOmzetVisibility() {
   document.getElementById('pj_omzet_field').classList.toggle('hidden', pjKategoriSelect.value !== 'makanmin');
 }
-pjKategoriSelect.addEventListener('change', () => { playHUDAudio('click'); syncPjOmzetVisibility(); render(); });
+pjKategoriSelect.addEventListener('change', () => { syncPjOmzetVisibility(); render(); });
 syncPjOmzetVisibility();
 
-document.getElementById('b_jenis').addEventListener('change', () => { playHUDAudio('click'); render(); });
+document.getElementById('b_jenis').addEventListener('change', () => { render(); });
 document.getElementById('pbb_alpha').addEventListener('input', render);
-document.querySelectorAll('input[name="pbb_jenis"]').forEach(r => r.addEventListener('change', () => { playHUDAudio('click'); render(); }));
+document.querySelectorAll('input[name="pbb_jenis"]').forEach(r => r.addEventListener('change', () => { render(); }));
 
 /* ============================================================
    RENDERERS
