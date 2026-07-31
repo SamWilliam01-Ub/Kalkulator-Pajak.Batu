@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kalkulator Pajak Daerah &amp; Retribusi | Kota Batu</title>
+<title>TaxCalc | Kota Batu</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
@@ -77,7 +77,7 @@
     100% { opacity: 0.3; transform: scale(0.8); }
   }
 
-  header h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.5px; color: #FFFFFF; }
+  header h1 { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; color: #FFFFFF; }
   header p { font-size: 14.5px; color: var(--text-muted); margin-top: 6px; font-weight: 500; }
 
   .preset-bar {
@@ -287,9 +287,9 @@
 <div class="container">
   <header>
     <div class="badge-container">
-      <div class="badge"><span class="pulse"></span> PERDA NO. 4 TAHUN 2023 &amp; PERWALI NO. 20 TAHUN 2024</div>
+      <div class="badge"><span class="pulse"></span> TaxCalc v2.0 &bull; PERDA NO. 4/2023 &amp; PERWALI NO. 20/2024</div>
     </div>
-    <h1>Kalkulator Pajak Daerah Kota Batu</h1>
+    <h1>TaxCalc Kota Batu</h1>
     <p>Simulasi Perhitungan Resmi Pajak Daerah &amp; Retribusi</p>
   </header>
 
@@ -811,14 +811,34 @@ async function processSPPTOCR(event) {
 }
 
 /* ============================================================
-   GIS MAP ENGINE (LEAFLET.JS)
+   GIS MAP ENGINE (LEAFLET.JS) - FIX SINGLE SELECTION MARKER
    ============================================================ */
 let mapInstance = null;
-let mapMarker = null;
+let selectionMarker = null; // SINGLE SELECTION MARKER TO PREVENT STACKING
+
+const KOTA_BATU_STREET_COORDS = {
+  'DIPONEGORO': { class: 'Utama', lat: -7.8715, lng: 112.5285 },
+  'IR. SOEKARNO': { class: 'Utama', lat: -7.8863, lng: 112.5451 },
+  'AGUS SALIM': { class: 'A', lat: -7.8752, lng: 112.5211 },
+  'ABDUL GANI': { class: 'A', lat: -7.8810, lng: 112.5180 },
+  'AHMAD YANI': { class: 'Utama', lat: -7.8705, lng: 112.5260 },
+  'BHAYANGKARA': { class: 'Utama', lat: -7.8720, lng: 112.5240 },
+  'GAJAH MADA': { class: 'Utama', lat: -7.8710, lng: 112.5270 },
+  'HASANUDDIN': { class: 'Utama', lat: -7.8730, lng: 112.5290 },
+  'IMAM BONJOL': { class: 'Utama', lat: -7.8740, lng: 112.5250 },
+  'KARTINI': { class: 'Utama', lat: -7.8718, lng: 112.5230 },
+  'PAHLAWAN': { class: 'Utama', lat: -7.8725, lng: 112.5210 },
+  'RAYA PUNTEN': { class: 'Utama', lat: -7.8480, lng: 112.5200 },
+  'RAYA SIDOMULYO': { class: 'Utama', lat: -7.8550, lng: 112.5220 },
+  'PANDAN REJO': { class: 'A', lat: -7.8620, lng: 112.5350 },
+  'RAYA REJE': { class: 'Utama', lat: -7.8900, lng: 112.5500 },
+  'RAYA MOJOREJO': { class: 'Utama', lat: -7.8920, lng: 112.5550 },
+  'SEKAR PUTIH': { class: 'A', lat: -7.8950, lng: 112.5600 }
+};
 
 function initGISMap() {
   if (mapInstance) {
-    setTimeout(() => mapInstance.invalidateSize(), 400);
+    setTimeout(() => mapInstance.invalidateSize(), 300);
     return;
   }
   const mapEl = document.getElementById('map');
@@ -830,22 +850,14 @@ function initGISMap() {
     attribution: '© OpenStreetMap'
   }).addTo(mapInstance);
 
-  const keyLocations = [
-    { name: 'DIPONEGORO', class: 'Utama', lat: -7.8715, lng: 112.5285 },
-    { name: 'IR. SOEKARNO', class: 'Utama', lat: -7.8863, lng: 112.5451 },
-    { name: 'AGUS SALIM', class: 'A', lat: -7.8752, lng: 112.5211 },
-    { name: 'ABDUL GANI', class: 'A', lat: -7.8810, lng: 112.5180 }
-  ];
-
-  keyLocations.forEach(loc => {
-    const m = L.marker([loc.lat, loc.lng]).addTo(mapInstance);
-    m.bindPopup(`<b>Jl. ${loc.name}</b><br>Kelas Jalan: ${loc.class}`);
-    m.on('click', () => { selectStreet(loc.name, loc.class); });
-  });
-
+  // Map Click Listener -> Single Selection Marker Update
   mapInstance.on('click', function(e) {
-    if (mapMarker) mapInstance.removeLayer(mapMarker);
-    mapMarker = L.marker(e.latlng).addTo(mapInstance);
+    if (selectionMarker) {
+      mapInstance.removeLayer(selectionMarker);
+      selectionMarker = null;
+    }
+
+    selectionMarker = L.marker(e.latlng).addTo(mapInstance);
 
     fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${e.latlng.lat}&lon=${e.latlng.lng}`)
       .then(res => res.json())
@@ -859,13 +871,34 @@ function initGISMap() {
             break;
           }
         }
-        selectStreet(upper.replace('JL. ', '').replace('JALAN ', ''), foundClass);
-        mapMarker.bindPopup(`<b>${road}</b><br>Kelas Jalan Terdeteksi: ${foundClass}`).openPopup();
+        const cleanName = upper.replace('JL. ', '').replace('JALAN ', '');
+        
+        // Update input without triggering map loop
+        document.getElementById('rk_street_search').value = 'Jl. ' + cleanName;
+        document.getElementById('rk_kelas_jalan').value = foundClass;
+        
+        selectionMarker.bindPopup(`<b>${road}</b><br>Kelas Jalan: ${foundClass}`).openPopup();
+        playHUDAudio('click');
+        render();
       })
       .catch(() => {});
   });
 
-  setTimeout(() => mapInstance.invalidateSize(), 400);
+  setTimeout(() => mapInstance.invalidateSize(), 300);
+}
+
+/* Helper to place/move the single map marker when street is selected via search/preset */
+function updateMapMarkerPosition(lat, lng, title, classType) {
+  if (!mapInstance) return;
+  
+  if (selectionMarker) {
+    mapInstance.removeLayer(selectionMarker);
+    selectionMarker = null;
+  }
+  
+  selectionMarker = L.marker([lat, lng]).addTo(mapInstance);
+  selectionMarker.bindPopup(`<b>Jl. ${title}</b><br>Kelas Jalan: ${classType}`).openPopup();
+  mapInstance.panTo([lat, lng]);
 }
 
 /* ============================================================
@@ -881,7 +914,7 @@ function shareSimul() {
 
   navigator.clipboard.writeText(shareUrl).then(() => {
     playHUDAudio('click');
-    const waText = `*Simulasi Pajak Daerah Kota Batu*\nLihat draf kalkulasi pajak saya di sini:\n${shareUrl}`;
+    const waText = `*Simulasi TaxCalc Kota Batu*\nLihat draf kalkulasi pajak saya di sini:\n${shareUrl}`;
     const waUrl = `https://wa.me/?text=${encodeURIComponent(waText)}`;
 
     if (confirm('Link simulasi telah disalin ke clipboard! Apakah Anda ingin langsung membagikannya via WhatsApp?')) {
@@ -914,8 +947,7 @@ function applyPreset(type) {
     document.getElementById('rk_penyelenggara').value = 'sendiri';
     syncReklameUI();
     document.getElementById('rk_sifat').value = 'permanen';
-    document.getElementById('rk_street_search').value = 'Jl. DIPONEGORO';
-    document.getElementById('rk_kelas_jalan').value = 'Utama';
+    selectStreet('DIPONEGORO', 'Utama');
     document.getElementById('rk_jenis_permanen').value = 'billboard_bersinar';
     document.getElementById('rk_vol_permanen').value = '12';
   } else if (type === 'rumah') {
@@ -1002,6 +1034,13 @@ function selectStreet(name, classType) {
   document.getElementById('rk_kelas_jalan').value = classType;
   streetResults.classList.add('hidden');
   playHUDAudio('click');
+
+  // If coordinates exist, update single map marker position
+  if (KOTA_BATU_STREET_COORDS[name]) {
+    const loc = KOTA_BATU_STREET_COORDS[name];
+    updateMapMarkerPosition(loc.lat, loc.lng, name, classType);
+  }
+
   render();
 }
 
@@ -1322,7 +1361,7 @@ function generatePDFDoc(title, dataRows, grandTotalVal) {
         columns: [
           {
             stack: [
-              { text: 'PEMERINTAH KOTA BATU', fontSize: 11, bold: true, color: '#0F172A', characterSpacing: 0.5 },
+              { text: 'TaxCalc - PEMERINTAH KOTA BATU', fontSize: 11, bold: true, color: '#0F172A', characterSpacing: 0.5 },
               { text: 'BADAN PENDAPATAN DAERAH', fontSize: 9, bold: true, color: '#2563EB', margin: [0, 2, 0, 0] },
               { text: 'Jl. Panglima Sudirman No. 507, Kota Batu', fontSize: 7.5, color: '#64748B', margin: [0, 2, 0, 0] }
             ]
@@ -1336,7 +1375,9 @@ function generatePDFDoc(title, dataRows, grandTotalVal) {
           }
         ]
       },
+
       { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 372, y2: 0, lineWidth: 1.5, lineColor: '#2563EB' }], margin: [0, 10, 0, 12] },
+
       {
         table: {
           widths: ['*'],
@@ -1360,6 +1401,7 @@ function generatePDFDoc(title, dataRows, grandTotalVal) {
         },
         margin: [0, 0, 0, 12]
       },
+
       {
         table: {
           widths: ['*', 'auto'],
@@ -1371,6 +1413,7 @@ function generatePDFDoc(title, dataRows, grandTotalVal) {
           hLineColor: () => '#E2E8F0'
         }
       },
+
       {
         table: {
           widths: ['*', 'auto'],
@@ -1390,17 +1433,18 @@ function generatePDFDoc(title, dataRows, grandTotalVal) {
               border: [false, false, false, false],
               margin: [10, 10, 10, 10],
               alignment: 'right',
-              qr: 'SIMULASI-BAPENDA-BATU|' + invoiceNo + '|' + totalRowVal,
+              qr: 'TaxCalc-BAPENDA-BATU|' + invoiceNo + '|' + totalRowVal,
               fit: 55
             }
           ]]
         },
         margin: [0, 10, 0, 12]
       },
-      { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 372, y2: 0, lineWidth: 1, lineColor: '#E2E8F0' }], margin: [0, 8, 0, 6] },
+
+      { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 372, y2: 0, lineWidth: 1, lineColor: '#E2E8F0' }], margin: [0, 10, 0, 8] },
       {
         columns: [
-          { text: 'Dibuat otomatis oleh Sistem Kalkulator Pajak Daerah.', fontSize: 7, color: '#64748B' },
+          { text: 'Dibuat otomatis oleh TaxCalc Kota Batu.', fontSize: 7, color: '#64748B' },
           { text: 'BAPENDA KOTA BATU', fontSize: 7, bold: true, color: '#0F172A', alignment: 'right' }
         ]
       },
@@ -1540,7 +1584,7 @@ document.querySelectorAll('input[name="pbb_jenis"]').forEach(r => r.addEventList
    ============================================================ */
 function renderPbb(r, klasifikasi) {
   const label = { none: 'Umum', pangan: 'Lahan produksi pangan', ternak: 'Lahan produksi ternak' }[klasifikasi] || 'Umum';
-  const speechText = `Pajak Bumi dan Bangunan PBB P2 kategori ${label}. Total terutang per tahun adalah ${formatRupiah(r.pajakTerutang)}.`;
+  const speechText = `TaxCalc PBB P2 kategori ${label}. Total terutang per tahun adalah ${formatRupiah(r.pajakTerutang)}.`;
   currentPrintPayload = {
     jenisPajak: 'PBB-P2 - ' + label,
     TerutangVal: r.pajakTerutang,
@@ -1578,7 +1622,7 @@ function renderPbb(r, klasifikasi) {
 
 function renderBphtb(r, jenis) {
   const label = { umum: 'Jual beli / umum', warisSedarah: 'Waris/hibah wasiat sedarah', warisTertentu: 'Waris/hibah wasiat tertentu' }[jenis] || 'Umum';
-  const speechText = `Bea Perolehan Hak atas Tanah dan Bangunan kategori ${label}. Total terutang adalah ${formatRupiah(r.pajakTerutang)}.`;
+  const speechText = `TaxCalc BPHTB kategori ${label}. Total terutang adalah ${formatRupiah(r.pajakTerutang)}.`;
   currentPrintPayload = {
     jenisPajak: 'BPHTB - ' + label,
     TerutangVal: r.pajakTerutang,
@@ -1625,7 +1669,7 @@ function renderPbjt(r, kategoriLabel) {
       </div>`;
     return;
   }
-  const speechText = `Pajak Barang dan Jasa Tertentu kategori ${kategoriLabel}. Pajak terutang adalah ${formatRupiah(r.pajakTerutang)}.`;
+  const speechText = `TaxCalc PBJT kategori ${kategoriLabel}. Pajak terutang adalah ${formatRupiah(r.pajakTerutang)}.`;
   currentPrintPayload = {
     jenisPajak: 'PBJT - ' + kategoriLabel,
     TerutangVal: r.pajakTerutang,
@@ -1704,11 +1748,11 @@ function renderReklame(r) {
     linesHtml = `
       <div class="summary-line"><span>NSR Satuan Perwali</span><span class="value">${formatRupiah(r.nsrSatuan)}</span></div>
       <div class="summary-line"><span>Jumlah Qty / m²</span><span class="value">${r.vol}</span></div>
-      <div class="summary-line"><span>Total NSR (DPP)</span><span class="value">${formatRupiah(r.nsrTotal)}</span></div>
+      <div class="summary-line"><span>Total Nilai Sewa Reklame (DPP)</span><span class="value">${formatRupiah(r.nsrTotal)}</span></div>
       <div class="summary-line strong"><span>Tarif Pajak</span><span class="value">${r.tarifPersen}%</span></div>`;
   }
 
-  const speechText = `Pajak Reklame. Total pajak reklame terutang adalah ${formatRupiah(r.pajakTerutang)}.`;
+  const speechText = `TaxCalc Pajak Reklame. Total pajak reklame terutang adalah ${formatRupiah(r.pajakTerutang)}.`;
   currentPrintPayload = { jenisPajak: 'Pajak Reklame', TerutangVal: r.pajakTerutang, dataCetak: pdfRows };
 
   document.getElementById('result-slot').innerHTML = `
@@ -1762,7 +1806,7 @@ function renderPAT(r) {
       <div class="summary-line strong"><span>Tarif Pajak</span><span class="value">${r.tarifPersen}%</span></div>`;
   }
 
-  const speechText = `Pajak Air Tanah. Total PAT terutang per bulan adalah ${formatRupiah(r.pajakTerutang)}.`;
+  const speechText = `TaxCalc Pajak Air Tanah. Total PAT terutang per bulan adalah ${formatRupiah(r.pajakTerutang)}.`;
   currentPrintPayload = { jenisPajak: 'Pajak Air Tanah (PAT)', TerutangVal: r.pajakTerutang, dataCetak: pdfRows };
 
   document.getElementById('result-slot').innerHTML = `
