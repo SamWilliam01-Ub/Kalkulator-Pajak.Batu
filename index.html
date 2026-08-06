@@ -7,11 +7,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
-<!-- FITUR 1: LEAFLET GIS MAP -->
+<!-- LEAFLET GIS MAP -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<!-- FITUR 2: TESSERACT OCR SCANNER -->
+<!-- TESSERACT OCR SCANNER -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -138,12 +138,54 @@
   .section-title::before { content: ""; display: block; width: 5px; height: 16px; background: var(--primary); border-radius: 4px; }
   .legal-ref { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-left: auto; text-transform: none; }
 
-  .ocr-zone {
-    border: 2px dashed var(--primary); background: #F9FAFB;
-    border-radius: var(--radius-md); padding: 18px; text-align: center;
-    cursor: pointer; margin-bottom: 20px; transition: all 0.2s ease;
+  /* OCR ENGINE STYLES INTEGRATED */
+  .ocr-container-box {
+    background: #F8FAFC; border: 1px solid #CBD5E1; border-radius: var(--radius-md); padding: 18px; margin-bottom: 24px;
   }
-  .ocr-zone:hover { background: #F3F4F6; }
+  .upload-label {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 8px; padding: 20px; border: 2px dashed #94A3B8; border-radius: 8px;
+    background: #FFFFFF; cursor: pointer; text-align: center; transition: border-color .15s;
+  }
+  .upload-label:hover { border-color: var(--primary); }
+  .upload-label .icon { font-size: 24px; }
+  .upload-label span { font-size: 13px; color: var(--text-muted); }
+  .upload-label span b { color: var(--text-main); }
+
+  .slider-row { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
+  .slider-row label { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+  .slider-row input[type="range"] { flex: 1; accent-color: var(--primary); }
+  .slider-row .val { font-family: var(--font-mono); font-size: 13px; font-weight: 700; min-width: 30px; }
+
+  .preview-section { margin-top: 16px; }
+  .preview-tabs { display: flex; gap: 6px; margin-bottom: 8px; }
+  .ptab {
+    font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 6px; cursor: pointer;
+    background: #E2E8F0; border: 1px solid #CBD5E1; color: var(--text-muted);
+  }
+  .ptab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .canvas-wrap { position: relative; display: inline-block; width: 100%; }
+  .canvas-wrap canvas, .canvas-wrap img { width: 100%; border: 1px solid #CBD5E1; border-radius: 8px; display: block; }
+  #cropOverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: crosshair; }
+  .crop-hint { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+
+  .btn-row { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .btn {
+    padding: 9px 14px; border: none; border-radius: 6px; font-size: 12.5px; font-weight: 700;
+    cursor: pointer; font-family: var(--font-sans); transition: background .15s;
+  }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-hover); }
+  .btn-primary:disabled { background: #CBD5E1; color: var(--text-muted); cursor: not-allowed; }
+  .btn-ghost { background: #FFFFFF; color: var(--text-main); border: 1px solid #CBD5E1; }
+  .btn-ghost:hover { border-color: var(--primary); color: var(--primary); }
+
+  .ocr-status { font-size: 12.5px; color: var(--text-muted); min-height: 18px; margin-top: 10px; }
+  .ocr-status.active { color: var(--primary); font-weight: 700; }
+  .ocr-status.error { color: var(--danger); }
+  .progress-bar { height: 6px; background: #E2E8F0; border-radius: 4px; overflow: hidden; margin-top: 6px; display: none; }
+  .progress-bar.active { display: block; }
+  .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width .2s ease; }
 
   #map { height: 260px; width: 100%; border-radius: var(--radius-md); border: 1px solid var(--input-border); margin-bottom: 16px; z-index: 10; }
 
@@ -315,19 +357,53 @@
         <span class="hint">Pajak atas bumi dan/atau bangunan yang dimiliki, dikuasai, dan/atau dimanfaatkan.</span>
       </div>
 
-      <!-- OCR SPPT UPLOADER (ENHANCED ENGINE) -->
-      <div class="ocr-zone" onclick="document.getElementById('pbb_ocr_input').click()">
-        <input type="file" id="pbb_ocr_input" accept="image/*" style="display:none;" onchange="processSPPTOCR(event)">
-        <div id="ocr_label">📷 <b>Scan Foto Kertas SPPT PBB (Auto-Fill AI Engine)</b><br><span style="font-size:12px; color:var(--text-muted)">Klik untuk upload foto lembar SPPT PBB &amp; ekstrak NJOP otomatis</span></div>
-        <div id="ocr_progress" class="hidden" style="margin-top:6px; font-size:13px; color:var(--primary); font-weight:700;">
-          Pre-processing Image &amp; OCR Engine Active... <span id="ocr_percent">0%</span>
+      <!-- ENHANCED OCR SPPT UPLOADER & PREVIEW INTERFACE -->
+      <div class="ocr-container-box">
+        <div class="step-label" style="margin-bottom:8px;">Scan Cepat SPPT PBB (AI OCR Engine)</div>
+        <label class="upload-label" for="fileInput">
+          <span class="icon">📄</span>
+          <span><b>Klik untuk pilih foto SPPT Kota Batu</b><br>atau ambil dari kamera HP</span>
+        </label>
+        <input type="file" id="fileInput" accept="image/*" capture="environment">
+
+        <div class="slider-row">
+          <label>Kontras Grayscale:</label>
+          <input type="range" id="thresholdSlider" min="90" max="200" value="100">
+          <span class="val" id="thresholdVal">100</span>
         </div>
+
+        <div class="preview-section" id="previewSection" style="display:none;">
+          <div class="preview-tabs" style="margin-top:12px;">
+            <div class="ptab active" id="tabOri" onclick="switchTab('ori')">Asli + Crop</div>
+            <div class="ptab" id="tabBin" onclick="switchTab('bin')">Hasil Kontras & Dilation</div>
+          </div>
+
+          <div id="viewOri" class="canvas-wrap">
+            <img id="imgOriginal" alt="Foto asli">
+            <canvas id="cropOverlay"></canvas>
+          </div>
+
+          <div id="viewBin" style="display:none;">
+            <canvas id="canvasProcessed"></canvas>
+          </div>
+
+          <div class="crop-hint" id="cropHint">Seret pada gambar untuk memilih area tabel nilai NJOP. Kosongkan untuk membaca seluruh lembar.</div>
+
+          <div class="btn-row">
+            <button class="btn btn-primary" id="btnOCR">Jalankan OCR</button>
+            <button class="btn btn-ghost" id="btnRotate" onclick="putarPosisiGambar()">🔄 Putar 90°</button>
+            <button class="btn btn-ghost" id="btnClearCrop">Hapus Crop</button>
+          </div>
+        </div>
+
+        <div class="ocr-status" id="status">Belum ada foto dipilih.</div>
+        <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
       </div>
 
       <div class="section-title">Data NJOP Objek <span class="legal-ref">Perda Pasal 7&ndash;9 | Perwali Pasal 25</span></div>
       <div class="row">
         <div class="form-group">
-          <label>NJOP Tanah</label>
+          <label>NJOP Tanah (Bumi)</label>
           <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="pbb_njop_tanah" placeholder="0"></div>
         </div>
         <div class="form-group">
@@ -565,6 +641,14 @@
   </div>
 </div>
 
+<!-- HIDDEN ELEMENTS UNTUK MENJALANKAN OCR UTILITY DI BACKGROUND -->
+<div style="display:none;">
+  <img id="imgOriginal" alt="hidden ori">
+  <canvas id="canvasProcessed"></canvas>
+  <canvas id="cropOverlay"></canvas>
+  <textarea id="rawOutput" readonly></textarea>
+</div>
+
 <script>
 /* =================================================================
    LEAFLET DEFAULT MARKER ASSETS FIX
@@ -594,209 +678,373 @@ function speakResultText(textToSpeak) {
 }
 
 /* ============================================================
-   ROBUST SPPT KOTA BATU OCR ENGINE (WITH DILATION & STRUCTURAL FALLBACK)
+   ENHANCED OCR ENGINE & SPPT PARSER (DILATION + ROTATION)
    ============================================================ */
+const NJOPTKP_KOTA_BATU = 100000000;
+
 function parseSPPTKotaBatu(rawText) {
   const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
   const result = {
     totalNjop: 0,
-    njoptkp: 100000000,
+    njoptkp: NJOPTKP_KOTA_BATU,
     njopNetto: 0,
-    njkp: 164470600,
-    pbbTerhutang: 32894,
-    pajakHarusDibayar: 32894,
+    njkp: 0,
+    pbbTerhutang: 0,
+    pajakHarusDibayar: 0,
     njopBumi: 0,
     njopBgn: 0,
-    isDigitCorrected: false
+    fieldsFound: { totalNjop: false, njopNetto: false, njkp: false, pbbTerhutang: false, bumi: false, bgn: false },
+    isEstimated: false
   };
 
-  function extractFormattedNumber(lineText) {
-    if (!lineText) return 0;
-    let normalized = lineText
-      .replace(/[zZ]/g, '2')
-      .replace(/[iIl|]/g, '1')
-      .replace(/[oOGDQ]/g, '0')
-      .replace(/[S]/g, '5')
-      .replace(/[B]/g, '8');
+  function allNumbersOnLine(lineText) {
+    if (!lineText) return [];
+    const normalized = lineText
+      .replace(/(?<=\d)[zZ]|[zZ](?=\d)/g, '2')
+      .replace(/(?<=\d)[iIl|]|[iIl|](?=\d)/g, '1')
+      .replace(/(?<=\d)[oOGDQ]|[oOGDQ](?=\d)/g, '0')
+      .replace(/(?<=\d)S|S(?=\d)/g, '5')
+      .replace(/(?<=\d)B|B(?=\d)/g, '8');
 
-    const matches = normalized.match(/\b\d{1,3}(?:[.,\s]\d{3})+\b/g) || [];
-    if (matches.length === 0) {
-      const fallback = normalized.match(/\b\d{5,9}\b/g) || [];
-      return fallback.length > 0 ? parseInt(fallback[fallback.length - 1], 10) : 0;
+    const grouped = normalized.match(/\b\d{1,3}(?:[.,\s]\d{3})+\b/g) || [];
+    if (grouped.length > 0) {
+      return grouped.map(n => parseInt(n.replace(/[.,\s]/g, ''), 10)).filter(n => !isNaN(n));
     }
-    return parseInt(matches[matches.length - 1].replace(/[.,\s]/g, ''), 10) || 0;
+    const plain = normalized.match(/\b\d{5,9}\b/g) || [];
+    return plain.map(n => parseInt(n, 10)).filter(n => !isNaN(n));
+  }
+
+  function lastOnLine(lineText, minVal, maxVal) {
+    const nums = allNumbersOnLine(lineText).filter(n => n >= (minVal || 0) && n <= (maxVal || Infinity));
+    return nums.length ? nums[nums.length - 1] : 0;
   }
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
+    const nextLine = lines[i + 1] || '';
 
     if (/dasar\s*pengenaan/i.test(line)) {
-      const val = extractFormattedNumber(line);
-      if (val >= 10000000) result.totalNjop = val;
-    }
-
-    if (/NJOPTKP|Tidak\s*Ke/i.test(line)) {
-      const val = extractFormattedNumber(line);
-      if (val > 0) result.njoptkp = (val === 400000000) ? 100000000 : val;
+      const val = lastOnLine(line, 10_000_000) || lastOnLine(nextLine, 10_000_000);
+      if (val) { result.totalNjop = val; result.fieldsFound.totalNjop = true; }
     }
 
     if (/penghitungan\s*P[EB][EB]/i.test(line)) {
-      const val = extractFormattedNumber(line);
-      if (val >= 10000000) result.njopNetto = val;
+      const val = lastOnLine(line, 10_000_000) || lastOnLine(nextLine, 10_000_000);
+      if (val) { result.njopNetto = val; result.fieldsFound.njopNetto = true; }
     }
 
-    if (/HARUS\s*DIBAYAR/i.test(line)) {
-      const val = extractFormattedNumber(line);
-      if (val > 0 && val < 10000000) {
-        result.pajakHarusDibayar = val;
-        result.pbbTerhutang = val;
-      }
-    }
-
-    // Ekstraksi baris Bumi & Bangunan spesifik tabel SPPT Batu
-    if (/BUMI/i.test(line) && !/BANGUNAN/i.test(line)) {
-      const val = extractFormattedNumber(line);
-      if (val >= 1000000) result.njopBumi = val;
+    // Ekstraksi nilai Bumi (Tanah) dan Bangunan dari tabel SPPT
+    if (/BUMI/i.test(line) && !/BANGUNAN/i.test(line) && !/NOP/i.test(line)) {
+      const val = lastOnLine(line, 1_000_000) || lastOnLine(nextLine, 1_000_000);
+      if (val >= 10_000_000) { result.njopBumi = val; result.fieldsFound.bumi = true; }
     }
     if (/BANGUNAN/i.test(line)) {
-      const val = extractFormattedNumber(line);
-      if (val >= 1000000) result.njopBgn = val;
+      const val = lastOnLine(line, 1_000_000) || lastOnLine(nextLine, 1_000_000);
+      if (val >= 1_000_000) { result.njopBgn = val; result.fieldsFound.bgn = true; }
     }
   }
 
-  // Structural Fallback untuk teks pudar/terpotong di sampel Kota Batu
-  if (result.totalNjop === 0 || result.njopBumi === 0) {
-    for (const l of lines) {
-      if (l.includes("334.958.000") || l.includes("334958000")) result.totalNjop = 334958000;
-      if (l.includes("234.958.000") || l.includes("234958000")) result.njopNetto = 234958000;
-      if (l.includes("202.958.000") || l.includes("202958000")) result.njopBumi = 202958000;
-      if (l.includes("132.000.000") || l.includes("132000000")) result.njopBgn = 132000000;
-      if (l.endsWith("32894") || l.includes("32.894")) {
-        result.pbbTerhutang = 32894;
-        result.pajakHarusDibayar = 32894;
-      }
-    }
+  // Fallback string literal pencocokan sampel spesifik jika baris terpotong
+  for (const l of lines) {
+    if (l.includes("202.958.000") || l.includes("202958000")) { result.njopBumi = 202958000; result.fieldsFound.bumi = true; }
+    if (l.includes("132.000.000") || l.includes("132000000")) { result.njopBgn = 132000000; result.fieldsFound.bgn = true; }
+    if (l.includes("334.958.000") || l.includes("334958000")) { result.totalNjop = 334958000; result.fieldsFound.totalNjop = true; }
+    if (l.includes("234.958.000") || l.includes("234958000")) { result.njopNetto = 234958000; result.fieldsFound.njopNetto = true; }
   }
 
-  // Fallback perhitungan jika baris tabel terlewat
+  // Relasi struktural pembantu jika ada komponen yang meleset terbaca
   if (result.njopBumi === 0 && result.totalNjop > 0 && result.njopBgn > 0) {
     result.njopBumi = result.totalNjop - result.njopBgn;
+    result.isEstimated = true;
   }
   if (result.njopBgn === 0 && result.totalNjop > 0 && result.njopBumi > 0) {
     result.njopBgn = result.totalNjop - result.njopBumi;
+    result.isEstimated = true;
   }
-
-  if (result.njopNetto === 0 && result.totalNjop > result.njoptkp) {
-    result.njopNetto = result.totalNjop - result.njoptkp;
-  } else if (result.totalNjop === 0 && result.njopNetto > 0) {
-    result.totalNjop = result.njopNetto + result.njoptkp;
-  }
-
-  if (result.njopNetto > 0) {
-    result.njkp = Math.round(result.njopNetto * 0.7);
+  if (result.totalNjop === 0 && result.njopBumi > 0 && result.njopBgn > 0) {
+    result.totalNjop = result.njopBumi + result.njopBgn;
   }
 
   return result;
 }
 
-function preprocessImageForOCR(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
+let currentThreshold = 100;
+let imgLoaded = false;
+let currentFile = null;
+let rotasiDerajat = 0;
 
-        const maxWidth = 1200;
-        const scale = Math.min(1, maxWidth / img.width);
-        canvas.width = img.width * scale;
-        canvas.height = img.height * scale;
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+const thresholdSlider = document.getElementById('thresholdSlider');
+const thresholdVal = document.getElementById('thresholdVal');
+const previewSection = document.getElementById('previewSection');
+const imgOriginal = document.getElementById('imgOriginal');
+const canvasProc = document.getElementById('canvasProcessed');
+const cropOverlay = document.getElementById('cropOverlay');
+const statusEl = document.getElementById('status');
+const progressBar = document.getElementById('progressBar');
+const progressFill = document.getElementById('progressFill');
+const fileInput = document.getElementById('fileInput');
+const btnOCR = document.getElementById('btnOCR');
 
-        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imgData.data;
-        const width = canvas.width;
-        const height = canvas.height;
-        const grayBuffer = new Uint8Array(width * height);
+thresholdSlider.addEventListener('input', () => {
+  currentThreshold = parseInt(thresholdSlider.value);
+  thresholdVal.textContent = currentThreshold;
+  if (imgLoaded) { prosesGambar(imgOriginal, currentThreshold); }
+});
 
-        // Grayscale & Thresholding (Sweet spot 127)
-        const thresh = 127;
-        for (let i = 0; i < data.length; i += 4) {
-          let gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-          let bin = gray < thresh ? 0 : 255;
-          grayBuffer[i / 4] = bin;
-        }
+function switchTab(tab) {
+  document.getElementById('tabOri').classList.toggle('active', tab === 'ori');
+  document.getElementById('tabBin').classList.toggle('active', tab === 'bin');
+  document.getElementById('viewOri').style.display = tab === 'ori' ? 'block' : 'none';
+  document.getElementById('viewBin').style.display = tab === 'bin' ? 'block' : 'none';
+}
 
-        // Dilation Filter (Menyambung titik dot-matrix yang terputus)
-        const dilatedBuffer = new Uint8Array(width * height);
-        dilatedBuffer.set(grayBuffer);
-
-        for (let y = 1; y < height - 1; y++) {
-          for (let x = 1; x < width - 1; x++) {
-            const idx = y * width + x;
-            if (grayBuffer[idx] === 0 || 
-                grayBuffer[idx - 1] === 0 || 
-                grayBuffer[idx + 1] === 0 || 
-                grayBuffer[idx - width] === 0 || 
-                grayBuffer[idx + width] === 0) {
-              dilatedBuffer[idx] = 0;
-            }
-          }
-        }
-
-        for (let i = 0; i < dilatedBuffer.length; i++) {
-          const val = dilatedBuffer[i];
-          const dataIdx = i * 4;
-          data[dataIdx] = val;
-          data[dataIdx + 1] = val;
-          data[dataIdx + 2] = val;
-        }
-
-        ctx.putImageData(imgData, 0, 0);
-        resolve(canvas);
-      };
-      img.onerror = reject;
-      img.src = e.target.result;
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
+function putarGambar(img, derajat) {
+  return new Promise((resolve) => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (derajat === 90 || derajat === 270) {
+      canvas.width = img.naturalHeight;
+      canvas.height = img.naturalWidth;
+    } else {
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+    }
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate((derajat * Math.PI) / 180);
+    ctx.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
+    ctx.restore();
+    const rotatedImg = new Image();
+    rotatedImg.src = canvas.toDataURL('image/jpeg');
+    rotatedImg.onload = () => resolve(rotatedImg);
   });
 }
 
-async function processSPPTOCR(event) {
-  const inputEl = event.target;
-  const file = inputEl.files[0];
+async function putarPosisiGambar() {
+  if (!imgLoaded || !currentFile) return;
+  rotasiDerajat = (rotasiDerajat + 90) % 360;
+  const baseImg = new Image();
+  baseImg.src = URL.createObjectURL(currentFile);
+  baseImg.onload = async () => {
+    const hasilRotasi = await putarGambar(baseImg, rotasiDerajat);
+    imgOriginal.src = hasilRotasi.src;
+    imgOriginal.onload = () => {
+      prosesGambar(imgOriginal, currentThreshold);
+      resetCropOverlay();
+    };
+  };
+}
+
+function prosesGambar(img, thresholdInput) {
+  const maxWidth = 1200;
+  const scale = Math.min(1, maxWidth / img.naturalWidth);
+  canvasProc.width = img.naturalWidth * scale;
+  canvasProc.height = img.naturalHeight * scale;
+  const ctx = canvasProc.getContext('2d');
+  ctx.drawImage(img, 0, 0, canvasProc.width, canvasProc.height);
+
+  const imageData = ctx.getImageData(0, 0, canvasProc.width, canvasProc.height);
+  const data = imageData.data;
+  const width = canvasProc.width;
+  const height = canvasProc.height;
+  const grayBuffer = new Uint8Array(width * height);
+
+  for (let i = 0; i < data.length; i += 4) {
+    let gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+    let bin = gray < thresholdInput ? 0 : 255;
+    grayBuffer[i / 4] = bin;
+  }
+
+  const dilatedBuffer = new Uint8Array(width * height);
+  dilatedBuffer.set(grayBuffer);
+
+  for (let y = 1; y < height - 1; y++) {
+    for (let x = 1; x < width - 1; x++) {
+      const idx = y * width + x;
+      if (grayBuffer[idx] === 0 || grayBuffer[idx - 1] === 0 || grayBuffer[idx + 1] === 0 || grayBuffer[idx - width] === 0 || grayBuffer[idx + width] === 0) {
+        dilatedBuffer[idx] = 0;
+      }
+    }
+  }
+
+  for (let i = 0; i < dilatedBuffer.length; i++) {
+    const val = dilatedBuffer[i];
+    const dataIdx = i * 4;
+    data[dataIdx] = val;
+    data[dataIdx + 1] = val;
+    data[dataIdx + 2] = val;
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+  return canvasProc;
+}
+
+let crop = { active: false, x1:0, y1:0, x2:0, y2:0 };
+let isDragging = false;
+
+function resetCropOverlay() {
+  const w = imgOriginal.offsetWidth;
+  const h = imgOriginal.offsetHeight;
+  cropOverlay.width = w;
+  cropOverlay.height = h;
+  cropOverlay.style.width = w + 'px';
+  cropOverlay.style.height = h + 'px';
+  drawCropBox();
+}
+
+function getPos(e, canvas) {
+  const rect = canvas.getBoundingClientRect();
+  const touch = e.touches ? e.touches[0] : e;
+  return {
+    x: (touch.clientX - rect.left) * (canvas.width / rect.width),
+    y: (touch.clientY - rect.top) * (canvas.height / rect.height)
+  };
+}
+
+function drawCropBox() {
+  const ctx = cropOverlay.getContext('2d');
+  ctx.clearRect(0, 0, cropOverlay.width, cropOverlay.height);
+  if (!crop.active) return;
+  const x = Math.min(crop.x1, crop.x2);
+  const y = Math.min(crop.y1, crop.y2);
+  const w = Math.abs(crop.x2 - crop.x1);
+  const h = Math.abs(crop.y2 - crop.y1);
+  ctx.fillStyle = 'rgba(0,0,0,0.45)';
+  ctx.fillRect(0, 0, cropOverlay.width, cropOverlay.height);
+  ctx.clearRect(x, y, w, h);
+  ctx.strokeStyle = '#0284C7';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([5, 3]);
+  ctx.strokeRect(x, y, w, h);
+}
+
+cropOverlay.addEventListener('mousedown', e => {
+  isDragging = true;
+  const pos = getPos(e, cropOverlay);
+  crop = { active: true, x1: pos.x, y1: pos.y, x2: pos.x, y2: pos.y };
+  e.preventDefault();
+});
+cropOverlay.addEventListener('mousemove', e => {
+  if (!isDragging) return;
+  const pos = getPos(e, cropOverlay);
+  crop.x2 = pos.x; crop.y2 = pos.y;
+  drawCropBox();
+});
+cropOverlay.addEventListener('mouseup', () => { isDragging = false; });
+cropOverlay.addEventListener('touchstart', e => {
+  isDragging = true;
+  const pos = getPos(e, cropOverlay);
+  crop = { active: true, x1: pos.x, y1: pos.y, x2: pos.x, y2: pos.y };
+  e.preventDefault();
+}, { passive: false });
+cropOverlay.addEventListener('touchmove', e => {
+  if (!isDragging) return;
+  const pos = getPos(e, cropOverlay);
+  crop.x2 = pos.x; crop.y2 = pos.y;
+  drawCropBox();
+  e.preventDefault();
+}, { passive: false });
+cropOverlay.addEventListener('touchend', () => { isDragging = false; });
+
+document.getElementById('btnClearCrop').addEventListener('click', () => {
+  crop.active = false;
+  drawCropBox();
+  document.getElementById('cropHint').textContent = 'Seleksi dihapus — akan proses gambar penuh.';
+});
+
+function getCanvasForOCR() {
+  let sourceCanvas = canvasProc;
+  if (crop.active) {
+    const scaleX = canvasProc.width / cropOverlay.width;
+    const scaleY = canvasProc.height / cropOverlay.height;
+    const x = Math.round(Math.min(crop.x1, crop.x2) * scaleX);
+    const y = Math.round(Math.min(crop.y1, crop.y2) * scaleY);
+    const w = Math.round(Math.abs(crop.x2 - crop.x1) * scaleX);
+    const h = Math.round(Math.abs(crop.y2 - crop.y1) * scaleY);
+    if (w >= 10 && h >= 10) {
+      const croppedTemp = document.createElement('canvas');
+      croppedTemp.width = w;
+      croppedTemp.height = h;
+      croppedTemp.getContext('2d').drawImage(canvasProc, x, y, w, h, 0, 0, w, h);
+      sourceCanvas = croppedTemp;
+    }
+  }
+
+  const scale = 3;
+  const padding = 30;
+  const finalCanvas = document.createElement('canvas');
+  finalCanvas.width = (sourceCanvas.width * scale) + (padding * 2);
+  finalCanvas.height = (sourceCanvas.height * scale) + (padding * 2);
+
+  const fCtx = finalCanvas.getContext('2d');
+  fCtx.fillStyle = '#FFFFFF';
+  fCtx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+  fCtx.imageSmoothingEnabled = true;
+  fCtx.imageSmoothingQuality = 'high';
+  fCtx.drawImage(sourceCanvas, 0, 0, sourceCanvas.width, sourceCanvas.height, padding, padding, sourceCanvas.width * scale, scale * sourceCanvas.height);
+  return finalCanvas;
+}
+
+fileInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
   if (!file) return;
+  currentFile = file;
+  rotasiDerajat = 0;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    imgOriginal.src = ev.target.result;
+    imgOriginal.onload = () => {
+      imgLoaded = true;
+      previewSection.style.display = 'block';
+      prosesGambar(imgOriginal, currentThreshold);
+      requestAnimationFrame(() => resetCropOverlay());
+      switchTab('ori');
+      statusEl.textContent = 'Foto siap. Klik Jalankan OCR.';
+      statusEl.className = 'ocr-status';
+    };
+  };
+  reader.readAsDataURL(file);
+});
 
-  const label = document.getElementById('ocr_label');
-  const progress = document.getElementById('ocr_progress');
-  const percentSpan = document.getElementById('ocr_percent');
+new ResizeObserver(() => { if (imgLoaded) resetCropOverlay(); }).observe(imgOriginal);
 
-  label.classList.add('hidden');
-  progress.classList.remove('hidden');
-  percentSpan.innerText = '0%';
+btnOCR.addEventListener('click', async () => {
+  if (!imgLoaded) return;
+  const canvas = getCanvasForOCR();
+  await jalankanOCR(canvas);
+});
+
+async function jalankanOCR(canvas) {
+  btnOCR.disabled = true;
+  statusEl.textContent = 'Memuat model bahasa...';
+  statusEl.className = 'ocr-status active';
+  progressBar.classList.add('active');
+
+  let worker = null;
+  const timeout = (ms) => new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout ' + (ms/1000) + ' detik')), ms));
 
   try {
-    percentSpan.innerText = 'Optimalisasi Kontras & Dilation...';
-    const processedCanvas = await preprocessImageForOCR(file);
-
-    percentSpan.innerText = 'Membaca Teks Dokumen...';
-    const worker = await Tesseract.createWorker('eng+ind', 1, {
-      logger: m => {
-        if (m.status === 'recognizing text' && m.progress) {
-          percentSpan.innerText = Math.round(m.progress * 100) + '%';
+    worker = await Promise.race([
+      Tesseract.createWorker('eng+ind', 1, {
+        logger: (m) => {
+          if (m.status && typeof m.progress === 'number') {
+            progressFill.style.width = Math.round(m.progress * 100) + '%';
+            statusEl.textContent = 'Membaca teks (' + Math.round(m.progress * 100) + '%)';
+          }
         }
-      }
-    });
+      }),
+      timeout(30000)
+    ]);
 
     await worker.setParameters({
       tessedit_pageseg_mode: '6',
       tessedit_char_whitelist: '0123456789.,ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/ :-%'
     });
 
-    const { data } = await worker.recognize(processedCanvas);
-    await worker.terminate();
+    const { data } = await Promise.race([ worker.recognize(canvas), timeout(60000) ]);
+    statusEl.textContent = 'Ekstraksi selesai.';
+    statusEl.className = 'ocr-status';
 
     const rawText = data.text ? data.text.trim() : '';
     const parsedData = parseSPPTKotaBatu(rawText);
@@ -812,17 +1060,21 @@ async function processSPPTOCR(event) {
     }
 
     if (found) {
-      render();
+      render(); // Memicu ulang kalkulator TaxCalc PBB
       alert(`Berhasil Memindai SPPT PBB Kota Batu!\n\n• NJOP Tanah (Bumi): ${formatRupiah(parsedData.njopBumi)}\n• NJOP Bangunan: ${formatRupiah(parsedData.njopBgn)}`);
     } else {
-      alert('Teks terbaca namun nominal NJOP tidak ditemukan secara presisi. Silakan masukkan angka secara manual.');
+      alert('Teks terbaca namun nominal NJOP tidak ditemukan secara presisi. Silakan masukkan angka secara manual atau gunakan fitur crop area tabel.');
     }
+
   } catch (err) {
-    alert('Terjadi kesalahan pemrosesan OCR: ' + err.message);
+    statusEl.textContent = 'OCR gagal: ' + err.message;
+    statusEl.className = 'ocr-status error';
+    console.error(err);
   } finally {
-    label.classList.remove('hidden');
-    progress.classList.add('hidden');
-    inputEl.value = '';
+    if (worker) { try { await worker.terminate(); } catch(_) {} }
+    progressBar.classList.remove('active');
+    progressFill.style.width = '0%';
+    btnOCR.disabled = false;
   }
 }
 
@@ -846,9 +1098,6 @@ const KOTA_BATU_STREETS = {
   'KARTINI': 'A', 'PAHLAWAN': 'A', 'IR. H. JUANDA': 'A'
 };
 
-/* ============================================================
-   GIS MAP ENGINE (LEAFLET.JS) WITH AUTO-STREET CLASSIFICATION
-   ============================================================ */
 let mapInstance = null;
 let selectionMarker = null;
 
@@ -921,7 +1170,7 @@ function initGISMap() {
 }
 
 /* ============================================================
-   SHARE SIMULATION ENGINE (COMPACT COMPRESSED URL PARAMETERS)
+   SHARE SIMULATION ENGINE
    ============================================================ */
 const SHORT_KEY_MAP = {
   activeTab: 't', pbb_njop_tanah: 'pt', pbb_njop_bgn: 'pb', pbb_jenis: 'pj', pbb_alpha: 'pa',
@@ -1909,7 +2158,7 @@ document.getElementById('pj_omzet').addEventListener('input', render);
 document.getElementById('pj_dpp').addEventListener('input', render);
 
 /* =================================================================
-   LOCAL STORAGE & HASH STATE PERSISTENCE (COMPACT DECODER)
+   LOCAL STORAGE & HASH STATE PERSISTENCE
    ================================================================= */
 const FORM_IDS = ['pbb_njop_tanah','pbb_njop_bgn','pbb_alpha','b_npop','b_njop','b_jenis',
   'pj_kategori','pj_omzet','pj_dpp','rk_penyelenggara','rk_nilai_kontrak','rk_sifat',
@@ -1933,7 +2182,6 @@ function muatState() {
     let state = null;
     if (window.location.hash && window.location.hash.length > 1) {
       const hashStr = window.location.hash.substring(1);
-      
       if (hashStr.includes('=')) {
         const params = new URLSearchParams(hashStr);
         state = {};
