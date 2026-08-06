@@ -57,30 +57,29 @@
 
   header { text-align: center; margin-bottom: 26px; }
 
-  /* LOGO HEADER SIMETRIS DENGAN VISUAL WEIGHT COMPENSATION */
+  /* BANNER LOGO RESPONSIVE */
   .header-logos {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 24px;
     margin-bottom: 20px;
-    flex-wrap: wrap;
+    width: 100%;
+    overflow: hidden;
   }
 
-  .header-logo {
-    width: auto;
+  .header-banner-logo {
+    width: 100%;
+    max-width: 800px;
+    height: auto;
+    max-height: 80px;
     object-fit: contain;
-    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.1));
+    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.08));
     transition: transform 0.2s ease;
   }
 
-  .header-logo:hover {
-    transform: scale(1.06);
+  .header-banner-logo:hover {
+    transform: scale(1.02);
   }
-
-  .logo-batu { height: 54px; }
-  .logo-ub   { height: 58px; }
-  .logo-kkn  { height: 65px; }
 
   header .badge-container { display: flex; justify-content: center; margin-bottom: 12px; }
   header .badge {
@@ -282,11 +281,9 @@
 
 <div class="container">
   <header>
-    <!-- EMBED LOGO SIMETRIS DENGAN NAMA FILE GITHUB -->
+    <!-- EMBED LOGO BANNER FORMAT PNG -->
     <div class="header-logos">
-      <img src="logo-batu.png.png" alt="Logo Pemkot Batu" class="header-logo logo-batu">
-      <img src="logo-ub.png.png" alt="Logo Universitas Brawijaya" class="header-logo logo-ub">
-      <img src="logo-kkn.jpg.PNG" alt="Logo KKN 60 FIA UB" class="header-logo logo-kkn">
+      <img src="logo-logo.png" alt="Logo Banner Kota Batu - Bapenda - UB - KKN 60" class="header-banner-logo">
     </div>
 
     <div class="badge-container">
