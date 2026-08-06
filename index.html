@@ -672,7 +672,7 @@ function initGISMap() {
 }
 
 /* ============================================================
-   SMART URL SHORTENER & SHARE ENGINE (TINYURL API INTEGRATED)
+   SHARE SIMULATION ENGINE (CLEAN COMPACT HASH & API FREE)
    ============================================================ */
 const SHORT_KEY_MAP = {
   activeTab: 't', pbb_njop_tanah: 'pt', pbb_njop_bgn: 'pb', pbb_jenis: 'pj', pbb_alpha: 'pa',
@@ -696,7 +696,7 @@ const TAB_FIELD_MAP = {
   pat: ['pat_mode', 'pat_kelompok', 'pat_volume', 'pat_nilai_manual']
 };
 
-async function shareSimul() {
+function shareSimul() {
   simpanState();
   const activeTabEl = document.querySelector('.tab.active');
   const activeTab = activeTabEl ? activeTabEl.dataset.tab : 'pbb';
@@ -717,49 +717,32 @@ async function shareSimul() {
   });
 
   const jsonStr = JSON.stringify(compactState);
-  const base64Hash = btoa(encodeURIComponent(jsonStr).replace(/%([0-9A-F]{2})/g, (match, p1) => String.fromCharCode('0x' + p1)));
-  const longUrl = window.location.origin + window.location.pathname + '#' + base64Hash;
-
-  const btnShare = document.querySelector('.share-btn');
-  const origText = btnShare ? btnShare.innerHTML : '';
-  if (btnShare) btnShare.innerHTML = '⏳ Meringkas...';
-
-  let finalUrl = longUrl;
-
-  try {
-    const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`);
-    if (response.ok) {
-      finalUrl = await response.text();
-    }
-  } catch (err) {
-    console.warn("TinyURL API tersendat, beralih ke hash URL.", err);
-  } finally {
-    if (btnShare) btnShare.innerHTML = origText;
-  }
+  const base64Hash = btoa(jsonStr);
+  const shareUrl = window.location.origin + window.location.pathname + '#' + base64Hash;
 
   const shareData = {
     title: 'Simulasi TaxCalc Kota Batu',
     text: 'Lihat draf kalkulasi pajak saya di TaxCalc:',
-    url: finalUrl
+    url: shareUrl
   };
 
   const isDesktopPC = /Win|Mac|Linux/i.test(navigator.platform) || !/Android|iPhone|iPad/i.test(navigator.userAgent);
 
   if (isDesktopPC) {
-    salinKeClipboard(finalUrl);
+    salinKeClipboard(shareUrl);
   } else if (navigator.share) {
     navigator.share(shareData).catch(() => {
-      salinKeClipboard(finalUrl);
+      salinKeClipboard(shareUrl);
     });
   } else {
-    salinKeClipboard(finalUrl);
+    salinKeClipboard(shareUrl);
   }
 }
 
 function salinKeClipboard(text) {
   if (navigator.clipboard && window.isSecureContext) {
     navigator.clipboard.writeText(text).then(() => {
-      alert('Link ringkas simulasi berhasil disalin ke clipboard:\n' + text);
+      alert('Link ringkas simulasi berhasil disalin ke clipboard!');
     }).catch(() => {
       prompt('Salin link simulasi ini secara manual:', text);
     });
@@ -1793,7 +1776,7 @@ function muatState() {
         });
       } else {
         try {
-          const jsonStr = decodeURIComponent(atob(hashStr).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+          const jsonStr = atob(hashStr);
           const compactObj = JSON.parse(jsonStr);
           state = {};
           Object.keys(compactObj).forEach(shortKey => {
