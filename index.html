@@ -672,7 +672,7 @@ function initGISMap() {
 }
 
 /* ============================================================
-   SHARE SIMULATION ENGINE (CLEAN COMPACT HASH & API FREE)
+   CLEAN QUERY-PARAM SHARE ENGINE (NO REDIRECT / NO API / INSTANT)
    ============================================================ */
 const SHORT_KEY_MAP = {
   activeTab: 't', pbb_njop_tanah: 'pt', pbb_njop_bgn: 'pb', pbb_jenis: 'pj', pbb_alpha: 'pa',
@@ -705,20 +705,19 @@ function shareSimul() {
   if (!rawState) return;
 
   const state = JSON.parse(rawState);
-  const compactState = { t: activeTab };
+  const params = new URLSearchParams();
+  params.set('t', activeTab);
 
   const allowedFields = TAB_FIELD_MAP[activeTab] || [];
   allowedFields.forEach(key => {
     const val = state[key];
     const shortKey = SHORT_KEY_MAP[key] || key;
     if (val && val !== '0' && val !== 'none' && val !== '') {
-      compactState[shortKey] = parseInput(val) || val;
+      params.set(shortKey, parseInput(val) || val);
     }
   });
 
-  const jsonStr = JSON.stringify(compactState);
-  const base64Hash = btoa(jsonStr);
-  const shareUrl = window.location.origin + window.location.pathname + '#' + base64Hash;
+  const shareUrl = window.location.origin + window.location.pathname + '?' + params.toString();
 
   const shareData = {
     title: 'Simulasi TaxCalc Kota Batu',
@@ -742,7 +741,7 @@ function shareSimul() {
 function salinKeClipboard(text) {
   if (navigator.clipboard && window.isSecureContext) {
     navigator.clipboard.writeText(text).then(() => {
-      alert('Link ringkas simulasi berhasil disalin ke clipboard!');
+      alert('Link ringkas berhasil disalin ke clipboard!\n' + text);
     }).catch(() => {
       prompt('Salin link simulasi ini secara manual:', text);
     });
@@ -1743,7 +1742,7 @@ document.getElementById('pj_omzet').addEventListener('input', render);
 document.getElementById('pj_dpp').addEventListener('input', render);
 
 /* =================================================================
-   LOCAL STORAGE & HASH STATE PERSISTENCE
+   LOCAL STORAGE & QUERY-PARAM STATE PERSISTENCE
    ================================================================= */
 const FORM_IDS = ['pbb_njop_tanah','pbb_njop_bgn','b_npop','b_njop','b_jenis',
   'pj_kategori','pj_omzet','pj_dpp','rk_penyelenggara','rk_nilai_kontrak','rk_sifat',
@@ -1765,31 +1764,16 @@ function simpanState() {
 function muatState() {
   try {
     let state = null;
-    if (window.location.hash && window.location.hash.length > 1) {
-      const hashStr = window.location.hash.substring(1);
-      if (hashStr.includes('=')) {
-        const params = new URLSearchParams(hashStr);
-        state = {};
-        params.forEach((val, shortKey) => {
-          const fullKey = REVERSE_SHORT_KEY_MAP[shortKey] || shortKey;
-          state[fullKey] = val;
-        });
-      } else {
-        try {
-          const jsonStr = atob(hashStr);
-          const compactObj = JSON.parse(jsonStr);
-          state = {};
-          Object.keys(compactObj).forEach(shortKey => {
-            const fullKey = REVERSE_SHORT_KEY_MAP[shortKey] || shortKey;
-            state[fullKey] = compactObj[shortKey];
-          });
-        } catch (err) {
-          console.warn("Format hash tidak valid", err);
-        }
-      }
-    }
+    const searchStr = window.location.search;
     
-    if (!state) {
+    if (searchStr && searchStr.length > 1) {
+      const params = new URLSearchParams(searchStr);
+      state = {};
+      params.forEach((val, shortKey) => {
+        const fullKey = REVERSE_SHORT_KEY_MAP[shortKey] || shortKey;
+        state[fullKey] = val;
+      });
+    } else {
       const raw = localStorage.getItem('pajakBatuDraft');
       if (raw) state = JSON.parse(raw);
     }
