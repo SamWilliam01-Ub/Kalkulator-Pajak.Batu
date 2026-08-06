@@ -327,7 +327,7 @@
       </div>
       <div class="alpha-card">
         <label>Dasar Pengenaan (% dari NJOP setelah TKP)</label>
-        <input type="text" id="pbb_alpha" value="70">
+        <input type="text" id="pbb_alpha" value="70%" readonly style="background:#E5E7EB; color:#4B5563; font-weight:700; cursor:not-allowed;">
         <span class="hint">Telah disesuaikan dengan Perwali Batu No. 20/2024 Pasal 25 ayat (2) yaitu sebesar 70%.</span>
       </div>
     </div>
@@ -892,10 +892,11 @@ function hitungPBBP2Batu({ njopTanah, njopBangunan, alphaPersen, klasifikasi }) 
   const rules = PERDA_BATU_RULES.pbb;
   const Ntotal = njopTanah + njopBangunan;
   const dasarSetelahTkp = Math.max(0, Ntotal - rules.njoptkp);
-  const dpp = (alphaPersen / 100) * dasarSetelahTkp;
+  const alphaFix = 70; // Dikunci 70% sesuai Perwali
+  const dpp = (alphaFix / 100) * dasarSetelahTkp;
   const tarifPersen = tentukanTarifProgresif(Ntotal, klasifikasi);
   const pajak = dpp * (tarifPersen / 100);
-  return { Ntotal, NJOPTKP: rules.njoptkp, alphaPersen, dasarSetelahTkp, dpp, tarifPersen, pajakTerutang: Math.round(pajak) };
+  return { Ntotal, NJOPTKP: rules.njoptkp, alphaPersen: alphaFix, dasarSetelahTkp, dpp, tarifPersen, pajakTerutang: Math.round(pajak) };
 }
 
 function hitungBPHTBBatu({ npop, njopPbb, jenis }) {
@@ -1330,7 +1331,6 @@ pjKategoriSelect.addEventListener('change', () => { syncPjOmzetVisibility(); ren
 syncPjOmzetVisibility();
 
 document.getElementById('b_jenis').addEventListener('change', () => { render(); });
-document.getElementById('pbb_alpha').addEventListener('input', render);
 document.querySelectorAll('input[name="pbb_jenis"]').forEach(r => r.addEventListener('change', () => { render(); }));
 
 /* ============================================================
@@ -1339,24 +1339,30 @@ document.querySelectorAll('input[name="pbb_jenis"]').forEach(r => r.addEventList
 function renderPbb(r, klasifikasi) {
   const label = { none: 'Umum', pangan: 'Lahan produksi pangan', ternak: 'Lahan produksi ternak' }[klasifikasi] || 'Umum';
   const speechText = `TaxCalc PBB P2 kategori ${label}. Total terutang per tahun adalah ${formatRupiah(r.pajakTerutang)}.`;
+  
+  const njopNetto = r.dasarSetelahTkp;
+
   currentPrintPayload = {
     jenisPajak: 'PBB-P2 - ' + label,
     TerutangVal: r.pajakTerutang,
     dataCetak: [
       baris('NJOP Total', formatRupiah(r.Ntotal)),
       baris('NJOPTKP', '- ' + formatRupiah(r.NJOPTKP)),
-      baris('Dasar Pengenaan (' + r.alphaPersen + '% x Sisa)', formatRupiah(r.dpp)),
+      baris('NJOP Netto (Sisa NJOP)', formatRupiah(njopNetto)),
+      baris('Dasar Pengenaan NJKP (' + r.alphaPersen + '%)', formatRupiah(r.dpp)),
       baris('Tarif Efektif', r.tarifPersen + '%'),
       baris('PBB-P2 TERUTANG / TAHUN', formatRupiah(r.pajakTerutang), true)
     ]
   };
+
   document.getElementById('result-slot').innerHTML = `
     <div class="summary-card">
       <div class="summary-header"><span>ESTIMASI PBB-P2 &mdash; ${label.toUpperCase()}</span><span class="tag">PERWALI NO. 20/2024</span></div>
       <div class="summary-body">
         <div class="summary-line"><span>NJOP Total</span><span class="value">${formatRupiah(r.Ntotal)}</span></div>
         <div class="summary-line warn"><span>Pengurang (NJOPTKP)</span><span class="value">- ${formatRupiah(r.NJOPTKP)}</span></div>
-        <div class="summary-line"><span>Dasar Pengenaan (${r.alphaPersen}% &times; Sisa)</span><span class="value">${formatRupiah(r.dpp)}</span></div>
+        <div class="summary-line"><span>NJOP Netto (Untuk Penghitungan PBB)</span><span class="value">${formatRupiah(njopNetto)}</span></div>
+        <div class="summary-line"><span>Dasar Pengenaan NJKP (${r.alphaPersen}%)</span><span class="value">${formatRupiah(r.dpp)}</span></div>
         <div class="summary-line strong"><span>Tarif Efektif</span><span class="value">${r.tarifPersen}%</span></div>
         <div class="summary-total">
           <span class="label">PBB-P2 Terutang / Tahun</span>
@@ -1597,7 +1603,7 @@ function render() {
     if (njopTanah === 0 && njopBgn === 0) { resultSlot.innerHTML=''; return; }
     const checkedRadio = document.querySelector('input[name="pbb_jenis"]:checked');
     const klasifikasi = checkedRadio ? checkedRadio.value : 'none';
-    const alphaPersen = parsePercentInput(document.getElementById('pbb_alpha').value) || 70;
+    const alphaPersen = 70;
     renderPbb(hitungPBBP2Batu({ njopTanah, njopBangunan: njopBgn, alphaPersen, klasifikasi }), klasifikasi);
 
   } else if (activeTab === 'bphtb') {
@@ -1659,7 +1665,7 @@ document.getElementById('pj_dpp').addEventListener('input', render);
 /* =================================================================
    LOCAL STORAGE & HASH STATE PERSISTENCE
    ================================================================= */
-const FORM_IDS = ['pbb_njop_tanah','pbb_njop_bgn','pbb_alpha','b_npop','b_njop','b_jenis',
+const FORM_IDS = ['pbb_njop_tanah','pbb_njop_bgn','b_npop','b_njop','b_jenis',
   'pj_kategori','pj_omzet','pj_dpp','rk_penyelenggara','rk_nilai_kontrak','rk_sifat',
   'rk_jenis_permanen','rk_kelas_jalan','rk_vol_permanen','rk_jenis_insidentil',
   'rk_vol_insidentil','pat_mode','pat_kelompok','pat_volume','pat_nilai_manual'];
