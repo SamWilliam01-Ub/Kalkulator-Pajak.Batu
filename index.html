@@ -152,7 +152,7 @@
     color: var(--text-muted); font-family: var(--font-mono); font-weight: 700; font-size: 15px; pointer-events: none;
   }
 
-  input[type="text"], select {
+  input[type="text"], select, input[type="number"] {
     width: 100%; padding: 14px 16px; background: var(--input-bg);
     border: 1px solid var(--input-border); border-radius: var(--radius-md);
     font-family: var(--font-sans); font-size: 15px; color: var(--text-main); outline: none;
@@ -160,7 +160,7 @@
   }
   .input-wrapper input { padding-left: 48px; font-family: var(--font-mono); font-weight: 700; color: var(--text-main); font-size: 16px; }
 
-  input[type="text"]:focus, select:focus {
+  input[type="text"]:focus, select:focus, input[type="number"]:focus {
     border-color: var(--input-focus);
     box-shadow: 0 0 0 2px rgba(156, 163, 175, 0.2);
   }
@@ -308,6 +308,12 @@
         <span class="hint">Pajak atas bumi dan/atau bangunan yang dimiliki, dikuasai, dan/atau dimanfaatkan.</span>
       </div>
 
+      <div class="form-group">
+        <label>Nomor Objek Pajak (NOP 18 Digit)</label>
+        <input type="text" id="pbb_nop" placeholder="35.79.xxx.xxx.xxx-xxxx.x" maxlength="24">
+        <span class="hint">Format identitas objek pajak resmi wilayah Kota Batu.</span>
+      </div>
+
       <div class="section-title">Data NJOP Objek <span class="legal-ref">Perda Pasal 7&ndash;9 | Perwali Pasal 25</span></div>
       <div class="row">
         <div class="form-group">
@@ -319,6 +325,23 @@
           <div class="input-wrapper"><span class="prefix">Rp</span><input type="text" id="pbb_njop_bgn" placeholder="0"></div>
         </div>
       </div>
+
+      <div class="row">
+        <div class="form-group">
+          <label>Fasilitas Keringanan / Pengurangan</label>
+          <select id="pbb_relief">
+            <option value="normal">Normal (Tanpa Pengurangan)</option>
+            <option value="veteran">Veteran Pejuang / Janda (Diskon 75%)</option>
+            <option value="miskin">Masyarakat Berpenghasilan Rendah / Pensiun (Diskon 50%)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Keterlambatan Pembayaran (Bulan)</label>
+          <input type="number" id="pbb_delay" value="0" min="0" max="24" placeholder="0">
+          <span class="hint">Denda sanksi administratif 1% / bulan (Maks 24 bulan).</span>
+        </div>
+      </div>
+
       <div class="form-group">
         <label>Klasifikasi Lahan Objek</label>
         <div class="radio-group">
@@ -672,10 +695,10 @@ function initGISMap() {
 }
 
 /* ============================================================
-   CLEAN QUERY-PARAM SHARE ENGINE (NO REDIRECT / NO API / INSTANT)
+   CLEAN QUERY-PARAM SHARE ENGINE (NO REDIRECT / INSTANT & CLEAN)
    ============================================================ */
 const SHORT_KEY_MAP = {
-  activeTab: 't', pbb_njop_tanah: 'pt', pbb_njop_bgn: 'pb', pbb_jenis: 'pj', pbb_alpha: 'pa',
+  activeTab: 't', pbb_nop: 'nop', pbb_njop_tanah: 'pt', pbb_njop_bgn: 'pb', pbb_jenis: 'pj', pbb_alpha: 'pa', pbb_relief: 'rlf', pbb_delay: 'dly',
   b_npop: 'bp', b_njop: 'bn', b_jenis: 'bj',
   pj_kategori: 'pk', pj_omzet: 'po', pj_dpp: 'pd',
   rk_penyelenggara: 'rp', rk_nilai_kontrak: 'rn', rk_sifat: 'rs',
@@ -689,7 +712,7 @@ const REVERSE_SHORT_KEY_MAP = Object.fromEntries(
 );
 
 const TAB_FIELD_MAP = {
-  pbb: ['pbb_njop_tanah', 'pbb_njop_bgn', 'pbb_jenis'],
+  pbb: ['pbb_nop', 'pbb_njop_tanah', 'pbb_njop_bgn', 'pbb_jenis', 'pbb_relief', 'pbb_delay'],
   bphtb: ['b_npop', 'b_njop', 'b_jenis'],
   pbjt: ['pj_kategori', 'pj_omzet', 'pj_dpp'],
   reklame: ['rk_penyelenggara', 'rk_nilai_kontrak', 'rk_sifat', 'rk_jenis_permanen', 'rk_kelas_jalan', 'rk_vol_permanen', 'rk_jenis_insidentil', 'rk_vol_insidentil'],
@@ -741,9 +764,9 @@ function shareSimul() {
 function salinKeClipboard(text) {
   if (navigator.clipboard && window.isSecureContext) {
     navigator.clipboard.writeText(text).then(() => {
-      alert('Link ringkas berhasil disalin ke clipboard!\n' + text);
+      alert('Tautan ringkas berhasil disalin ke clipboard:\n' + text);
     }).catch(() => {
-      prompt('Salin link simulasi ini secara manual:', text);
+      prompt('Salin tautan simulasi ini secara manual:', text);
     });
   } else {
     prompt('Salin link simulasi ini secara manual:', text);
@@ -893,7 +916,7 @@ function selectStreet(name, classType) {
 }
 
 /* =================================================================
-   TAX RULES & CALCULATIONS
+   TAX RULES & CALCULATIONS (WITH RELIEF & ADMINISTRATIVE PENALTY)
    ================================================================= */
 const PERDA_BATU_RULES = {
   pbb: {
@@ -964,15 +987,37 @@ function tentukanTarifProgresif(Ntotal, klasifikasi) {
   return bracket ? bracket.rate : 0.08;
 }
 
-function hitungPBBP2Batu({ njopTanah, njopBangunan, alphaPersen, klasifikasi }) {
+function hitungPBBP2Batu({ njopTanah, njopBangunan, alphaPersen, klasifikasi, relief, delay }) {
   const rules = PERDA_BATU_RULES.pbb;
   const Ntotal = njopTanah + njopBangunan;
   const dasarSetelahTkp = Math.max(0, Ntotal - rules.njoptkp);
   const alphaFix = 70; 
   const dpp = (alphaFix / 100) * dasarSetelahTkp;
   const tarifPersen = tentukanTarifProgresif(Ntotal, klasifikasi);
-  const pajak = dpp * (tarifPersen / 100);
-  return { Ntotal, NJOPTKP: rules.njoptkp, alphaPersen: alphaFix, dasarSetelahTkp, dpp, tarifPersen, pajakTerutang: Math.round(pajak) };
+  
+  let pajakPokok = dpp * (tarifPersen / 100);
+
+  // Kalkulasi Fasilitas Pengurangan (Tax Relief)
+  let diskonPersen = 0;
+  if (relief === 'veteran') {
+    diskonPersen = 75;
+    pajakPokok = pajakPokok * 0.25;
+  } else if (relief === 'miskin') {
+    diskonPersen = 50;
+    pajakPokok = pajakPokok * 0.50;
+  }
+
+  const pokokFinal = Math.round(pajakPokok);
+
+  // Kalkulasi Denda Keterlambatan (Sanksi Administrasi 1% per bulan, maks 24 bulan)
+  const bulanTerlambat = Math.min(24, Math.max(0, parseInt(delay, 10) || 0));
+  const nilaiDenda = Math.round(pokokFinal * 0.01 * bulanTerlambat);
+  const totalTerutang = pokokFinal + nilaiDenda;
+
+  return { 
+    Ntotal, NJOPTKP: rules.njoptkp, alphaPersen: alphaFix, dasarSetelahTkp, 
+    dpp, tarifPersen, diskonPersen, pokokFinal, bulanTerlambat, nilaiDenda, pajakTerutang: totalTerutang 
+  };
 }
 
 function hitungBPHTBBatu({ npop, njopPbb, jenis }) {
@@ -1410,6 +1455,8 @@ pjKategoriSelect.addEventListener('change', () => { syncPjOmzetVisibility(); ren
 syncPjOmzetVisibility();
 
 document.getElementById('b_jenis').addEventListener('change', () => { render(); });
+document.getElementById('pbb_relief').addEventListener('change', () => { render(); });
+document.getElementById('pbb_delay').addEventListener('input', () => { render(); });
 document.querySelectorAll('input[name="pbb_jenis"]').forEach(r => r.addEventListener('change', () => { render(); }));
 
 /* ============================================================
@@ -1421,30 +1468,51 @@ function renderPbb(r, klasifikasi) {
   
   const njopNetto = r.dasarSetelahTkp;
 
+  let rows = [
+    baris('Nomor Objek Pajak (NOP)', document.getElementById('pbb_nop').value || '-'),
+    baris('NJOP Total', formatRupiah(r.Ntotal)),
+    baris('NJOPTKP', '- ' + formatRupiah(r.NJOPTKP)),
+    baris('NJOP Netto (Sisa NJOP)', formatRupiah(njopNetto)),
+    baris('Dasar Pengenaan NJKP (' + r.alphaPersen + '%)', formatRupiah(r.dpp)),
+    baris('Tarif Efektif', r.tarifPersen + '%'),
+    baris('Pokok PBB Terutang', formatRupiah(r.pokokFinal))
+  ];
+
+  let bodyHtml = `
+    <div class="summary-line"><span>Nomor Objek Pajak (NOP)</span><span class="value">${document.getElementById('pbb_nop').value || '-'}</span></div>
+    <div class="summary-line"><span>NJOP Total</span><span class="value">${formatRupiah(r.Ntotal)}</span></div>
+    <div class="summary-line warn"><span>Pengurang (NJOPTKP)</span><span class="value">- ${formatRupiah(r.NJOPTKP)}</span></div>
+    <div class="summary-line"><span>NJOP Netto (Untuk Penghitungan PBB)</span><span class="value">${formatRupiah(njopNetto)}</span></div>
+    <div class="summary-line"><span>Dasar Pengenaan NJKP (${r.alphaPersen}%)</span><span class="value">${formatRupiah(r.dpp)}</span></div>
+    <div class="summary-line"><span>Tarif Efektif</span><span class="value">${r.tarifPersen}%</span></div>
+    <div class="summary-line"><span>Pokok PBB Terutang</span><span class="value">${formatRupiah(r.pokokFinal)}</span></div>
+  `;
+
+  if (r.diskonPersen > 0) {
+    rows.push(baris('Fasilitas Keringanan / Diskon', r.diskonPersen + '%'));
+    bodyHtml += `<div class="summary-line warn"><span>Fasilitas Keringanan / Diskon</span><span class="value">Diskon ${r.diskonPersen}%</span></div>`;
+  }
+
+  if (r.bulanTerlambat > 0) {
+    rows.push(baris('Sanksi Administrasi Denda (' + r.bulanTerlambat + ' Bulan)', formatRupiah(r.nilaiDenda)));
+    bodyHtml += `<div class="summary-line warn"><span>Sanksi Denda (${r.bulanTerlambat} Bln x 1%)</span><span class="value">+ ${formatRupiah(r.nilaiDenda)}</span></div>`;
+  }
+
+  rows.push(baris('TOTAL PBB-P2 TERUTANG / TAHUN', formatRupiah(r.pajakTerutang), true));
+
   currentPrintPayload = {
     jenisPajak: 'PBB-P2 - ' + label,
     TerutangVal: r.pajakTerutang,
-    dataCetak: [
-      baris('NJOP Total', formatRupiah(r.Ntotal)),
-      baris('NJOPTKP', '- ' + formatRupiah(r.NJOPTKP)),
-      baris('NJOP Netto (Sisa NJOP)', formatRupiah(njopNetto)),
-      baris('Dasar Pengenaan NJKP (' + r.alphaPersen + '%)', formatRupiah(r.dpp)),
-      baris('Tarif Efektif', r.tarifPersen + '%'),
-      baris('PBB-P2 TERUTANG / TAHUN', formatRupiah(r.pajakTerutang), true)
-    ]
+    dataCetak: rows
   };
 
   document.getElementById('result-slot').innerHTML = `
     <div class="summary-card">
       <div class="summary-header"><span>ESTIMASI PBB-P2 &mdash; ${label.toUpperCase()}</span><span class="tag">PERWALI NO. 20/2024</span></div>
       <div class="summary-body">
-        <div class="summary-line"><span>NJOP Total</span><span class="value">${formatRupiah(r.Ntotal)}</span></div>
-        <div class="summary-line warn"><span>Pengurang (NJOPTKP)</span><span class="value">- ${formatRupiah(r.NJOPTKP)}</span></div>
-        <div class="summary-line"><span>NJOP Netto (Untuk Penghitungan PBB)</span><span class="value">${formatRupiah(njopNetto)}</span></div>
-        <div class="summary-line"><span>Dasar Pengenaan NJKP (${r.alphaPersen}%)</span><span class="value">${formatRupiah(r.dpp)}</span></div>
-        <div class="summary-line strong"><span>Tarif Efektif</span><span class="value">${r.tarifPersen}%</span></div>
+        ${bodyHtml}
         <div class="summary-total">
-          <span class="label">PBB-P2 Terutang / Tahun</span>
+          <span class="label">Total PBB-P2 Terutang / Tahun</span>
           <span class="value" id="animated-total-val">${formatRupiah(0)}</span>
         </div>
       </div>
@@ -1683,7 +1751,9 @@ function render() {
     const checkedRadio = document.querySelector('input[name="pbb_jenis"]:checked');
     const klasifikasi = checkedRadio ? checkedRadio.value : 'none';
     const alphaPersen = 70;
-    renderPbb(hitungPBBP2Batu({ njopTanah, njopBangunan: njopBgn, alphaPersen, klasifikasi }), klasifikasi);
+    const relief = document.getElementById('pbb_relief').value;
+    const delay = document.getElementById('pbb_delay').value;
+    renderPbb(hitungPBBP2Batu({ njopTanah, njopBangunan: njopBgn, alphaPersen, klasifikasi, relief, delay }), klasifikasi);
 
   } else if (activeTab === 'bphtb') {
     const npop = parseInput(document.getElementById('b_npop').value);
@@ -1744,7 +1814,7 @@ document.getElementById('pj_dpp').addEventListener('input', render);
 /* =================================================================
    LOCAL STORAGE & QUERY-PARAM STATE PERSISTENCE
    ================================================================= */
-const FORM_IDS = ['pbb_njop_tanah','pbb_njop_bgn','b_npop','b_njop','b_jenis',
+const FORM_IDS = ['pbb_nop','pbb_njop_tanah','pbb_njop_bgn','pbb_relief','pbb_delay','b_npop','b_njop','b_jenis',
   'pj_kategori','pj_omzet','pj_dpp','rk_penyelenggara','rk_nilai_kontrak','rk_sifat',
   'rk_jenis_permanen','rk_kelas_jalan','rk_vol_permanen','rk_jenis_insidentil',
   'rk_vol_insidentil','pat_mode','pat_kelompok','pat_volume','pat_nilai_manual'];
