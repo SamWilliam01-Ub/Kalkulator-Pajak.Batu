@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TaxCalc Kota Batu — AI OCR & Export Integrated</title>
+<title>TaxCalc Kota Batu</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
@@ -11,10 +11,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<!-- FITUR 2: TESSERACT OCR SCANNER -->
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-
-<!-- FITUR 3: SHEETJS EXCEL EXPORTER -->
+<!-- FITUR 2: SHEETJS EXCEL EXPORTER -->
 <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -140,13 +137,6 @@
   }
   .section-title::before { content: ""; display: block; width: 5px; height: 16px; background: var(--primary); border-radius: 4px; }
   .legal-ref { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-left: auto; text-transform: none; }
-
-  .ocr-zone {
-    border: 2px dashed var(--primary); background: #F9FAFB;
-    border-radius: var(--radius-md); padding: 18px; text-align: center;
-    cursor: pointer; margin-bottom: 20px; transition: all 0.2s ease;
-  }
-  .ocr-zone:hover { background: #F3F4F6; }
 
   #map { height: 260px; width: 100%; border-radius: var(--radius-md); border: 1px solid var(--input-border); margin-bottom: 16px; z-index: 10; }
 
@@ -316,15 +306,6 @@
       <div class="card-header-desc">
         <h2>Pajak Bumi dan Bangunan (PBB-P2)</h2>
         <span class="hint">Pajak atas bumi dan/atau bangunan yang dimiliki, dikuasai, dan/atau dimanfaatkan.</span>
-      </div>
-
-      <!-- OCR SPPT UPLOADER (ENHANCED ENGINE) -->
-      <div class="ocr-zone" onclick="document.getElementById('pbb_ocr_input').click()">
-        <input type="file" id="pbb_ocr_input" accept="image/*" style="display:none;" onchange="processSPPTOCR(event)">
-        <div id="ocr_label">📷 <b>Scan Foto Kertas SPPT PBB (Auto-Fill AI Engine)</b><br><span style="font-size:12px; color:var(--text-muted)">Klik untuk upload foto lembar SPPT PBB &amp; ekstrak NJOP otomatis</span></div>
-        <div id="ocr_progress" class="hidden" style="margin-top:6px; font-size:13px; color:var(--primary); font-weight:700;">
-          Pre-processing Image &amp; OCR Engine Active... <span id="ocr_percent">0%</span>
-        </div>
       </div>
 
       <div class="section-title">Data NJOP Objek <span class="legal-ref">Perda Pasal 7&ndash;9 | Perwali Pasal 25</span></div>
@@ -597,178 +578,6 @@ function speakResultText(textToSpeak) {
 }
 
 /* ============================================================
-   ROBUST GLOBAL & LINE PARSER SPPT KOTA BATU
-   ============================================================ */
-function parseSPPTKotaBatu(rawText) {
-  let normalized = rawText
-    .replace(/[zZ]/g, '2')
-    .replace(/[iIl|]/g, '1')
-    .replace(/[oOGDQ]/g, '0')
-    .replace(/[S]/g, '5')
-    .replace(/[B]/g, '8');
-
-  const allMatches = normalized.match(/\b\d{1,3}(?:[.,\s]\d{3})+\b|\b\d{7,9}\b/g) || [];
-  
-  const validNumbers = allMatches
-    .map(m => parseInt(m.replace(/[.,\s]/g, ''), 10))
-    .filter(n => n >= 10000000 && n <= 999999999);
-
-  const uniqueNums = Array.from(new Set(validNumbers)).sort((a, b) => b - a);
-
-  let njopBumi = 0;
-  let njopBgn = 0;
-
-  if (uniqueNums.length >= 2) {
-    njopBumi = uniqueNums[0];
-    njopBgn = uniqueNums[1];
-  } else if (uniqueNums.length === 1) {
-    njopBumi = uniqueNums[0];
-  }
-
-  const totalNjop = njopBumi + njopBgn;
-  const njoptkp = 100000000;
-  const njopNetto = Math.max(0, totalNjop - njoptkp);
-  const njkp = Math.round(njopNetto * 0.7);
-
-  return {
-    totalNjop,
-    njoptkp,
-    njopNetto,
-    njkp,
-    pbbTerhutang: 32894,
-    pajakHarusDibayar: 32894,
-    njopBumi,
-    njopBgn,
-    isDigitCorrected: false
-  };
-}
-
-function preprocessImageForOCR(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-
-        const maxWidth = 1200;
-        const scale = Math.min(1, maxWidth / img.width);
-        canvas.width = img.width * scale;
-        canvas.height = img.height * scale;
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imgData.data;
-        const width = canvas.width;
-        const height = canvas.height;
-        const grayBuffer = new Uint8Array(width * height);
-
-        const thresh = 127;
-        for (let i = 0; i < data.length; i += 4) {
-          let gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-          let bin = gray < thresh ? 0 : 255;
-          grayBuffer[i / 4] = bin;
-        }
-
-        const dilatedBuffer = new Uint8Array(width * height);
-        dilatedBuffer.set(grayBuffer);
-
-        for (let y = 1; y < height - 1; y++) {
-          for (let x = 1; x < width - 1; x++) {
-            const idx = y * width + x;
-            if (grayBuffer[idx] === 0 || 
-                grayBuffer[idx - 1] === 0 || 
-                grayBuffer[idx + 1] === 0 || 
-                grayBuffer[idx - width] === 0 || 
-                grayBuffer[idx + width] === 0) {
-              dilatedBuffer[idx] = 0;
-            }
-          }
-        }
-
-        for (let i = 0; i < dilatedBuffer.length; i++) {
-          const val = dilatedBuffer[i];
-          const dataIdx = i * 4;
-          data[dataIdx] = val;
-          data[dataIdx + 1] = val;
-          data[dataIdx + 2] = val;
-        }
-
-        ctx.putImageData(imgData, 0, 0);
-        resolve(canvas);
-      };
-      img.onerror = reject;
-      img.src = e.target.result;
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-async function processSPPTOCR(event) {
-  const inputEl = event.target;
-  const file = inputEl.files[0];
-  if (!file) return;
-
-  const label = document.getElementById('ocr_label');
-  const progress = document.getElementById('ocr_progress');
-  const percentSpan = document.getElementById('ocr_percent');
-
-  label.classList.add('hidden');
-  progress.classList.remove('hidden');
-  percentSpan.innerText = '0%';
-
-  try {
-    percentSpan.innerText = 'Optimalisasi Kontras & Dilation...';
-    const processedCanvas = await preprocessImageForOCR(file);
-
-    percentSpan.innerText = 'Membaca Teks Dokumen...';
-    const worker = await Tesseract.createWorker('eng+ind', 1, {
-      logger: m => {
-        if (m.status === 'recognizing text' && m.progress) {
-          percentSpan.innerText = Math.round(m.progress * 100) + '%';
-        }
-      }
-    });
-
-    await worker.setParameters({
-      tessedit_pageseg_mode: '6',
-      tessedit_char_whitelist: '0123456789.,ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/ :-%'
-    });
-
-    const { data } = await worker.recognize(processedCanvas);
-    await worker.terminate();
-
-    const rawText = data.text ? data.text.trim() : '';
-    const parsedData = parseSPPTKotaBatu(rawText);
-
-    let found = false;
-    if (parsedData.njopBumi > 0) {
-      document.getElementById('pbb_njop_tanah').value = parsedData.njopBumi.toLocaleString('id-ID');
-      found = true;
-    }
-    if (parsedData.njopBgn > 0) {
-      document.getElementById('pbb_njop_bgn').value = parsedData.njopBgn.toLocaleString('id-ID');
-      found = true;
-    }
-
-    if (found) {
-      render();
-      alert(`Berhasil Memindai SPPT PBB Kota Batu!\n\n• NJOP Tanah (Bumi): ${formatRupiah(parsedData.njopBumi)}\n• NJOP Bangunan: ${formatRupiah(parsedData.njopBgn)}`);
-    } else {
-      alert('Teks terbaca namun nominal NJOP tidak ditemukan secara presisi. Silakan masukkan angka secara manual.');
-    }
-  } catch (err) {
-    alert('Terjadi kesalahan pemrosesan OCR: ' + err.message);
-  } finally {
-    label.classList.remove('hidden');
-    progress.classList.add('hidden');
-    inputEl.value = '';
-  }
-}
-
-/* ============================================================
    STREET LOOKUP & CATEGORIZATION DICTIONARY
    ============================================================ */
 const KOTA_BATU_STREETS = {
@@ -863,7 +672,7 @@ function initGISMap() {
 }
 
 /* ============================================================
-   SMART WEB SHARE API ENGINE (PC SAFE & CLIPBOARD AUTO-FALLBACK)
+   ULTRA-COMPACT URL HASH SHARE ENGINE (BASE64 PACKED & PC SAFE)
    ============================================================ */
 const SHORT_KEY_MAP = {
   activeTab: 't', pbb_njop_tanah: 'pt', pbb_njop_bgn: 'pb', pbb_jenis: 'pj', pbb_alpha: 'pa',
@@ -885,26 +694,31 @@ function shareSimul() {
   if (!rawState) return;
 
   const state = JSON.parse(rawState);
-  const params = new URLSearchParams();
+  const compactState = {};
 
   Object.keys(state).forEach(key => {
     const val = state[key];
     const shortKey = SHORT_KEY_MAP[key] || key;
     if (val && val !== '0' && val !== 'none' && val !== '') {
-      params.set(shortKey, parseInput(val) || val);
+      compactState[shortKey] = parseInput(val) || val;
     }
   });
 
-  const shareUrl = window.location.origin + window.location.pathname + '#' + params.toString();
+  const jsonStr = JSON.stringify(compactState);
+  const base64Hash = btoa(encodeURIComponent(jsonStr).replace(/%([0-9A-F]{2})/g, (match, p1) => String.fromCharCode('0x' + p1)));
+  const shareUrl = window.location.origin + window.location.pathname + '#' + base64Hash;
+
   const shareData = {
     title: 'Simulasi TaxCalc Kota Batu',
     text: 'Lihat draf kalkulasi pajak saya di TaxCalc:',
     url: shareUrl
   };
 
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const isDesktopPC = /Win|Mac|Linux/i.test(navigator.platform) || !/Android|iPhone|iPad/i.test(navigator.userAgent);
 
-  if (isMobile && navigator.share) {
+  if (isDesktopPC) {
+    salinKeClipboard(shareUrl);
+  } else if (navigator.share) {
     navigator.share(shareData).catch(() => {
       salinKeClipboard(shareUrl);
     });
@@ -916,7 +730,7 @@ function shareSimul() {
 function salinKeClipboard(text) {
   if (navigator.clipboard && window.isSecureContext) {
     navigator.clipboard.writeText(text).then(() => {
-      alert('Link simulasi berhasil disalin ke clipboard!');
+      alert('Link ringkas simulasi berhasil disalin ke clipboard!');
     }).catch(() => {
       prompt('Salin link simulasi ini secara manual:', text);
     });
@@ -1949,10 +1763,21 @@ function muatState() {
           state[fullKey] = val;
         });
       } else {
-        const decodedJson = decodeURIComponent(atob(hashStr));
-        state = JSON.parse(decodedJson);
+        try {
+          const jsonStr = decodeURIComponent(atob(hashStr).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+          const compactObj = JSON.parse(jsonStr);
+          state = {};
+          Object.keys(compactObj).forEach(shortKey => {
+            const fullKey = REVERSE_SHORT_KEY_MAP[shortKey] || shortKey;
+            state[fullKey] = compactObj[shortKey];
+          });
+        } catch (err) {
+          console.warn("Invalid hash format", err);
+        }
       }
-    } else {
+    }
+    
+    if (!state) {
       const raw = localStorage.getItem('pajakBatuDraft');
       if (raw) state = JSON.parse(raw);
     }
